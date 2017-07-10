@@ -146,42 +146,83 @@ bool Stencil::runOnFunction(Function &F) {
 	//	L->print(errs());
 	//}
 	
-	/*
+	
 	errs() << "Dumping loops:\n";
 	for(auto bb = F.begin(); bb!=F.end(); bb++){
       if(LI->isLoopHeader(&(*bb))){
          Loop *loop = LI->getLoopFor(&(*bb));
          loop->print(errs());
          
-         errs() << "Trip Count: " << SE->getSmallConstantTripCount(loop) << "\n";
-         errs() << "BackedgeTakenCount: "; 
-         SE->getBackedgeTakenCount(loop)->dump();
+        /// getSmallConstantTripCount - Returns the maximum trip count of this loop as a
+		/// normal unsigned value. Returns 0 if the trip count is unknown or not
+		/// constant. Will also return 0 if the maximum trip count is very large (>=
+		/// 2^32).
+		///
+		/// This "trip count" assumes that control exits via ExitingBlock. More
+		/// precisely, it is the number of times that control may reach ExitingBlock
+		/// before taking the branch. For loops with multiple exits, it may not be the
+		/// number times that the loop header executes because the loop may exit
+		/// prematurely via another branch.
          
+         errs() << "Trip Count: " << SE->getSmallConstantTripCount(loop) << "\n";
+         
+        /// getBackedgeTakenCount - If the specified loop has a predictable
+		/// backedge-taken count, return it, otherwise return a SCEVCouldNotCompute
+		/// object. The backedge-taken count is the number of times the loop header
+		/// will be branched to from within the loop. This is one less than the
+		/// trip count of the loop, since it doesn't count the first iteration,
+		/// when the header is branched to from outside the loop.
+		///
+		/// Note that it is not valid to call this method on a loop without a
+		/// loop-invariant backedge-taken count (see
+		/// hasLoopInvariantBackedgeTakenCount)t.
+        errs() << "BackedgeTakenCount: "; 
+         
+        const SCEV* backedge = SE->getBackedgeTakenCount(loop);
+        backedge->dump();;
+         
+        SE->getRange(backedge, ScalarEvolution::HINT_RANGE_SIGNED ).dump();
          //SE->getUnsignedRange(SE->getBackedgeTakenCount(loop)).dump();
+         
+         
+         /// getMaxBackedgeTakenCount - Similar to getBackedgeTakenCount, except
+		 /// return the least SCEV value that is known never to be less than the
+		 /// actual backedge taken count.
          errs() << "MaxBackedgeTakenCount: ";
          SE->getMaxBackedgeTakenCount(loop)->dump();
-         
          //SE->getUnsignedRange(SE->getMaxBackedgeTakenCount(loop)).dump();
-         auto *phiNode = loop->getCanonicalInductionVariable();
          
+         
+		/// Check to see if the loop has a canonical induction variable: an integer
+		/// recurrence that starts at 0 and increments by one each time through the
+		/// loop. If so, return the phi node that corresponds to it.
+		///
+		/// The IndVarSimplify pass transforms loops to have a canonical induction
+		/// variable.
+		///
+  
+         auto *phiNode = loop->getCanonicalInductionVariable();       
          errs() << "Ind-var: ";
          if(phiNode) phiNode->dump();
          else errs() << "Could not find canonical ind-var\n";
          
          //errs() << "Relaxing loop:\n";
          //performRelaxationInLoop(loop,bbCosts,instrBBs,instrBBSets,loopInfo,BFI);
+         
+         errs() << "Exit count: ";
+         SE->getExitCount(loop,loop->getUniqueExitBlock())->dump();
       }
    }
-   */    
+       
    
+   
+   // Searches for a Store instruction
+   // TODO move to inner loop verificaton
    Value *PtrOp;
    //Value *ValOp;
    Instruction *Ins;
    GetElementPtrInst *GEP;
    LoadInst *LD;
-    
-
-	// Searches for a Store instruction
 	
     for(inst_iterator I = inst_begin(F),E=inst_end(F); I!=E; ++I){
         if(isa<StoreInst>(*I)){
@@ -244,16 +285,16 @@ bool Stencil::runOnFunction(Function &F) {
      //Traverse map
      for(ArrayAccess::iterator it = this->arrayAcc.begin();it!=this->arrayAcc.end();++it){
         GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(it->first);
-        errs()<<"\nGEP node: "<<*it->first<<"\n";
+        //errs()<<"\nGEP node: "<<*it->first<<"\n";
         Value *root = dyn_cast<Value>(GEP->getOperand(1));
-        errs()<<"Root Expression: "<<*root<<"\n";
+        //errs()<<"Root Expression: "<<*root<<"\n";
         ArrayExpression exp = it->second;
         auto it2 = exp.find(root);
         if(it2 != exp.end()){
             //traverseArrayExpression(&exp,root);
             //showArrayExpression(&exp,root);
             //TODO include idxprom to parsing
-            parse_start(it2->second);
+            //parse_start(it2->second);
         }
 
         //errs()<<"Key "<<*(exp.begin()->first)<<" has "<<exp.count(root)<<"\n";

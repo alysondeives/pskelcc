@@ -26,15 +26,15 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-//#define NI 8192
-//#define NJ 8192
+#define NI 200
+#define NJ 300
 
 #define _PB_TSTEPS 100
 
 /* Can switch DATA_TYPE between float and double */
 typedef float DATA_TYPE;
-int NJ = 8192;
-int NI = 8192;
+//int NJ = 8192;
+//int NI = 8192;
 
 void jacobi2D(DATA_TYPE* A, DATA_TYPE* B) {
     int t, i, j;
@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
   DATA_TYPE* B;  
   DATA_TYPE* B_OMP;
 
-  NI=8192;
-  NJ=8192;
+  //NI=8192;
+  //NJ=8192;
 
   A = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
   B = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
