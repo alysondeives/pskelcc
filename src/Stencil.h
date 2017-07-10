@@ -1,0 +1,108 @@
+#include "llvm/Analysis/RegionInfo.h"
+#include "llvm/Analysis/AliasAnalysis.h"
+#include "llvm/Analysis/ScalarEvolutionExpressions.h"
+#include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/Analysis/LoopInfo.h"
+#include "llvm/Analysis/LoopPass.h"
+
+//#ifndef myutils
+//#define myutils
+//#include "../../dawncc/ArrayInference/recoverCode.h"
+//#include "../../dawncc/ScopeTree/ScopeTree.h"
+//#endif
+
+#include <vector>
+#include <map>
+
+using namespace llvm;
+
+
+class Stencil : public FunctionPass {
+
+  private:
+
+  //===---------------------------------------------------------------------===
+  //                              Data Structs
+  //===---------------------------------------------------------------------===
+  //The key value is the root instruction of a array access Expression  (Value*)
+  //The map value is a vector of the X key operands ( Value->getOperand(X) )
+  typedef std::multimap<Value*, Value*> ArrayExpression; 
+
+  //The key value is the pointer Operand of a GEP ( GEP->getOperandPointer() )
+  //The map value is the arrayExpression map
+  typedef std::map<Value*,ArrayExpression> ArrayAccess;
+ 
+  //===---------------------------------------------------------------------===
+
+  Value* getPointerOperand (Instruction *Ins);
+  void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
+  void populateArrayAccess (Value *Val);
+  void traverseArrayExpression( ArrayExpression *ArrayExp, Value *Val);
+  void showArrayExpression (ArrayExpression *ArrayExp, Value *Val);
+  bool containsOpCode (Value *Val, unsigned opCode);
+
+  bool matchInstruction (Value *Val, unsigned opCode);
+  void parse_start (Value *Val);
+  void parse_xoffset (Value *Val);
+  void parse_xoffset_add (Value *Val, int sign);
+  void parse_yoffset (Value *Val);
+  void parse_yoffset_add (Value *Val, int sign);
+  void parse_yoffset_mul (Value *Val);
+  void parse_yoffset_stride (Value *Val);
+ 
+  public:
+
+  //===---------------------------------------------------------------------===
+  //                              Data Structs
+  //===---------------------------------------------------------------------===
+
+  //The key value is the root instruction of the array access Expression  (Value*)
+  //The mapped values are the X key operands ( Value->getOperand(X) )
+  //typedef std::map<Value*,vector<Value*>> arrayExpression; 
+  //arrayExpression ArrayExp;
+
+  //The key value is the pointer Operand of a GEP ( GEP->getOperandPointer() )
+  //The 
+  //typedef std::multimap<Value*,arrayExpression> arrayAccess;
+  ArrayAccess arrayAcc;
+
+  //===---------------------------------------------------------------------===
+
+  static char ID;
+
+  Stencil() : FunctionPass(ID) {};
+  
+  // We need to insert the Instructions for each source file.
+  virtual bool runOnFunction(Function &F) override;
+
+  virtual void getAnalysisUsage(AnalysisUsage &AU) const {
+      /*
+      AU.addRequired<RegionInfoPass>();
+      AU.addRequired<AliasAnalysis>();
+      AU.addRequired<ScalarEvolution>();
+      AU.addRequiredTransitive<LoopInfoWrapperPass>();
+      AU.addRequired<PtrRangeAnalysis>();
+      AU.addRequired<RecoverNames>();
+      AU.addRequired<DominatorTreeWrapperPass>();
+      AU.addRequired<RegionReconstructor>(); 
+      AU.addRequired<ScopeTree>();
+      */
+      AU.addRequired<LoopInfoWrapperPass>();
+      AU.addRequired<ScalarEvolution>();
+      AU.setPreservesAll();
+  }
+
+  ScalarEvolution *SE;
+  LoopInfo *LI;
+  
+  /*RecoverNames *rn;
+  PtrRangeAnalysis *ptrRA;
+  RegionInfoPass *rp;
+  AliasAnalysis *aa;
+  DominatorTree *dt;
+  RegionReconstructor *rr;
+  ScopeTree *st;
+  */
+};
+
+//===------------------------ Stencil.h --------------------------===//

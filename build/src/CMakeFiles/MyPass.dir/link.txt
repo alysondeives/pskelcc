@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -Wall -fno-rtti  -shared -Wl,-soname,libMyPass.so -o libMyPass.so CMakeFiles/MyPass.dir/Stencil.cpp.o 
