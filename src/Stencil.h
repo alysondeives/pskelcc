@@ -7,6 +7,8 @@
 
 //#ifndef myutils
 //#define myutils
+#include "../../dawncc/PtrRangeAnalysis/PtrRangeAnalysis.h"
+
 //#include "../../dawncc/ArrayInference/recoverCode.h"
 //#include "../../dawncc/ScopeTree/ScopeTree.h"
 //#endif
@@ -15,6 +17,7 @@
 #include <map>
 
 using namespace llvm;
+using namespace lge;
 
 
 class Stencil : public FunctionPass {
@@ -76,17 +79,18 @@ class Stencil : public FunctionPass {
   virtual bool runOnFunction(Function &F) override;
 
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
-      /*
+      
       AU.addRequired<RegionInfoPass>();
       AU.addRequired<AliasAnalysis>();
-      AU.addRequired<ScalarEvolution>();
-      AU.addRequiredTransitive<LoopInfoWrapperPass>();
+      
+      //AU.addRequiredTransitive<LoopInfoWrapperPass>();
       AU.addRequired<PtrRangeAnalysis>();
-      AU.addRequired<RecoverNames>();
       AU.addRequired<DominatorTreeWrapperPass>();
-      AU.addRequired<RegionReconstructor>(); 
-      AU.addRequired<ScopeTree>();
-      */
+      //AU.addRequired<RecoverNames>();
+      
+      //AU.addRequired<RegionReconstructor>(); 
+      //AU.addRequired<ScopeTree>();
+      
       AU.addRequired<LoopInfoWrapperPass>();
       AU.addRequired<ScalarEvolution>();
       AU.setPreservesAll();
@@ -94,15 +98,15 @@ class Stencil : public FunctionPass {
 
   ScalarEvolution *SE;
   LoopInfo *LI;
-  
-  /*RecoverNames *rn;
   PtrRangeAnalysis *ptrRA;
-  RegionInfoPass *rp;
-  AliasAnalysis *aa;
-  DominatorTree *dt;
-  RegionReconstructor *rr;
-  ScopeTree *st;
-  */
+  RegionInfoPass *RP;
+  AliasAnalysis *AA;
+  DominatorTree *DT;
+  
+  //RecoverNames *rn;
+  //RegionReconstructor *rr;
+  //ScopeTree *st;
+  
 };
 
 //===------------------------ Stencil.h --------------------------===//

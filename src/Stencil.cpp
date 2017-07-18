@@ -37,7 +37,7 @@
 
 using namespace llvm;
 using namespace std;
-//using namespace lge;
+using namespace lge;
 
 Value* Stencil::getPointerOperand(Instruction *Inst) {
   if (LoadInst *Load = dyn_cast<LoadInst>(Inst))
@@ -118,18 +118,18 @@ void Stencil::populateArrayAccess (Value *Val) {
 
 bool Stencil::runOnFunction(Function &F) {
 	this->LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+    this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
 	this->SE = &getAnalysis<ScalarEvolution>();
 	
-    /*this->li = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-    this->rp = &getAnalysis<RegionInfoPass>();
-    this->aa = &getAnalysis<AliasAnalysis>();
-    this->se = &getAnalysis<ScalarEvolution>();
-    this->dt = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
+    this->RP = &getAnalysis<RegionInfoPass>();
+    this->AA = &getAnalysis<AliasAnalysis>();
     this->ptrRA = &getAnalysis<PtrRangeAnalysis>();
-    this->rn = &getAnalysis<RecoverNames>();
-    this->rr = &getAnalysis<RegionReconstructor>();
-    this->st = &getAnalysis<ScopeTree>();
-	*/
+
+    //this->rn = &getAnalysis<RecoverNames>();
+    //this->rr = &getAnalysis<RegionReconstructor>();
+    //this->st = &getAnalysis<ScopeTree>();
+	
+    
 	//ScalarEvolution &SE = getAnalysis<ScalarEvolutionWrapperPass>(F).getSE();
 	//int loopCounter = 0;
 	
@@ -145,74 +145,100 @@ bool Stencil::runOnFunction(Function &F) {
 	//	loopCounter++;
 	//	L->print(errs());
 	//}
-	
+       
 	
 	errs() << "Dumping loops:\n";
 	for(auto bb = F.begin(); bb!=F.end(); bb++){
-      if(LI->isLoopHeader(&(*bb))){
-         Loop *loop = LI->getLoopFor(&(*bb));
-         loop->print(errs());
-         
-        /// getSmallConstantTripCount - Returns the maximum trip count of this loop as a
-		/// normal unsigned value. Returns 0 if the trip count is unknown or not
-		/// constant. Will also return 0 if the maximum trip count is very large (>=
-		/// 2^32).
-		///
-		/// This "trip count" assumes that control exits via ExitingBlock. More
-		/// precisely, it is the number of times that control may reach ExitingBlock
-		/// before taking the branch. For loops with multiple exits, it may not be the
-		/// number times that the loop header executes because the loop may exit
-		/// prematurely via another branch.
-         
-         errs() << "Trip Count: " << SE->getSmallConstantTripCount(loop) << "\n";
-         
-        /// getBackedgeTakenCount - If the specified loop has a predictable
-		/// backedge-taken count, return it, otherwise return a SCEVCouldNotCompute
-		/// object. The backedge-taken count is the number of times the loop header
-		/// will be branched to from within the loop. This is one less than the
-		/// trip count of the loop, since it doesn't count the first iteration,
-		/// when the header is branched to from outside the loop.
-		///
-		/// Note that it is not valid to call this method on a loop without a
-		/// loop-invariant backedge-taken count (see
-		/// hasLoopInvariantBackedgeTakenCount)t.
-        errs() << "BackedgeTakenCount: "; 
-         
-        const SCEV* backedge = SE->getBackedgeTakenCount(loop);
-        backedge->dump();;
-         
-        SE->getRange(backedge, ScalarEvolution::HINT_RANGE_SIGNED ).dump();
-         //SE->getUnsignedRange(SE->getBackedgeTakenCount(loop)).dump();
-         
-         
-         /// getMaxBackedgeTakenCount - Similar to getBackedgeTakenCount, except
-		 /// return the least SCEV value that is known never to be less than the
-		 /// actual backedge taken count.
-         errs() << "MaxBackedgeTakenCount: ";
-         SE->getMaxBackedgeTakenCount(loop)->dump();
-         //SE->getUnsignedRange(SE->getMaxBackedgeTakenCount(loop)).dump();
-         
-         
-		/// Check to see if the loop has a canonical induction variable: an integer
-		/// recurrence that starts at 0 and increments by one each time through the
-		/// loop. If so, return the phi node that corresponds to it.
-		///
-		/// The IndVarSimplify pass transforms loops to have a canonical induction
-		/// variable.
-		///
-  
-         auto *phiNode = loop->getCanonicalInductionVariable();       
-         errs() << "Ind-var: ";
-         if(phiNode) phiNode->dump();
-         else errs() << "Could not find canonical ind-var\n";
-         
-         //errs() << "Relaxing loop:\n";
-         //performRelaxationInLoop(loop,bbCosts,instrBBs,instrBBSets,loopInfo,BFI);
-         
-         errs() << "Exit count: ";
-         SE->getExitCount(loop,loop->getUniqueExitBlock())->dump();
-      }
-   }
+        if(LI->isLoopHeader(&(*bb))){
+            Loop *loop = LI->getLoopFor(&(*bb));
+            loop->print(errs());
+             
+            /// getSmallConstantTripCount - Returns the maximum trip count of this loop as a
+            /// normal unsigned value. Returns 0 if the trip count is unknown or not
+            /// constant. Will also return 0 if the maximum trip count is very large (>=
+            /// 2^32).
+            ///
+            /// This "trip count" assumes that control exits via ExitingBlock. More
+            /// precisely, it is the number of times that control may reach ExitingBlock
+            /// before taking the branch. For loops with multiple exits, it may not be the
+            /// number times that the loop header executes because the loop may exit
+            /// prematurely via another branch.
+             
+             errs() << "Trip Count: " << SE->getSmallConstantTripCount(loop) << "\n";
+             
+            /// getBackedgeTakenCount - If the specified loop has a predictable
+            /// backedge-taken count, return it, otherwise return a SCEVCouldNotCompute
+            /// object. The backedge-taken count is the number of times the loop header
+            /// will be branched to from within the loop. This is one less than the
+            /// trip count of the loop, since it doesn't count the first iteration,
+            /// when the header is branched to from outside the loop.
+            ///
+            /// Note that it is not valid to call this method on a loop without a
+            /// loop-invariant backedge-taken count (see
+            /// hasLoopInvariantBackedgeTakenCount)t.
+            errs() << "BackedgeTakenCount: "; 
+             
+            const SCEV* backedge = SE->getBackedgeTakenCount(loop);
+            backedge->dump();;
+             
+            //SE->getRange(backedge, ScalarEvolution::HINT_RANGE_SIGNED ).dump();
+             //SE->getUnsignedRange(SE->getBackedgeTakenCount(loop)).dump();
+             
+             
+             /// getMaxBackedgeTakenCount - Similar to getBackedgeTakenCount, except
+             /// return the least SCEV value that is known never to be less than the
+             /// actual backedge taken count.
+             errs() << "MaxBackedgeTakenCount: ";
+             SE->getMaxBackedgeTakenCount(loop)->dump();
+             //SE->getUnsignedRange(SE->getMaxBackedgeTakenCount(loop)).dump();
+             
+             
+            /// Check to see if the loop has a canonical induction variable: an integer
+            /// recurrence that starts at 0 and increments by one each time through the
+            /// loop. If so, return the phi node that corresponds to it.
+            ///
+            /// The IndVarSimplify pass transforms loops to have a canonical induction
+            /// variable.
+            ///
+      
+             auto *phiNode = loop->getCanonicalInductionVariable();       
+             errs() << "Ind-var: ";
+             if(phiNode) phiNode->dump();
+             else errs() << "Could not find canonical ind-var\n";
+             
+             //errs() << "Relaxing loop:\n";
+             //performRelaxationInLoop(loop,bbCosts,instrBBs,instrBBSets,loopInfo,BFI);
+             
+             errs() << "Exit count: ";
+             SE->getExitCount(loop,loop->getUniqueExitBlock())->dump();
+
+            Region *r = RP->getRegionInfo().getRegionFor(loop->getLoopPreheader());
+            Module *M = loop->getLoopPredecessor()->getParent()->getParent();
+            const DataLayout DL = DataLayout(M);
+            if (!ptrRA->RegionsRangeData[r].HasFullSideEffectInfo){
+                errs()<<"Region has unkown side effect"<<"\n";
+            }
+            else{
+                Instruction *insertPt = r->getEntry()->getFirstNonPHI();
+                errs()<<"Region Non Phi Ins:" <<*insertPt<<"\n";
+                insertPt = r->getEntry()->getTerminator();
+                errs()<<"Region Terminator Ins:" <<*insertPt<<"\n";
+                SCEVRangeBuilder rangeBuilder(SE, DL, AA, LI, DT, r, insertPt);
+                std::map<Value *, std::pair<Value *, Value *> > pointerBounds;
+                for (auto& pair : ptrRA->RegionsRangeData[r].BasePtrsData) {
+                    Value *low = rangeBuilder.getULowerBound(pair.second.AccessFunctions);
+                    Value *up = rangeBuilder.getUUpperBound(pair.second.AccessFunctions);
+
+                    // Adds "sizeof(element)" to the upper bound of a pointer, so it gives  
+                    // us the address of the first byte after the memory region.
+                    up = rangeBuilder.stretchPtrUpperBound(pair.first, up);
+                    pointerBounds.insert(std::make_pair(pair.first, std::make_pair(low, up)));
+                    errs()<<"Low: "<<*low<<"\n";
+                    errs()<<"Up: "<<*up<<"\n";
+                }
+            }
+        }
+    } 
        
    
    
