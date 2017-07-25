@@ -39,7 +39,7 @@ class Stencil : public FunctionPass {
  
  
   struct StencilData {
-	int 		dimension_size;
+	int 		dimension;
 	Value* 		iteration_value;
 	PHINode* 	iteration_phinode;
 	Loop*		iteration_loop;
@@ -50,7 +50,9 @@ class Stencil : public FunctionPass {
 	Value*		input;
 	Value*		output;
 	
-	StencilData() {}
+	StencilData() {
+		dimension = 0;
+	}
   };
   //===---------------------------------------------------------------------===
 
@@ -73,7 +75,10 @@ class Stencil : public FunctionPass {
   void buildRange (Loop *loop);
   void getLoopDetails (Loop *loop);
   bool verifyIterationLoop (Loop *loop);
-  void verifyStore (BasicBlock* bb);
+  bool verifyComputationLoops (Loop *loop, unsigned int dimension);
+  bool verifySwapLoops (Loop *loop, unsigned int dimension);
+  void verifyStore (Loop* loop);
+  PHINode* getPHINode (Loop *loop);
   
   Value* visit(const SCEV *S);
   Value* visitAddExpr(const SCEVAddExpr *S);

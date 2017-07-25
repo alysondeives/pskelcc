@@ -122,51 +122,51 @@ Value* Stencil::visit(const SCEV *S) {
     switch (S->getSCEVType()) {
     case scConstant:
       //return visitConstant((const SCEVConstant *)S);
-      errs()<<"Constant: ";
-      S->dump();
+      //errs()<<"Constant: ";
+      //S->dump();
     case scTruncate:
       //return visitTruncateExpr((const SCEVTruncateExpr *)S);
-      errs()<<"TruncateExpr: "<<"\n";
-      S->dump();
+      //errs()<<"TruncateExpr: "<<"\n";
+      //S->dump();
     case scZeroExtend:
       //return visitZeroExtendExpr((const SCEVZeroExtendExpr *)S);
-      errs()<<"ZeroExtendExpr: "<<"\n";
-      S->dump();
+      //errs()<<"ZeroExtendExpr: "<<"\n";
+      //S->dump();
     case scSignExtend:
       //return visitSignExtendExpr((const SCEVSignExtendExpr *)S);
-      errs()<<"SignExtendExpr"<<"\n";
-      S->dump();
+      //errs()<<"SignExtendExpr"<<"\n";
+      //S->dump();
     case scAddExpr:
-	  errs()<<"AddExpr: ";
-	  S->dump();
+	  //errs()<<"AddExpr: ";
+	  //S->dump();
       return visitAddExpr((const SCEVAddExpr *)S);
     case scMulExpr:
       //return visitMulExpr((const SCEVMulExpr *)S);
-      errs()<<"MulExpr: ";
-      S->dump();
+      //errs()<<"MulExpr: ";
+      //S->dump();
     case scUDivExpr:
       //return visitUDivExpr((const SCEVUDivExpr *)S);
-      errs()<<"ZeroUDivExpr: ";
-      S->dump();
+      //errs()<<"ZeroUDivExpr: ";
+      //S->dump();
     case scAddRecExpr:
       //return visitAddRecExpr((const SCEVAddRecExpr *));
-      errs()<<"AddRecExpr: ";
-      S->dump();
+      //errs()<<"AddRecExpr: ";
+      //S->dump();
     case scSMaxExpr:
-      errs()<<"SMaxExpr: ";
-      S->dump();
+      //errs()<<"SMaxExpr: ";
+      //S->dump();
       return visitSMaxExpr((const SCEVSMaxExpr *)S);
     case scUMaxExpr:
-      errs()<<"UMaxExpr: ";
-      S->dump();
+      //errs()<<"UMaxExpr: ";
+      //S->dump();
       return visitUMaxExpr((const SCEVUMaxExpr *)S);
     case scUnknown:
-	  errs()<<"Unknown: ";
-	  S->dump();
+	  //errs()<<"Unknown: ";
+	  //S->dump();
       return visitUnknown((const SCEVUnknown *)S);
     case scCouldNotCompute:
-      errs()<<"CouldNotCompute: "<<"\n";
-      S->dump();
+      //errs()<<"CouldNotCompute: "<<"\n";
+      //S->dump();
       //return nullptr;
     default:
       llvm_unreachable("Unknown SCEV type!");
@@ -183,35 +183,34 @@ Value* Stencil::visitAddExpr(const SCEVAddExpr *S){
 	//errs()<<"AddExpr:"<<"\n";
 	//S->dump();
 	//const SCEVAddExpr *S1;
-	errs()<<"Operands: "<<S->getNumOperands()<<"\n";
+	//errs()<<"Operands: "<<S->getNumOperands()<<"\n";
 	for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
-		errs()<<"Operand "<<I<<": ";
-		S->getOperand(I)->dump();
+		//errs()<<"Operand "<<I<<": ";
+		//S->getOperand(I)->dump();
 		if(!(isa<SCEVConstant>(S->getOperand(I))))
 			return visit(S->getOperand(I));
 	}
 }
 
 Value* Stencil::visitUMaxExpr(const SCEVUMaxExpr *S){
-	errs()<<"Operands: "<<S->getNumOperands()<<"\n";
+	//errs()<<"Operands: "<<S->getNumOperands()<<"\n";
 	for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
-		errs()<<"Operand "<<I<<": ";
-		S->getOperand(I)->dump();
+		//errs()<<"Operand "<<I<<": ";
+		//S->getOperand(I)->dump();
 		if(!(isa<SCEVConstant>(S->getOperand(I))))
 			return visit(S->getOperand(I));
 	}
 }
 
 Value* Stencil::visitSMaxExpr(const SCEVSMaxExpr *S){
-	errs()<<"Operands: "<<S->getNumOperands()<<"\n";
+	//errs()<<"Operands: "<<S->getNumOperands()<<"\n";
 	for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
-		errs()<<"Operand "<<I<<": ";
-		S->getOperand(I)->dump();
+		//errs()<<"Operand "<<I<<": ";
+		//S->getOperand(I)->dump();
 		if(!(isa<SCEVConstant>(S->getOperand(I))))
 			return visit(S->getOperand(I));
 	}
 }
-
 
 void Stencil::buildRange(Loop *loop){
 	Region *r = RP->getRegionInfo().getRegionFor(loop->getLoopPreheader());        
@@ -342,106 +341,152 @@ bool Stencil::verifyIterationLoop(Loop *loop){
 	return false;
 }
 
-void Stencil::verifyStore(BasicBlock* bb){
-	// Searches for a Store instruction
-	// TODO move to inner loop verificaton
+bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension){
+	const SCEV* backedge = SE->getBackedgeTakenCount(loop);
+	Value* dimension_value = visit(backedge);
+	StencilInfo.dimension++;
+	StencilInfo.dimension_value.push_back(dimension_value);
+	PHINode* phi = getPHINode(loop);
+	
+	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Phinode: "<<*phi<<"\n";
+	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Bound: "<<*dimension_value<<"\n";
+	
+	vector<Loop*> subLoops = loop->getSubLoops();
+	
+	if(subLoops.empty()) {
+		errs()<<"Subloop is empty\n";
+		verifyStore(loop);
+	}
+	else {
+		Loop::iterator j, f;
+		for (j = subLoops.begin(), f = subLoops.end(); j != f; ++j) {
+			verifyComputationLoops(*j, dimension + 1);
+		}
+	}
+	return true;
+}
+
+void Stencil::verifyStore(Loop *loop){
    Value *PtrOp;
    //Value *ValOp;
    Instruction *Ins;
    GetElementPtrInst *GEP;
    LoadInst *LD;
 	
-   //for(inst_iterator I = inst_begin(F),E=inst_end(F); I!=E; ++I){
-   for(BasicBlock::iterator I = bb->begin(), E = bb->end(); I != E; ++I){
-        if(isa<StoreInst>(*I)){
-            Ins = dyn_cast<Instruction>(&*I);
-            errs() << "Store Instruction: "<< *Ins << "\n";
-            
-            // Get base pointer of store instruction operand
-            PtrOp = getPointerOperand(Ins);
-            while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
-                if((LD = dyn_cast<LoadInst>(PtrOp)))
-                    PtrOp = LD->getPointerOperand();
-                if((GEP = dyn_cast<GetElementPtrInst>(PtrOp)))
-                    PtrOp = GEP->getPointerOperand();
-                //errs()<<"Passou "<<"\n";
-            }
-            errs() << "Store Base pointer: "<<*PtrOp << "\n"; //O que fazer com esse PtrOp?
-            errs() << "GEP: "<<*GEP<<"\n";
-            // Navigate through store instruction val
-            StoreInst *Str = dyn_cast<StoreInst>(Ins);
-            //ValOp = Str->getValueOperand();
-            //errs() << "Store Val: "<< *ValOp << "\n";
-            //errs() << "Num Operands: "<< dyn_cast<Instruction>(*ValOp)->getNumOperands()<<"\n";
-            //Ins = dyn_cast<Instruction>(ValOp);
-            //errs() << "Store Ins: "<< *Ins << "\n";
-           
-            //Populate map with memory access of the store
-            populateArrayAccess(Str->getValueOperand());   //Saved values
-            populateArrayAccess(Str->getPointerOperand()); 
-           
+   for(Loop::block_iterator bb = loop->block_begin();bb!=loop->block_end(); ++bb){
+	   for(BasicBlock::iterator I = (*bb)->begin(), E = (*bb)->end(); I != E; ++I){
+			if(isa<StoreInst>(*I)){
+				Ins = dyn_cast<Instruction>(&*I);
+				errs() << "Store Instruction: "<< *Ins << "\n";
+				
+				// Get base pointer of store instruction operand
+				PtrOp = getPointerOperand(Ins);
+				while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
+					if((LD = dyn_cast<LoadInst>(PtrOp)))
+						PtrOp = LD->getPointerOperand();
+					if((GEP = dyn_cast<GetElementPtrInst>(PtrOp)))
+						PtrOp = GEP->getPointerOperand();
+					//errs()<<"Passou "<<"\n";
+				}
+				errs() << "Store Base pointer: "<<*PtrOp << "\n"; //O que fazer com esse PtrOp?
+				errs() << "GEP: "<<*GEP<<"\n";
+				// Navigate through store instruction val
+				StoreInst *Str = dyn_cast<StoreInst>(Ins);
+				//ValOp = Str->getValueOperand();
+				//errs() << "Store Val: "<< *ValOp << "\n";
+				//errs() << "Num Operands: "<< dyn_cast<Instruction>(*ValOp)->getNumOperands()<<"\n";
+				//Ins = dyn_cast<Instruction>(ValOp);
+				//errs() << "Store Ins: "<< *Ins << "\n";
+			   
+				//Populate map with memory access of the store
+				populateArrayAccess(Str->getValueOperand());   //Saved values
+				populateArrayAccess(Str->getPointerOperand()); 
+			   
 
- 
-            //errs() << "Store Ins Operand: "<< *Ins->getOperand(1)<<"\n";
-            //for(use_iterator op = ValOp->use_begin(), e = ValOp->use_end(); op != e; ++op){
-            //    errs() <<"Use it: "<<*op<<"\n";
-            //}
-            
-            //
-            //int op1;
-            //std::string str1,str2;
-            //str1 = RC.getAccessString(PtrOp,"", &op1, &DT);
+	 
+				//errs() << "Store Ins Operand: "<< *Ins->getOperand(1)<<"\n";
+				//for(use_iterator op = ValOp->use_begin(), e = ValOp->use_end(); op != e; ++op){
+				//    errs() <<"Use it: "<<*op<<"\n";
+				//}
+				
+				//
+				//int op1;
+				//std::string str1,str2;
+				//str1 = RC.getAccessString(PtrOp,"", &op1, &DT);
 
-            //errs() << "name: "<<str1<<" int: "<<op1<< "\n";
-             
-            //str2 = RC.getAccessString(GEP->getOperand(1),str1, &op1, &DT);
-            //errs() << "name: "<<str2<<" int: "<<op1<< "\n";
-            
+				//errs() << "name: "<<str1<<" int: "<<op1<< "\n";
+				 
+				//str2 = RC.getAccessString(GEP->getOperand(1),str1, &op1, &DT);
+				//errs() << "name: "<<str2<<" int: "<<op1<< "\n";
+				
 
-            //while(!(isa<PHINode>(*Ins))){
-                ////errs() <<"ins: "<<*ValOp<<"\n";
-                ////ValOp = ValOp->getOperand(0);
-                //Ins = dyn_cast<Instruction>(ValOp);
-                //errs()<<"Ins: "<<*Ins<<"\n";
-                //ValOp = Ins->getOperand(0);
-            //}
-           
-                
-        }
-    }
+				//while(!(isa<PHINode>(*Ins))){
+					////errs() <<"ins: "<<*ValOp<<"\n";
+					////ValOp = ValOp->getOperand(0);
+					//Ins = dyn_cast<Instruction>(ValOp);
+					//errs()<<"Ins: "<<*Ins<<"\n";
+					//ValOp = Ins->getOperand(0);
+				//}
+			   
+					
+			}
+		}
 
-     //Traverse map
-     for(ArrayAccess::iterator it = this->arrayAcc.begin();it!=this->arrayAcc.end();++it){
-        GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(it->first);
-        //errs()<<"\nGEP node: "<<*it->first<<"\n";
-        Value *root = dyn_cast<Value>(GEP->getOperand(1));
-        //errs()<<"Root Expression: "<<*root<<"\n";
-        ArrayExpression exp = it->second;
-        auto it2 = exp.find(root);
-        if(it2 != exp.end()){
-            //traverseArrayExpression(&exp,root);
-            //showArrayExpression(&exp,root);
-            //TODO include idxprom to parsing
-            //parse_start(it2->second);
-        }
+		 //Traverse map
+		 for(ArrayAccess::iterator it = this->arrayAcc.begin();it!=this->arrayAcc.end();++it){
+			GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(it->first);
+			//errs()<<"\nGEP node: "<<*it->first<<"\n";
+			Value *root = dyn_cast<Value>(GEP->getOperand(1));
+			//errs()<<"Root Expression: "<<*root<<"\n";
+			ArrayExpression exp = it->second;
+			auto it2 = exp.find(root);
+			if(it2 != exp.end()){
+				//traverseArrayExpression(&exp,root);
+				//showArrayExpression(&exp,root);
+				//TODO include idxprom to parsing
+				//parse_start(it2->second);
+			}
 
-        //errs()<<"Key "<<*(exp.begin()->first)<<" has "<<exp.count(root)<<"\n";
+			//errs()<<"Key "<<*(exp.begin()->first)<<" has "<<exp.count(root)<<"\n";
 
-        
-        
-        //for(ArrayExpression::iterator it2 = exp.begin(); it2 != exp.end();++it2){
-            
-            //errs()<<"Key: "<<*it2->first<<"\t\t"<<"Map: "<<*it2->second<<"\n";
-            ////if(it2->first->getName().equals(root->getName())){
-            ////    errs()<<"equals "<<i<<"\n";
-            ////    traverseArrayExpression(&exp,it2->first);
-                ////errs()<<"Find: "<<*(exp.find(it2->second)->first)<<"\n";
-            ////} 
-            ////i++;
-         //}
-        
-    }
+			
+			
+			//for(ArrayExpression::iterator it2 = exp.begin(); it2 != exp.end();++it2){
+				
+				//errs()<<"Key: "<<*it2->first<<"\t\t"<<"Map: "<<*it2->second<<"\n";
+				////if(it2->first->getName().equals(root->getName())){
+				////    errs()<<"equals "<<i<<"\n";
+				////    traverseArrayExpression(&exp,it2->first);
+					////errs()<<"Find: "<<*(exp.find(it2->second)->first)<<"\n";
+				////} 
+				////i++;
+			 //}
+			
+		}
+		
+	}
 	
+}
+
+bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension){
+	StencilInfo.dimension_value.push_back(visit(SE->getBackedgeTakenCount(loop)));
+	
+	vector<Loop*> subLoops = loop->getSubLoops();
+    Loop::iterator j, f;
+    for (j = subLoops.begin(), f = subLoops.end(); j != f; ++j) {
+        verifySwapLoops(*j, dimension + 1);
+    }
+	return true;
+}
+
+PHINode* Stencil::getPHINode(Loop* loop){
+	BasicBlock* bb = loop->getHeader();
+	for(auto i = bb->begin(), e = bb->end(); i!=e;++i){
+		if(isa<PHINode>(*i)){
+			PHINode* phi = dyn_cast<PHINode>(&(*i));
+			return phi;
+		}
+	} 
 }
 
 
@@ -469,14 +514,17 @@ bool Stencil::runOnFunction(Function &F) {
     }
     errs() << "\n";
     
+    /*
     errs() << "Dumping loops:\n";
 	for(auto bb = F.begin(); bb!=F.end(); bb++){
         if(LI->isLoopHeader(&(*bb))){
             Loop *loop = LI->getLoopFor(&(*bb));
             errs()<<"\nLOOP:\n";
             loop->print(errs());
+            getLoopDetails(loop);
 		}
 	}
+	*/
 	
      int loopCount = 0;
      for (LoopInfo::iterator i = LI->begin(), e = LI->end(); i != e; ++i) {
@@ -490,10 +538,27 @@ bool Stencil::runOnFunction(Function &F) {
 	 else{
 		//outermost loop
 		Loop *it_loop = LI->begin()[0];
+		if(it_loop->isAnnotatedParallel()){
+			errs()<<"Outermost loop is Annotated Parallel\n";
+		}
 		if(!verifyIterationLoop(it_loop))
 			return false;
 		
 		//computation loops
+		vector<Loop*> subLoops = it_loop->getSubLoops();
+		
+		if(subLoops.size() != 2){
+			errs()<<"ERROR! Expected 2 subloops for outermost loop\n";
+			return false;
+		}
+		else{
+			if(!verifyComputationLoops(subLoops[0],1))
+				return false;
+			
+			if(!verifySwapLoops(subLoops[1],1))
+				return false;
+		}
+		
 			
 	}
     return(true);
