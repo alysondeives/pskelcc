@@ -5,6 +5,8 @@
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/LoopPass.h"
 
+#include "llvm/ADT/SmallVector.h"
+
 //#ifndef myutils
 //#define myutils
 #include "../../dawncc/PtrRangeAnalysis/PtrRangeAnalysis.h"
@@ -35,6 +37,21 @@ class Stencil : public FunctionPass {
   //The map value is the arrayExpression map
   typedef std::map<Value*,ArrayExpression> ArrayAccess;
  
+ 
+  struct StencilData {
+	int 		dimension_size;
+	Value* 		iteration_value;
+	PHINode* 	iteration_phinode;
+	Loop*		iteration_loop;
+	SmallVector<Value*,3> 		dimension_value;
+	SmallVector<PHINode*,3> 	dimension_phinode;
+	SmallVector<Loop*,3>		dimension_loops;
+	int 		num_neighbors;
+	Value*		input;
+	Value*		output;
+	
+	StencilData() {}
+  };
   //===---------------------------------------------------------------------===
 
   Value* getPointerOperand (Instruction *Ins);
@@ -52,6 +69,20 @@ class Stencil : public FunctionPass {
   void parse_yoffset_add (Value *Val, int sign);
   void parse_yoffset_mul (Value *Val);
   void parse_yoffset_stride (Value *Val);
+  
+  void buildRange (Loop *loop);
+  void getLoopDetails (Loop *loop);
+  bool verifyIterationLoop (Loop *loop);
+  void verifyStore (BasicBlock* bb);
+  
+  Value* visit(const SCEV *S);
+  Value* visitAddExpr(const SCEVAddExpr *S);
+  Value* visitSMaxExpr(const SCEVSMaxExpr *S);
+  Value* visitUMaxExpr(const SCEVUMaxExpr *S);
+  Value* visitUnknown(const SCEVUnknown *S);
+  
+  
+  
  
   public:
 
@@ -68,6 +99,7 @@ class Stencil : public FunctionPass {
   //The 
   //typedef std::multimap<Value*,arrayExpression> arrayAccess;
   ArrayAccess arrayAcc;
+  StencilData StencilInfo;
 
   //===---------------------------------------------------------------------===
 
