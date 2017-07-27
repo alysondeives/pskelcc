@@ -33,11 +33,26 @@ class Stencil : public FunctionPass {
   //The map value is a vector of the X key operands ( Value->getOperand(X) )
   typedef std::multimap<Value*, Value*> ArrayExpression; 
 
-  //The key value is the pointer Operand of a GEP ( GEP->getOperandPointer() )
+  //The key value is the load instruction
   //The map value is the arrayExpression map
   typedef std::map<Value*,ArrayExpression> ArrayAccess;
  
- 
+  //The key value is the array base pointer
+  //The mapped values are each arrayAccess from this base pointer
+  typedef std::multimap<Value*, ArrayAccess> BasePointers;
+  
+  struct Neighbor2D {
+	  const SCEV* scev_exp;
+	  Value*   basePtr;
+	  PHINode* phinode_x;
+	  PHINode* phinode_y;
+	  int offset_x;
+	  int offset_y;
+	  Value* stride_x;
+	  
+	  Neighbor2D() {}
+  };
+  
   struct StencilData {
 	int 		dimension;
 	Value* 		iteration_value;
@@ -49,6 +64,7 @@ class Stencil : public FunctionPass {
 	int 		num_neighbors;
 	Value*		input;
 	Value*		output;
+	std::vector<Neighbor2D> neighbors;
 	
 	StencilData() {
 		dimension = 0;
@@ -61,24 +77,29 @@ class Stencil : public FunctionPass {
   void populateArrayAccess (Value *Val);
   void traverseArrayExpression( ArrayExpression *ArrayExp, Value *Val);
   void showArrayExpression (ArrayExpression *ArrayExp, Value *Val);
+  void showArrayAccess();
   bool containsOpCode (Value *Val, unsigned opCode);
 
   bool matchInstruction (Value *Val, unsigned opCode);
-  void parse_start (Value *Val);
-  void parse_xoffset (Value *Val);
-  void parse_xoffset_add (Value *Val, int sign);
-  void parse_yoffset (Value *Val);
-  void parse_yoffset_add (Value *Val, int sign);
-  void parse_yoffset_mul (Value *Val);
-  void parse_yoffset_stride (Value *Val);
+  bool parse_load (Value *Val, Neighbor2D *neighbor);
+  bool parse_gep (Value *Val, Neighbor2D *neighbor);
+  bool parse_idxprom (Value *Val, Neighbor2D *neighbor);
+  bool parse_start (Value *Val, Neighbor2D *neighbor);
+  bool parse_xoffset (Value *Val, Neighbor2D *neighbor);
+  bool parse_xoffset_add (Value *Val, int sign, Neighbor2D *neighbor);
+  bool parse_yoffset (Value *Val, Neighbor2D *neighbor);
+  bool parse_yoffset_add (Value *Val, int sign, Neighbor2D *neighbor);
+  bool parse_yoffset_mul (Value *Val, Neighbor2D *neighbor);
+  bool parse_yoffset_stride (Value *Val, Neighbor2D *neighbor);
   
   void buildRange (Loop *loop);
   void getLoopDetails (Loop *loop);
   bool verifyIterationLoop (Loop *loop);
   bool verifyComputationLoops (Loop *loop, unsigned int dimension);
   bool verifySwapLoops (Loop *loop, unsigned int dimension);
-  void verifyStore (Loop* loop);
+  bool verifyStore (Loop* loop);
   PHINode* getPHINode (Loop *loop);
+  bool matchStencilNeighborhood(Neighbor2D *str_neighbor);
   
   Value* visit(const SCEV *S);
   Value* visitAddExpr(const SCEVAddExpr *S);
@@ -86,7 +107,7 @@ class Stencil : public FunctionPass {
   Value* visitUMaxExpr(const SCEVUMaxExpr *S);
   Value* visitUnknown(const SCEVUnknown *S);
   
-  
+  void showRange();
   
  
   public:

@@ -54,14 +54,22 @@ void Stencil::populateArrayExpression (ArrayExpression *arr, Value *Val) {
     Instruction *Ins;
     int numOperands = 0;
     if ((Ins = dyn_cast<Instruction>(Val))){
-       if (!(isa<PHINode>(*Ins))) {
+		//errs()<<"Populating "<<*Ins<<"\n";
+		if (!(isa<PHINode>(*Ins))) {
             numOperands = Ins->getNumOperands();
-            //errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
-            for (int i=0; i<numOperands;i++) {
-                arr->insert(std::pair<Value*,Value*>(Val,Ins->getOperand(i))); 
-                //errs()<<"Inserted "<<*Ins->getOperand(i)<<"\n";
-                populateArrayExpression(arr,Ins->getOperand(i));
-            }
+            //errs()<<"Check :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
+            if(isa<GetElementPtrInst>(*Ins)){
+				arr->insert(std::pair<Value*,Value*>(Val,Ins->getOperand(1))); 
+				//errs()<<"Inserted "<<*Ins->getOperand(1)<<"\n";
+				populateArrayExpression(arr,Ins->getOperand(1));
+			}
+			else{
+				for (int i=0; i<numOperands;i++) {
+					arr->insert(std::pair<Value*,Value*>(Val,Ins->getOperand(i))); 
+					//errs()<<"Inserted "<<*Ins->getOperand(i)<<"\n";
+					populateArrayExpression(arr,Ins->getOperand(i));
+				}
+			}
         }
     }
 }
@@ -72,6 +80,16 @@ void Stencil::populateArrayAccess (Value *Val){
     if ((Ins = dyn_cast<Instruction>(Val))){
         numOperands = Ins->getNumOperands();
         //errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
+        if(isa<LoadInst>(*Ins)){
+			ArrayExpression arr;
+			errs()<<"PointerOperand: "<<*(dyn_cast<LoadInst>(Ins))->getPointerOperand()<<"\n";
+			populateArrayExpression(&arr, Ins->getOperand(0));
+			//for(int i=0; i<numOperands;i++){
+            //    populateArrayExpression(&arr, Ins->getOperand(i));
+            //}
+            this->arrayAcc.insert( std::pair<Value*,ArrayExpression>(Ins,arr));
+		}
+        /*
         if(isa<GetElementPtrInst>(*Ins)){
             ArrayExpression arr;
             for(int i=0; i<numOperands;i++){
@@ -80,9 +98,11 @@ void Stencil::populateArrayAccess (Value *Val){
             this->arrayAcc.insert( std::pair<Value*,ArrayExpression>(Ins,arr));
             //errs()<<"GEP inserted with Array Expression"<<*Ins<<"\n"; 
         }
-        else{ 
+        */
+        else{
             for(int i=0; i<numOperands;i++){
                 if(!(isa<PHINode>(*Ins))){ 
+					//errs()<<"Populating: "<<*Ins<<"\n";
                     populateArrayAccess(Ins->getOperand(i));
                 }
             }
@@ -209,6 +229,27 @@ Value* Stencil::visitSMaxExpr(const SCEVSMaxExpr *S){
 		//S->getOperand(I)->dump();
 		if(!(isa<SCEVConstant>(S->getOperand(I))))
 			return visit(S->getOperand(I));
+	}
+}
+
+void Stencil::showRange(){
+	Region *r = RP->getRegionInfo().getRegionFor(StencilInfo.iteration_loop->getLoopPreheader()); 
+	Module *M = StencilInfo.iteration_loop->getLoopPredecessor()->getParent()->getParent();
+	const DataLayout DL = DataLayout(M);
+	
+	for (auto& ranges : ptrRA->RegionsRangeData[r].BasePtrsData) {
+		errs()<<"Key: "<<*ranges.first<<"\n";
+		errs()<<"Base Pointer: "<<*ranges.second.BasePtr<<"\n";
+		std::vector<const SCEV*> access = ranges.second.AccessFunctions;
+		std::vector<Instruction*> instructions = ranges.second.AccessInstructions;
+		
+		for(auto acc : access){
+			errs()<<*acc<<"\n";
+		}
+		
+		for(auto ins : instructions){
+			errs()<<*ins<<"\n";
+		}
 	}
 }
 
@@ -366,21 +407,26 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension){
 	return true;
 }
 
-void Stencil::verifyStore(Loop *loop){
+bool Stencil::verifyStore(Loop *loop){
    Value *PtrOp;
    //Value *ValOp;
    Instruction *Ins;
    GetElementPtrInst *GEP;
    LoadInst *LD;
+   Neighbor2D store_neighbor;
 	
    for(Loop::block_iterator bb = loop->block_begin();bb!=loop->block_end(); ++bb){
 	   for(BasicBlock::iterator I = (*bb)->begin(), E = (*bb)->end(); I != E; ++I){
+		    /*Considers only one store */
 			if(isa<StoreInst>(*I)){
 				Ins = dyn_cast<Instruction>(&*I);
 				errs() << "Store Instruction: "<< *Ins << "\n";
 				
 				// Get base pointer of store instruction operand
 				PtrOp = getPointerOperand(Ins);
+				errs()<<"PtrOp: "<<*PtrOp<<"\n";
+				parse_gep(PtrOp, &store_neighbor);
+				
 				while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
 					if((LD = dyn_cast<LoadInst>(PtrOp)))
 						PtrOp = LD->getPointerOperand();
@@ -388,7 +434,10 @@ void Stencil::verifyStore(Loop *loop){
 						PtrOp = GEP->getPointerOperand();
 					//errs()<<"Passou "<<"\n";
 				}
-				errs() << "Store Base pointer: "<<*PtrOp << "\n"; //O que fazer com esse PtrOp?
+				
+				errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
+				StencilInfo.output = PtrOp;
+				
 				errs() << "GEP: "<<*GEP<<"\n";
 				// Navigate through store instruction val
 				StoreInst *Str = dyn_cast<StoreInst>(Ins);
@@ -398,76 +447,51 @@ void Stencil::verifyStore(Loop *loop){
 				//Ins = dyn_cast<Instruction>(ValOp);
 				//errs() << "Store Ins: "<< *Ins << "\n";
 			   
+				//Output Computation Value
+				errs()<<"Store Value Operand: "<<*Str->getValueOperand()<<"\n";
+				
+				//Output GEP
+				errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
+			   
 				//Populate map with memory access of the store
 				populateArrayAccess(Str->getValueOperand());   //Saved values
-				populateArrayAccess(Str->getPointerOperand()); 
-			   
-
-	 
-				//errs() << "Store Ins Operand: "<< *Ins->getOperand(1)<<"\n";
-				//for(use_iterator op = ValOp->use_begin(), e = ValOp->use_end(); op != e; ++op){
-				//    errs() <<"Use it: "<<*op<<"\n";
-				//}
+				//populateArrayAccess(Str->getPointerOperand());
 				
+				for(auto i : arrayAcc){
+					Neighbor2D neighbor;
+					if(parse_load(i.first, &neighbor)){
+						errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
+						StencilInfo.neighbors.push_back(neighbor);
+					}
+					else{
+						errs()<<"Error parsing: "<<*i.first<<"\n";
+					}
+				}			
 				//
-				//int op1;
-				//std::string str1,str2;
-				//str1 = RC.getAccessString(PtrOp,"", &op1, &DT);
-
-				//errs() << "name: "<<str1<<" int: "<<op1<< "\n";
-				 
-				//str2 = RC.getAccessString(GEP->getOperand(1),str1, &op1, &DT);
-				//errs() << "name: "<<str2<<" int: "<<op1<< "\n";
-				
-
-				//while(!(isa<PHINode>(*Ins))){
-					////errs() <<"ins: "<<*ValOp<<"\n";
-					////ValOp = ValOp->getOperand(0);
-					//Ins = dyn_cast<Instruction>(ValOp);
-					//errs()<<"Ins: "<<*Ins<<"\n";
-					//ValOp = Ins->getOperand(0);
-				//}
-			   
-					
+				matchStencilNeighborhood(&store_neighbor);	   
 			}
 		}
-
-		 //Traverse map
-		 for(ArrayAccess::iterator it = this->arrayAcc.begin();it!=this->arrayAcc.end();++it){
-			GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(it->first);
-			//errs()<<"\nGEP node: "<<*it->first<<"\n";
-			Value *root = dyn_cast<Value>(GEP->getOperand(1));
-			//errs()<<"Root Expression: "<<*root<<"\n";
-			ArrayExpression exp = it->second;
-			auto it2 = exp.find(root);
-			if(it2 != exp.end()){
-				//traverseArrayExpression(&exp,root);
-				//showArrayExpression(&exp,root);
-				//TODO include idxprom to parsing
-				//parse_start(it2->second);
-			}
-
-			//errs()<<"Key "<<*(exp.begin()->first)<<" has "<<exp.count(root)<<"\n";
-
-			
-			
-			//for(ArrayExpression::iterator it2 = exp.begin(); it2 != exp.end();++it2){
-				
-				//errs()<<"Key: "<<*it2->first<<"\t\t"<<"Map: "<<*it2->second<<"\n";
-				////if(it2->first->getName().equals(root->getName())){
-				////    errs()<<"equals "<<i<<"\n";
-				////    traverseArrayExpression(&exp,it2->first);
-					////errs()<<"Find: "<<*(exp.find(it2->second)->first)<<"\n";
-				////} 
-				////i++;
-			 //}
-			
-		}
-		
 	}
-	
+	return true;
 }
 
+bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor){
+	for(auto neighbor : StencilInfo.neighbors){
+		errs()<<"Position "<<*str_neighbor->scev_exp<<"\n";
+		if( neighbor.phinode_x != str_neighbor->phinode_x ||
+			neighbor.phinode_y != str_neighbor->phinode_y ||
+			neighbor.stride_x != str_neighbor->stride_x ) {
+				errs()<<"Does not match stencil computation\n";
+				errs()<<"Phinode X: "<<*neighbor.phinode_x<<"\t"<<*str_neighbor->phinode_x<<"\n";
+				errs()<<"Phinode Y: "<<*neighbor.phinode_y<<"\t"<<*str_neighbor->phinode_y<<"\n";
+				errs()<<"Stride X: "<<*neighbor.stride_x<<"\t"<<*str_neighbor->stride_x<<"\n";
+				return false;
+		}
+	}
+	return true;
+}
+
+//TODO
 bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension){
 	StencilInfo.dimension_value.push_back(visit(SE->getBackedgeTakenCount(loop)));
 	
@@ -513,6 +537,7 @@ bool Stencil::runOnFunction(Function &F) {
         errs() << A << "\t";
     }
     errs() << "\n";
+    
     
     /*
     errs() << "Dumping loops:\n";
@@ -584,6 +609,17 @@ bool Stencil::containsOpCode(Value *Val, unsigned opCode){
     return false;      
 }
 
+
+void Stencil::showArrayAccess(){
+	errs()<<"ArrayAccess"<<"\n";
+	for(auto it : arrayAcc){
+		errs()<<*it.first<<"\n";
+		for(auto it2 : it.second){
+			errs()<<"\t"<<*it2.first<<"\n";
+		}
+	}
+}
+
 void Stencil::showArrayExpression(ArrayExpression *exp, Value *Val){
     std::pair <ArrayExpression::iterator, ArrayExpression::iterator> ret;
     ret = exp->equal_range(Val); 
@@ -592,6 +628,253 @@ void Stencil::showArrayExpression(ArrayExpression *exp, Value *Val){
 	    errs()<<"Value: "<<*it->second<<"\n";
         showArrayExpression(exp,it->second);
     }
+}
+
+bool Stencil::matchInstruction(Value *Val, unsigned opcode){
+    if(isa<Instruction>(Val)){
+       Instruction *Ins = dyn_cast<Instruction>(Val); 
+       if(Ins->getOpcode() == opcode){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
+	if(isa<LoadInst>(Val)){
+		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), neighbor))
+			return false;
+	}
+	else {
+		errs()<<"ERROR! Expected Load Instruction: "<<*Val<<"\n";
+		return false;
+	}
+	return true;
+}
+
+bool Stencil::parse_gep(Value *Val, Neighbor2D *neighbor) {
+	if(GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(Val)) {
+		Loop *L = LI->getLoopFor(GEP->getParent());
+		neighbor->scev_exp = SE->getSCEVAtScope(Val, L);
+		neighbor->basePtr = GEP->getOperand(0);
+		//errs()<<"SCEV: "<<*neighbor->scev_exp<<"\n";
+		if(!parse_idxprom(GEP->getOperand(1), neighbor))
+			return false;
+	}
+	else {
+		errs()<<"ERROR! Expected GEP Instruction: "<<*Val<<"\n";
+		return false;
+	}
+	return true;
+}
+
+bool Stencil::parse_idxprom(Value *Val, Neighbor2D *neighbor) {
+	if(isa<SExtInst>(Val)){
+		if(!parse_start(dyn_cast<Instruction>(Val)->getOperand(0), neighbor))
+			return false;
+	}
+	else {
+		errs()<<"ERROR! Expected SExt Instruction: "<<*Val<<"\n";
+		return false;
+	}
+	return true;
+}
+
+bool Stencil::parse_start(Value *Val, Neighbor2D *neighbor) {
+    if(matchInstruction(Val, Instruction::Add)){
+        Instruction *Ins = dyn_cast<Instruction>(Val);
+        if(matchInstruction(Ins->getOperand(0),Instruction::Mul)){
+            if(!parse_yoffset_mul(Ins->getOperand(0), neighbor))
+				return false;
+            if(!parse_xoffset(Ins->getOperand(1), neighbor))
+				return false;
+        } 
+        else if (matchInstruction(Ins->getOperand(1),Instruction::Mul)){
+            if(!parse_yoffset_mul(Ins->getOperand(1), neighbor))
+				return false;
+            if(!parse_xoffset(Ins->getOperand(0), neighbor))
+				return false;
+        }
+        else{
+            errs()<<"ERROR! Expected Mul Operand: "<<*Ins<<"\n";
+            return false;
+        }
+    }
+    else{
+        errs()<<"ERROR! Expected ADD Instruction: "<<*Val<<"\n";
+        return false;
+    }
+    return true;
+}
+
+
+bool Stencil::parse_xoffset(Value *Val, Neighbor2D *neighbor) {
+    if(matchInstruction(Val, Instruction::PHI)){
+		neighbor->phinode_x = (PHINode*) Val;
+		neighbor->offset_x = 0;
+        //errs()<<"PHI Node: "<<*Val<<"\n";
+        //errs()<<"X offset: 0"<<"\n";
+    } 
+    else if(matchInstruction(Val, Instruction::Add)){
+        if(!parse_xoffset_add(Val, 1, neighbor))
+			return false;
+    }
+    else if(matchInstruction(Val, Instruction::Sub)){
+        if(!parse_xoffset_add(Val, -1, neighbor))
+			return false;
+    }else {
+        errs()<<"ERROR! Expected PHI or ADD Instruction: "<<*Val<<"\n";
+        return false;
+    }
+    return true;
+}
+
+bool Stencil::parse_xoffset_add(Value *Val, int sign, Neighbor2D *neighbor) {
+    Instruction *Ins = dyn_cast<Instruction>(Val);
+    PHINode *Phi;
+    ConstantInt *Const;
+    if(matchInstruction(Ins->getOperand(0),Instruction::PHI)) {
+        Phi = dyn_cast<PHINode>(Ins->getOperand(0));
+        neighbor->phinode_x = Phi;
+        if(isa<ConstantInt>(Ins->getOperand(1))){
+            Const = dyn_cast<ConstantInt>(Ins->getOperand(1));
+            neighbor->offset_x = sign * Const->getSExtValue();
+        }   
+        else {
+            errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(1)<<"\n"; 
+            return false;
+        }
+    }
+    else if(matchInstruction(Ins->getOperand(1),Instruction::PHI)) {
+        Phi = dyn_cast<PHINode>(Ins->getOperand(0));
+        neighbor->phinode_x = Phi;
+        if(isa<ConstantInt>(Ins->getOperand(1))){
+            Const = dyn_cast<ConstantInt>(Ins->getOperand(1));
+            neighbor->offset_x = sign * Const->getSExtValue();
+        }
+        else{
+           errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(1)<<"\n"; 
+           return false;
+        } 
+    }
+    else{
+        errs()<<"ERROR! Expected PHI Instruction: "<<*Ins<<"\n";
+        return false;
+    }
+    //errs()<<"PHI Node: "<<*Phi<<"\n";
+    //errs()<<"X offset: "<<sign * Const->getSExtValue()<<"\n";
+    return true;
+}
+
+bool Stencil::parse_yoffset_mul(Value *Val, Neighbor2D *neighbor) {
+    Instruction *Ins = dyn_cast<Instruction>(Val);
+	if(matchInstruction(Ins->getOperand(0),Instruction::PHI) || 
+	   matchInstruction(Ins->getOperand(0),Instruction::Add) || 
+	   matchInstruction(Ins->getOperand(0),Instruction::Sub) ){
+		if(!parse_yoffset(Ins->getOperand(0),neighbor))
+			return false;
+		if(!parse_yoffset_stride(Ins->getOperand(1), neighbor))
+			return false;
+	} 
+	else if (matchInstruction(Ins->getOperand(1),Instruction::PHI) || 
+			 matchInstruction(Ins->getOperand(1),Instruction::Add) || 
+			 matchInstruction(Ins->getOperand(1),Instruction::Sub) ){
+		if(!parse_yoffset(Ins->getOperand(1), neighbor))
+			return false;
+		if(!parse_yoffset_stride(Ins->getOperand(0), neighbor))
+			return false;
+	}
+	else{
+		errs()<<"ERROR! Expected PHINode, Add, or Sub Operand: "<<*Ins<<"\n";
+		return false;
+	}
+	return true;
+}
+
+bool Stencil::parse_yoffset_stride(Value *Val, Neighbor2D *neighbor) {
+    if(isa<Constant>(Val)){
+        //errs()<<"CONSTANT: "<<*Val<<"\n";
+        neighbor->stride_x = Val;
+    }
+    else if(isa<Argument>(Val)){
+        //errs()<<"ARGUMENT: "<<*Val<<"\n";
+        neighbor->stride_x = Val;
+    }
+    else if(isa<LoadInst>(Val)){
+        LoadInst *Load = dyn_cast<LoadInst>(Val);
+        Value *LoadVal = Load->getPointerOperand();
+        //errs()<<"LOAD: "<<*LoadVal<<"\n";
+        neighbor->stride_x = LoadVal;
+    }
+    else {
+        errs()<<"ERROR! Expected Constant, Argument or LoadInst: "<<*Val<<"\n";
+        return false;
+    }
+    return true;
+}
+
+bool Stencil::parse_yoffset(Value *Val, Neighbor2D *neighbor) {
+    if(matchInstruction(Val, Instruction::PHI)){
+		neighbor->phinode_y = (PHINode*) Val;
+		neighbor->offset_y = 0;
+        //errs()<<"PHI Node: "<<*Val<<"\n";
+        //errs()<<"Y offset: 0"<<"\n";
+    } 
+    else if(matchInstruction(Val, Instruction::Add)){
+        if(!parse_yoffset_add(Val, 1, neighbor))
+			return false;
+    }
+    else if(matchInstruction(Val, Instruction::Sub)){
+        if(!parse_yoffset_add(Val, -1, neighbor))
+			return false;
+    }
+    else {
+        errs()<<"ERROR! Expected PHI, Add or Sub Instruction: "<<*Val<<"\n";
+        return false;
+    }
+    return true;
+}
+
+bool Stencil::parse_yoffset_add(Value *Val, int sign, Neighbor2D *neighbor) {
+    Instruction *Ins = dyn_cast<Instruction>(Val);
+    PHINode *Phi;
+    ConstantInt *Const;
+    if(matchInstruction(Ins->getOperand(0),Instruction::PHI)) {
+        Phi = dyn_cast<PHINode>(Ins->getOperand(0));
+        neighbor->phinode_y = Phi;
+        if(isa<ConstantInt>(Ins->getOperand(1))){
+            Const = dyn_cast<ConstantInt>(Ins->getOperand(1));
+            neighbor->offset_y = sign * Const->getSExtValue();
+        }   
+        else {
+            errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(1)<<"\n"; 
+            return false;
+        }
+    }
+    else if(matchInstruction(Ins->getOperand(1),Instruction::PHI)) {
+        Phi = dyn_cast<PHINode>(Ins->getOperand(1));
+        neighbor->phinode_y = Phi;
+        if(isa<ConstantInt>(Ins->getOperand(0))){
+            Const = dyn_cast<ConstantInt>(Ins->getOperand(0));
+            neighbor->offset_y = sign * Const->getSExtValue();
+        }
+        else{
+           errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(0)<<"\n"; 
+           return false;
+        } 
+    }
+    else{
+        errs()<<"ERROR! Expected PHI Instruction: "<<*Ins<<"\n";
+        return false;
+    }
+    //errs()<<"PHI Node: "<<*Phi<<"\n";
+    //errs()<<"Y offset: "<<sign * Const->getSExtValue()<<"\n";
+    return true;
 }
 
 /*
@@ -809,169 +1092,6 @@ void Stencil::traverseArrayExpression(ArrayExpression *exp, Value *Val){
     }
     */
 //}
-
-
-bool Stencil::matchInstruction(Value *Val, unsigned opcode){
-    if(isa<Instruction>(Val)){
-       Instruction *Ins = dyn_cast<Instruction>(Val); 
-       if(Ins->getOpcode() == opcode){
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    else {
-        return false;
-    }
-}
-
-void Stencil::parse_start(Value *Val) {
-    if(matchInstruction(Val, Instruction::Add)){
-        Instruction *Ins = dyn_cast<Instruction>(Val);
-        if(matchInstruction(Ins->getOperand(0),Instruction::Mul)){
-            parse_yoffset_mul(Ins->getOperand(0));
-            parse_xoffset(Ins->getOperand(1));
-        } 
-        else if (matchInstruction(Ins->getOperand(1),Instruction::Mul)){
-            parse_yoffset_mul(Ins->getOperand(1));
-            parse_xoffset(Ins->getOperand(0)); 
-        }
-        else{
-            errs()<<"ERROR! Expected Mul Operand: "<<*Ins<<"\n";
-        }
-    }
-    else{
-        errs()<<"ERROR! Expected ADD Instruction: "<<*Val<<"\n";
-    }
-}
-
-
-void Stencil::parse_xoffset(Value *Val) {
-    if(matchInstruction(Val, Instruction::PHI)){
-        errs()<<"PHI Node: "<<*Val<<"\n";
-        errs()<<"X offset: 0"<<"\n";
-    } 
-    else if(matchInstruction(Val, Instruction::Add)){
-        parse_xoffset_add(Val, 1);
-    }
-    else if(matchInstruction(Val, Instruction::Sub)){
-        parse_xoffset_add(Val, -1);
-    }else {
-        errs()<<"ERROR! Expected PHI or ADD Instruction: "<<*Val<<"\n";
-    }
-}
-
-void Stencil::parse_xoffset_add(Value *Val, int sign) {
-    Instruction *Ins = dyn_cast<Instruction>(Val);
-    PHINode *Phi;
-    ConstantInt *Const;
-    if(matchInstruction(Ins->getOperand(0),Instruction::PHI)) {
-        Phi = dyn_cast<PHINode>(Ins->getOperand(0));
-        if(isa<ConstantInt>(Ins->getOperand(1))){
-            Const = dyn_cast<ConstantInt>(Ins->getOperand(1));
-        }   
-        else {
-            errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(1)<<"\n"; 
-        }
-    }
-    else if(matchInstruction(Ins->getOperand(1),Instruction::PHI)) {
-        Phi = dyn_cast<PHINode>(Ins->getOperand(0));
-        if(isa<ConstantInt>(Ins->getOperand(1))){
-            Const = dyn_cast<ConstantInt>(Ins->getOperand(1));
-        }
-        else{
-           errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(1)<<"\n"; 
-        } 
-    }
-    else{
-        errs()<<"ERROR! Expected PHI Instruction: "<<*Ins<<"\n";
-    }
-    errs()<<"PHI Node: "<<*Phi<<"\n";
-    errs()<<"X offset: "<<sign * Const->getSExtValue()<<"\n";
-}
-
-void Stencil::parse_yoffset_mul(Value *Val) {
-    Instruction *Ins = dyn_cast<Instruction>(Val);
-        if(matchInstruction(Ins->getOperand(0),Instruction::PHI) || 
-           matchInstruction(Ins->getOperand(0),Instruction::Add) || 
-           matchInstruction(Ins->getOperand(0),Instruction::Sub) ){
-            parse_yoffset(Ins->getOperand(0));
-            parse_yoffset_stride(Ins->getOperand(1));
-        } 
-        else if (matchInstruction(Ins->getOperand(1),Instruction::PHI) || 
-                 matchInstruction(Ins->getOperand(1),Instruction::Add) || 
-                 matchInstruction(Ins->getOperand(1),Instruction::Sub) ){
-            parse_yoffset(Ins->getOperand(1));
-            parse_yoffset_stride(Ins->getOperand(0)); 
-        }
-        else{
-            errs()<<"ERROR! Expected PHINode, Add, or Sub Operand: "<<*Ins<<"\n";
-        }
-}
-
-void Stencil::parse_yoffset_stride(Value *Val) {
-    if(isa<Constant>(Val)){
-        errs()<<"CONSTANT: "<<*Val<<"\n";
-    }
-    else if(isa<Argument>(Val)){
-        errs()<<"ARGUMENT: "<<*Val<<"\n";
-    }
-    else if(isa<LoadInst>(Val)){
-        LoadInst *Load = dyn_cast<LoadInst>(Val);
-        Value *LoadVal = Load->getPointerOperand();
-        errs()<<"LOAD: "<<*LoadVal<<"\n";
-    }
-    else {
-        errs()<<"ERROR! Expected Constant, Argument or LoadInst: "<<*Val<<"\n";
-    }
-}
-
-void Stencil::parse_yoffset(Value *Val) {
-    if(matchInstruction(Val, Instruction::PHI)){
-        errs()<<"PHI Node: "<<*Val<<"\n";
-        errs()<<"Y offset: 0"<<"\n";
-    } 
-    else if(matchInstruction(Val, Instruction::Add)){
-        parse_yoffset_add(Val, 1);
-    }
-    else if(matchInstruction(Val, Instruction::Sub)){
-        parse_yoffset_add(Val, -1);
-    }
-    else {
-        errs()<<"ERROR! Expected PHI, Add or Sub Instruction: "<<*Val<<"\n";
-    }
-}
-
-void Stencil::parse_yoffset_add(Value *Val, int sign) {
-    Instruction *Ins = dyn_cast<Instruction>(Val);
-    PHINode *Phi;
-    ConstantInt *Const;
-    if(matchInstruction(Ins->getOperand(0),Instruction::PHI)) {
-        Phi = dyn_cast<PHINode>(Ins->getOperand(0));
-        if(isa<ConstantInt>(Ins->getOperand(1))){
-            Const = dyn_cast<ConstantInt>(Ins->getOperand(1));
-        }   
-        else {
-            errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(1)<<"\n"; 
-        }
-    }
-    else if(matchInstruction(Ins->getOperand(1),Instruction::PHI)) {
-        Phi = dyn_cast<PHINode>(Ins->getOperand(1));
-        if(isa<ConstantInt>(Ins->getOperand(0))){
-            Const = dyn_cast<ConstantInt>(Ins->getOperand(0));
-        }
-        else{
-           errs()<<"ERROR! Expected Constant: "<<*Ins->getOperand(0)<<"\n"; 
-        } 
-    }
-    else{
-        errs()<<"ERROR! Expected PHI Instruction: "<<*Ins<<"\n";
-    }
-    errs()<<"PHI Node: "<<*Phi<<"\n";
-    errs()<<"Y offset: "<<sign * Const->getSExtValue()<<"\n";
-}
-
 
 char Stencil::ID = 0;
 static RegisterPass<Stencil> Z("stencil", "Detect stencil computation");
