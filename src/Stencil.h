@@ -50,7 +50,15 @@ class Stencil : public FunctionPass {
 	  int offset_y;
 	  Value* stride_x;
 	  
-	  Neighbor2D() {}
+	  Neighbor2D() {
+		basePtr = nullptr;
+		phinode_x = nullptr;
+		phinode_y = nullptr;
+		stride_x = nullptr;
+		offset_x = 0;
+		offset_y = 0;
+		scev_exp = nullptr;
+	  }
   };
   
   struct StencilData {
@@ -65,6 +73,7 @@ class Stencil : public FunctionPass {
 	Value*		input;
 	Value*		output;
 	std::vector<Neighbor2D> neighbors;
+	std::vector<Value*> arguments;
 	
 	StencilData() {
 		dimension = 0;
@@ -74,7 +83,7 @@ class Stencil : public FunctionPass {
 
   Value* getPointerOperand (Instruction *Ins);
   void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
-  void populateArrayAccess (Value *Val);
+  void populateArrayAccess (Value *Val, ArrayAccess *acc);
   void traverseArrayExpression( ArrayExpression *ArrayExp, Value *Val);
   void showArrayExpression (ArrayExpression *ArrayExp, Value *Val);
   void showArrayAccess();
@@ -98,6 +107,7 @@ class Stencil : public FunctionPass {
   bool verifyComputationLoops (Loop *loop, unsigned int dimension);
   bool verifySwapLoops (Loop *loop, unsigned int dimension);
   bool verifyStore (Loop* loop);
+  bool verifySwap (Loop* loop);
   PHINode* getPHINode (Loop *loop);
   bool matchStencilNeighborhood(Neighbor2D *str_neighbor);
   
