@@ -1,2 +1,4 @@
--include ../../utilities/options.mk
--include ../../utilities/c.mk
+SRC = $(wildcard *.c)
+OBJS = $(basename $(SRC))
+
+include ../../common/common.mk

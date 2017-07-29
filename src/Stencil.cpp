@@ -453,7 +453,7 @@ bool Stencil::verifyStore(Loop *loop){
 				
 				// Get base pointer of store instruction operand
 				PtrOp = getPointerOperand(Ins);
-				errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
+				//errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
 				if(!parse_gep(PtrOp, &store_neighbor))
 					return false;
 				
@@ -482,7 +482,7 @@ bool Stencil::verifyStore(Loop *loop){
 				
 				for(auto i : arrayAcc){
 					Neighbor2D neighbor;
-					errs()<<"Parsing: "<<*i.first<<"\n";
+					//errs()<<"Parsing: "<<*i.first<<"\n";
 					if(parse_load(i.first, &neighbor)){
 						//errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
 						StencilInfo.neighbors.push_back(neighbor);

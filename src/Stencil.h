@@ -63,8 +63,10 @@ class Stencil : public FunctionPass {
 	  void dump() {
 		errs()<<"Base pointer: "<< *basePtr <<"\n";
 		errs()<<"SCEV: "<< *scev_exp <<"\n";
-		errs()<<"PHINode X: "<<*phinode_x<<" Offset: "<<offset_x<<"\n";
-		errs()<<"PHINode Y: "<<*phinode_y<<" Offset: "<<offset_y<<"\n";
+		errs()<<"PHINode X: "<<*phinode_x<<"\n";
+		errs()<<"X Offset: "<<offset_x<<"\n";
+		errs()<<"PHINode Y: "<<*phinode_y<<"\n";
+		errs()<<"Y Offset: "<<offset_y<<"\n";
 		errs()<<"Stride X: "<<*stride_x<<"\n";
 	  }
   };
