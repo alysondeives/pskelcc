@@ -59,6 +59,14 @@ class Stencil : public FunctionPass {
 		offset_y = 0;
 		scev_exp = nullptr;
 	  }
+	  
+	  void dump() {
+		errs()<<"Base pointer: "<< *basePtr <<"\n";
+		errs()<<"SCEV: "<< *scev_exp <<"\n";
+		errs()<<"PHINode X: "<<*phinode_x<<" Offset: "<<offset_x<<"\n";
+		errs()<<"PHINode Y: "<<*phinode_y<<" Offset: "<<offset_y<<"\n";
+		errs()<<"Stride X: "<<*stride_x<<"\n";
+	  }
   };
   
   struct StencilData {
@@ -102,7 +110,9 @@ class Stencil : public FunctionPass {
   bool parse_yoffset_stride (Value *Val, Neighbor2D *neighbor);
   
   void buildRange (Loop *loop);
-  void getLoopDetails (Loop *loop);
+  void printLoopDetails (Loop *loop);
+  void printNeighbors ();
+  
   bool verifyIterationLoop (Loop *loop);
   bool verifyComputationLoops (Loop *loop, unsigned int dimension);
   bool verifySwapLoops (Loop *loop, unsigned int dimension);

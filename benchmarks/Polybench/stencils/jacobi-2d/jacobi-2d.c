@@ -7,13 +7,22 @@
  * 
  * Copyright 2013, The University of Delaware
  */
+ 
+ #include <unistd.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <time.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
-#include <math.h>
+
+//#include <stdio.h>
+//#include <unistd.h>
+//#include <string.h>
+//#include <math.h>
 
 /* Include polybench common header. */
-#include "../common/polybenchUtilFuncts.h"
+#include "../../common/polybenchUtilFuncts.h"
 
 /* Include benchmark-specific header. */
 /* Default data type is double, default size is 20x1000. */
@@ -45,7 +54,7 @@ void print_array(int n,
 
   for (i = 0; i < n; i++)
     for (j = 0; j < n; j++) {
-      fprintf(stderr, DATA_PRINTF_MODIFIER, A[i][j]);
+      fprintf(stderr, DATA_PRINTF_MODIFIER, A[i*n + j]);
       if ((i * n + j) % 20 == 0) fprintf(stderr, "\n");
     }
   fprintf(stderr, "\n");
@@ -74,8 +83,7 @@ void kernel_jacobi_2d(int tsteps,
 		for (i = 1; i < _PB_N-1; i++)
 			for (j = 1; j < _PB_N-1; j++)
 				A[i*_PB_N + j] = B[i*_PB_N + j];
-    }
-  }
+	}
 }
 
 

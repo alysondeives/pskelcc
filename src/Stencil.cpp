@@ -295,7 +295,7 @@ void Stencil::buildRange(Loop *loop){
 	}
 }
 
-void Stencil::getLoopDetails(Loop *loop){
+void Stencil::printLoopDetails(Loop *loop){
 	errs()<<"\nLOOP\n";
     loop->print(errs());
      
@@ -343,8 +343,17 @@ void Stencil::getLoopDetails(Loop *loop){
     errs() << "Exit count: ";
     SE->getExitCount(loop,loop->getUniqueExitBlock())->dump();
     
-    Value* bound = visit(backedge);
+    Value *bound;
+    if(!(backedge->getSCEVType() == scConstant)) {
+		bound = visit(backedge);
+	}
+	else{
+		const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
+		bound = dyn_cast<Value>(scev_const->getValue());
+	}
 	errs()<<"Bound: "<<*bound<<"\n";
+	
+	
 	
 	/// Check to see if the loop has a canonical induction variable: an integer
 	/// recurrence that starts at 0 and increments by one each time through the
@@ -364,10 +373,22 @@ void Stencil::getLoopDetails(Loop *loop){
 }
 
 bool Stencil::verifyIterationLoop(Loop *loop){
-	auto *phiNode = loop->getCanonicalInductionVariable();       
+	auto *phiNode = loop->getCanonicalInductionVariable();
+	const SCEV* backedge;
+	Value *bound;
+	    
     if(phiNode) {
+		backedge = SE->getBackedgeTakenCount(loop);
+		if(!(backedge->getSCEVType() == scConstant)) {
+			bound = visit(backedge);
+		}
+		else{
+			const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
+			bound = dyn_cast<Value>(scev_const->getValue());
+		}
+		
 		 StencilInfo.iteration_phinode = phiNode;
-		 StencilInfo.iteration_value = visit(SE->getBackedgeTakenCount(loop));
+		 StencilInfo.iteration_value = bound;
 		 StencilInfo.iteration_loop = loop;
 		 
 		 errs() << "Iteration loop PHINode: "<<*phiNode<<"\n";
@@ -383,13 +404,22 @@ bool Stencil::verifyIterationLoop(Loop *loop){
 
 bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension){
 	const SCEV* backedge = SE->getBackedgeTakenCount(loop);
-	Value* dimension_value = visit(backedge);
+	Value *bound;
+	
+	if(!(backedge->getSCEVType() == scConstant)) {
+		bound = visit(backedge);
+	}
+	else{
+		const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
+		bound = dyn_cast<Value>(scev_const->getValue());
+	}
+	
 	StencilInfo.dimension++;
-	StencilInfo.dimension_value.push_back(dimension_value);
+	StencilInfo.dimension_value.push_back(bound);
 	PHINode* phi = getPHINode(loop);
 	
 	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Phinode: "<<*phi<<"\n";
-	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Bound: "<<*dimension_value<<"\n";
+	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Bound: "<<*bound<<"\n";
 	
 	vector<Loop*> subLoops = loop->getSubLoops();
 	
@@ -423,7 +453,7 @@ bool Stencil::verifyStore(Loop *loop){
 				
 				// Get base pointer of store instruction operand
 				PtrOp = getPointerOperand(Ins);
-				//errs()<<"PtrOp: "<<*PtrOp<<"\n";
+				errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
 				if(!parse_gep(PtrOp, &store_neighbor))
 					return false;
 				
@@ -452,6 +482,7 @@ bool Stencil::verifyStore(Loop *loop){
 				
 				for(auto i : arrayAcc){
 					Neighbor2D neighbor;
+					errs()<<"Parsing: "<<*i.first<<"\n";
 					if(parse_load(i.first, &neighbor)){
 						//errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
 						StencilInfo.neighbors.push_back(neighbor);
@@ -465,16 +496,19 @@ bool Stencil::verifyStore(Loop *loop){
 						}
 					}
 					else{
-						errs()<<"Error parsing: "<<*i.first<<"\n";
+						errs()<<"Error parsing: "<<i.first<<"\n";
 						return false;
 					}
-				}			
+				}		
+				
+				printNeighbors();	
 				
 				/* Match access */
 				if(!matchStencilNeighborhood(&store_neighbor))
 					return false;
 				
 				errs()<<"Stencil Output: "<<*StencilInfo.output<<"\n";
+				
 			}	   
 		}
 	}
@@ -497,13 +531,30 @@ bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor){
 	return true;
 }
 
+void Stencil::printNeighbors(){
+	errs()<<"# of Neighbors: "<<StencilInfo.neighbors.size()<<"\n";
+	for(auto i : StencilInfo.neighbors){
+		i.dump();
+	}
+}
+
 bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension){
 	const SCEV* backedge = SE->getBackedgeTakenCount(loop);
-	Value* dimension_value = visit(backedge);
+	Value* bound;
 	PHINode* phi = getPHINode(loop);
 	
+	if(!(backedge->getSCEVType() == scConstant)) {
+		bound = visit(backedge);
+	}
+	else{
+		const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
+		bound = dyn_cast<Value>(scev_const->getValue());
+	}
+	
 	errs()<<"Swap Loop "<<dimension<<" Phinode: "<<*phi<<"\n";
-	errs()<<"Swap Loop "<<dimension<<" Bound: "<<*dimension_value<<"\n";
+	errs()<<"Swap Loop "<<dimension<<" Bound: "<<*bound<<"\n";
+	
+	//TODO Match bounds with computation loop bounds?
 	
 	vector<Loop*> subLoops = loop->getSubLoops();
 	if(subLoops.empty()) {
@@ -659,22 +710,25 @@ bool Stencil::runOnFunction(Function &F) {
     
     
     
-    errs() << "Dumping loops:\n";
+    /*errs() << "Dumping loops:\n";
 	for(auto bb = F.begin(); bb!=F.end(); bb++){
         if(LI->isLoopHeader(&(*bb))){
             Loop *loop = LI->getLoopFor(&(*bb));
-            errs()<<"\nLOOP:\n";
-            loop->print(errs());
-            getLoopDetails(loop);
+            printLoopDetails(loop);
 		}
 	}
-	
+	*/
 	
      int loopCount = 0;
      for (LoopInfo::iterator i = LI->begin(), e = LI->end(); i != e; ++i) {
 		 loopCount++;
 	 }
 	 errs()<<"Function "<< F.getName()<<" has "<<loopCount<<" outermost loops\n";
+	 
+	 if(loopCount == 0){
+		 errs()<<"ERROR! Function has no loops\n";
+		 return (false);
+	 }
 	 if(loopCount > 1){
 		 errs()<<"ERROR! Expected only 1 outermost loop\n";
 		 return (false);
@@ -705,7 +759,7 @@ bool Stencil::runOnFunction(Function &F) {
 		}
 	}
 	errs()<<"Function "<< F.getName()<<" constains Stencil Computation\n";
-    return true;
+    return false;
 }
 
 
@@ -765,9 +819,12 @@ bool Stencil::matchInstruction(Value *Val, unsigned opcode){
 }
 
 bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
+	//errs()<<"Parse load: "<<*Val<<"\n";
 	if(isa<LoadInst>(Val)){
-		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), neighbor))
+		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), neighbor)){
+			errs()<<"ERROR parsing gep"<<"\n";
 			return false;
+		}
 	}
 	else {
 		errs()<<"ERROR! Expected Load Instruction: "<<*Val<<"\n";
@@ -777,11 +834,16 @@ bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
 }
 
 bool Stencil::parse_gep(Value *Val, Neighbor2D *neighbor) {
+	//errs()<<"Parse gep: "<<*Val<<"\n";
 	if(GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(Val)) {
-		Loop *L = LI->getLoopFor(GEP->getParent());
-		neighbor->scev_exp = SE->getSCEVAtScope(Val, L);
+		//errs()<<"GEP: "<<*GEP<<"\n";
+		BasicBlock *bb = GEP->getParent();
+		Loop *L = LI->getLoopFor(bb);
+		//errs()<<"Val: "<<*Val<<"\n";
+		const SCEV* scev_exp = SE->getSCEVAtScope(Val, L);
+		//errs()<<"SCEV: "<<*scev_exp<<"\n";
+		neighbor->scev_exp = scev_exp;
 		neighbor->basePtr = GEP->getOperand(0);
-		//errs()<<"SCEV: "<<*neighbor->scev_exp<<"\n";
 		if(!parse_idxprom(GEP->getOperand(1), neighbor))
 			return false;
 	}
