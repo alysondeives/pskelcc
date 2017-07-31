@@ -16,26 +16,19 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <omp.h>
 
-#include "../common/polybenchUtilFuncts.h"
+//#define POLYBENCH_USE_SCALAR_LB
+
+#include "../../common/polybenchUtilFuncts.h"
 
 /* Include benchmark-specific header. */
-/* Default data type is double, default size is 4096x4096. */
+/* Default data type is float, default size is 4096x4096. */
 #include "conv-2d.h"
 
 //define the error threshold for the results "not matching"
 #define ERROR_THRESHOLD 0.05
 
-#define GPU_DEVICE 1
 
-/* Problem size */
-//#define NI 8192
-//#define NJ 8192
-
-/* Can switch DATA_TYPE between float and double */
-//typedef float DATA_TYPE;
- 
 void conv2D(int ni, int nj, DATA_TYPE* A, DATA_TYPE* B)
 {
   int i, j;
@@ -52,15 +45,15 @@ void conv2D(int ni, int nj, DATA_TYPE* A, DATA_TYPE* B)
 							+ c31 * A[(i-1)*_PB_NJ + (j+1)] + c32 * A[(i)*_PB_NJ + (j+1)] + c33 * A[(i+1)*_PB_NJ + (j+1)];
 }
 
-void init(DATA_TYPE* A)
+void init(int ni, int nj, DATA_TYPE* A)
 {
   int i, j;
 
-  for (i = 0; i < NI; ++i)
+  for (i = 0; i < _PB_NI; ++i)
     {
-      for (j = 0; j < NJ; ++j)
+      for (j = 0; j < _PB_NJ; ++j)
 	{
-	  A[i*NJ + j] = (float)rand()/RAND_MAX;
+	  A[i*_PB_NJ + j] = (float)rand()/RAND_MAX;
 	}
     }
 }
@@ -104,7 +97,7 @@ int main(int argc, char *argv[])
   fprintf(stdout, ">> Two dimensional (2D) convolution <<\n");
 
   //initialize the arrays
-  init(A);
+  init(ni,nj,A);
 	
   t_start = rtclock();
   conv2D(ni,nj, A, B);

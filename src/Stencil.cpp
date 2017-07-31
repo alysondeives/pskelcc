@@ -14,21 +14,26 @@
 #include <fstream>
 #include <queue>
 
+
 #include "llvm/Analysis/RegionInfo.h"  
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/LoopInfo.h"
+
+#include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/DIBuilder.h" 
 #include "llvm/IR/InstIterator.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Value.h"
+
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/DataTypes.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Analysis/ValueTracking.h"
 #include "llvm/ADT/Statistic.h"
+
 
 //#include "../../dawncc/ArrayInference/PtrRangeAnalysis.h"
 //#include "../../dawncc/ArrayInference/regionReconstructor.h"
@@ -232,9 +237,9 @@ Value* Stencil::visitSMaxExpr(const SCEVSMaxExpr *S){
 	}
 }
 
-void Stencil::showRange(){
-	Region *r = RP->getRegionInfo().getRegionFor(StencilInfo.iteration_loop->getLoopPreheader()); 
-	Module *M = StencilInfo.iteration_loop->getLoopPredecessor()->getParent()->getParent();
+void Stencil::showRange(Loop *loop){
+	Region *r = RP->getRegionInfo().getRegionFor(loop->getLoopPreheader()); 
+	Module *M = loop->getLoopPredecessor()->getParent()->getParent();
 	const DataLayout DL = DataLayout(M);
 	
 	for (auto& ranges : ptrRA->RegionsRangeData[r].BasePtrsData) {
@@ -372,7 +377,7 @@ void Stencil::printLoopDetails(Loop *loop){
     else errs() << "Could not find canonical ind-var\n";
 }
 
-bool Stencil::verifyIterationLoop(Loop *loop){
+bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 	auto *phiNode = loop->getCanonicalInductionVariable();
 	const SCEV* backedge;
 	Value *bound;
@@ -387,12 +392,12 @@ bool Stencil::verifyIterationLoop(Loop *loop){
 			bound = dyn_cast<Value>(scev_const->getValue());
 		}
 		
-		 StencilInfo.iteration_phinode = phiNode;
-		 StencilInfo.iteration_value = bound;
-		 StencilInfo.iteration_loop = loop;
+		 Stencil->iteration_phinode = phiNode;
+		 Stencil->iteration_value = bound;
+		 Stencil->iteration_loop = loop;
 		 
 		 errs() << "Iteration loop PHINode: "<<*phiNode<<"\n";
-		 errs() << "Iteration loop Bound: "<<*StencilInfo.iteration_value<<"\n";
+		 errs() << "Iteration loop Bound: "<<*Stencil->iteration_value<<"\n";
 		 return true;
 	}
     else {
@@ -402,7 +407,7 @@ bool Stencil::verifyIterationLoop(Loop *loop){
 	return false;
 }
 
-bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension){
+bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, StencilInfo *Stencil){
 	const SCEV* backedge = SE->getBackedgeTakenCount(loop);
 	Value *bound;
 	
@@ -414,109 +419,124 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension){
 		bound = dyn_cast<Value>(scev_const->getValue());
 	}
 	
-	StencilInfo.dimension++;
-	StencilInfo.dimension_value.push_back(bound);
+	Stencil->dimension++;
+	Stencil->dimension_value.push_back(bound);
 	PHINode* phi = getPHINode(loop);
 	
-	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Phinode: "<<*phi<<"\n";
-	errs()<<"Computation Loop "<<StencilInfo.dimension<<" Bound: "<<*bound<<"\n";
-	
+	errs()<<"Computation Loop "<<Stencil->dimension<<" Phinode: "<<*phi<<"\n";
+	errs()<<"Computation Loop "<<Stencil->dimension<<" Bound: "<<*bound<<"\n";
+	 
 	vector<Loop*> subLoops = loop->getSubLoops();
 	
 	if(subLoops.empty()) {
 		//errs()<<"Subloop is empty\n";
-		verifyStore(loop);
+		if(!verifyStore(loop, Stencil))
+			return false;
 	}
 	else {
 		Loop::iterator j, f;
 		for (j = subLoops.begin(), f = subLoops.end(); j != f; ++j) {
-			verifyComputationLoops(*j, dimension + 1);
+			if(!verifyComputationLoops(*j, dimension + 1, Stencil))
+				return false;
 		}
 	}
 	return true;
 }
 
-bool Stencil::verifyStore(Loop *loop){
+bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	Value *PtrOp;
 	//Value *ValOp;
 	Instruction *Ins;
 	GetElementPtrInst *GEP;
 	LoadInst *LD;
 	Neighbor2D store_neighbor;
+	ArrayAccess arrayAcc;
+	
+	std::vector<Instruction*> StrIns;
 	
 	for(Loop::block_iterator bb = loop->block_begin();bb!=loop->block_end(); ++bb){
 		for(BasicBlock::iterator I = (*bb)->begin(), E = (*bb)->end(); I != E; ++I){
-		    /*Considers only one store */
-			if(isa<StoreInst>(*I)){
-				Ins = dyn_cast<Instruction>(&*I);
-				//errs() << "Store Instruction: "<< *Ins << "\n";
-				
-				// Get base pointer of store instruction operand
-				PtrOp = getPointerOperand(Ins);
-				//errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
-				if(!parse_gep(PtrOp, &store_neighbor))
-					return false;
-				
-				while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
-					if((LD = dyn_cast<LoadInst>(PtrOp)))
-						PtrOp = LD->getPointerOperand();
-					if((GEP = dyn_cast<GetElementPtrInst>(PtrOp)))
-						PtrOp = GEP->getPointerOperand();
-					//errs()<<"Passou "<<"\n";
-				}
-				
-				//errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
-				StencilInfo.output = PtrOp;
-				
-				//errs() << "GEP: "<<*GEP<<"\n";
-				
-				StoreInst *Str = dyn_cast<StoreInst>(Ins);
-				//Output Computation Value
-				//errs()<<"Store Value Operand: "<<*Str->getValueOperand()<<"\n";
-				//Output GEP
-				//errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
-			   
-				//Populate map with memory access of the store
-				populateArrayAccess(Str->getValueOperand(), &this->arrayAcc);   //Saved values
-				//populateArrayAccess(Str->getPointerOperand());
-				
-				for(auto i : arrayAcc){
-					Neighbor2D neighbor;
-					//errs()<<"Parsing: "<<*i.first<<"\n";
-					if(parse_load(i.first, &neighbor)){
-						//errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
-						StencilInfo.neighbors.push_back(neighbor);
-						// initially considers all pointers as arguments
-						// the input pointer will be in the swap loop
-						
-						if(std::find(StencilInfo.arguments.begin(),StencilInfo.arguments.end(),neighbor.basePtr) == StencilInfo.arguments.end()){
-							//errs()<<"Inserted: "<<neighbor.basePtr<<"\n";
-							Value *Val = neighbor.basePtr;
-							StencilInfo.arguments.push_back(Val);
-						}
-					}
-					else{
-						errs()<<"Error parsing: "<<i.first<<"\n";
-						return false;
-					}
-				}		
-				
-				printNeighbors();	
-				
-				/* Match access */
-				if(!matchStencilNeighborhood(&store_neighbor))
-					return false;
-				
-				errs()<<"Stencil Output: "<<*StencilInfo.output<<"\n";
-				
-			}	   
+			if(isa<StoreInst>(I))
+				StrIns.push_back(I);
 		}
+	}
+	
+	if(StrIns.empty()) {
+		errs()<<"ERROR! Inner computation loop has no store instruction\n";
+		return false;
+	}
+	
+	for(auto I : StrIns){
+		errs()<<"Store: "<<*I<<"\n";	
+		if(isa<StoreInst>(I)){
+			Ins = dyn_cast<Instruction>(I);
+			//errs() << "Store Instruction: "<< *Ins << "\n";
+			
+			// Get base pointer of store instruction operand
+			PtrOp = getPointerOperand(Ins);
+			//errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
+			if(!parse_gep(PtrOp, &store_neighbor))
+				return false;
+			
+			while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
+				if((LD = dyn_cast<LoadInst>(PtrOp)))
+					PtrOp = LD->getPointerOperand();
+				if((GEP = dyn_cast<GetElementPtrInst>(PtrOp)))
+					PtrOp = GEP->getPointerOperand();
+				//errs()<<"Passou "<<"\n";
+			}
+			
+			//errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
+			Stencil->output = PtrOp;
+			
+			//errs() << "GEP: "<<*GEP<<"\n";
+			
+			StoreInst *Str = dyn_cast<StoreInst>(Ins);
+			//Output Computation Value
+			errs()<<"Store Value Operand: "<<*Str->getValueOperand()<<"\n";
+			//Output GEP
+			//errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
+		   
+			//Populate map with memory access of the store
+			populateArrayAccess(Str->getValueOperand(), &arrayAcc);   //Saved values
+			//populateArrayAccess(Str->getPointerOperand());
+			
+			for(auto i : arrayAcc){
+				Neighbor2D neighbor;
+				errs()<<"Parsing: "<<*i.first<<"\n";
+				if(parse_load(i.first, &neighbor)){
+					//errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
+					Stencil->neighbors.push_back(neighbor);
+					// initially considers all pointers as arguments
+					// the input pointer will be in the swap loop
+					
+					if(std::find(Stencil->arguments.begin(),Stencil->arguments.end(),neighbor.basePtr) == Stencil->arguments.end()){
+						//errs()<<"Inserted: "<<neighbor.basePtr<<"\n";
+						Value *Val = neighbor.basePtr;
+						Stencil->arguments.push_back(Val);
+					}
+				}
+				else{
+					errs()<<"Error parsing: "<<i.first<<"\n";
+					return false;
+				}
+			}		
+			
+			printNeighbors(Stencil);	
+			
+			/* Match access */
+			if(!matchStencilNeighborhood(&store_neighbor, Stencil))
+				return false;
+			
+			errs()<<"Stencil Output: "<<*Stencil->output<<"\n";
+			
+		}	   
 	}
 	return true;
 }
 
-bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor){
-	for(auto neighbor : StencilInfo.neighbors){
+bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *Stencil){
+	for(auto neighbor : Stencil->neighbors){
 		//errs()<<"Position "<<*str_neighbor->scev_exp<<"\n";
 		if( neighbor.phinode_x != str_neighbor->phinode_x ||
 			neighbor.phinode_y != str_neighbor->phinode_y ||
@@ -531,14 +551,14 @@ bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor){
 	return true;
 }
 
-void Stencil::printNeighbors(){
-	errs()<<"# of Neighbors: "<<StencilInfo.neighbors.size()<<"\n";
-	for(auto i : StencilInfo.neighbors){
+void Stencil::printNeighbors(StencilInfo *Stencil){
+	errs()<<"# of Neighbors: "<<Stencil->neighbors.size()<<"\n";
+	for(auto i : Stencil->neighbors){
 		i.dump();
 	}
 }
 
-bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension){
+bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension, StencilInfo *Stencil){
 	const SCEV* backedge = SE->getBackedgeTakenCount(loop);
 	Value* bound;
 	PHINode* phi = getPHINode(loop);
@@ -559,19 +579,19 @@ bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension){
 	vector<Loop*> subLoops = loop->getSubLoops();
 	if(subLoops.empty()) {
 		//errs()<<"Subloop is empty\n";
-		if(!verifySwap(loop))
+		if(!verifySwap(loop, Stencil))
 			return false;
 	}
 	else{
 		Loop::iterator j, f;
 		for (j = subLoops.begin(), f = subLoops.end(); j != f; ++j) {
-			verifySwapLoops(*j, dimension + 1);
+			verifySwapLoops(*j, dimension + 1, Stencil);
 		}
 	}
 	return true;
 }
 
-bool Stencil::verifySwap(Loop *loop){
+bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 	ArrayAccess arr;
 	Neighbor2D str_neighbor;
 	Neighbor2D neighbor;
@@ -644,27 +664,27 @@ bool Stencil::verifySwap(Loop *loop){
 				}
 				else {
 					//Set the load value of the store as input
-					//errs()<<"Arguments Size: "<<StencilInfo.arguments.size()<<"\n";
+					//errs()<<"Arguments Size: "<<Stencil->arguments.size()<<"\n";
 					
-					//for(std::vector<Value*>::const_iterator it = StencilInfo.arguments.begin(); it != StencilInfo.arguments.end(); ++it) {
-					for(unsigned int i = 0; i < StencilInfo.arguments.size(); ++i){
+					//for(std::vector<Value*>::const_iterator it = Stencil->arguments.begin(); it != Stencil->arguments.end(); ++it) {
+					for(unsigned int i = 0; i < Stencil->arguments.size(); ++i){
 						//errs()<<"Swap: "<<&(*it)<<"\n";
-						if(StencilInfo.arguments[i] == str_neighbor.basePtr){
-							StencilInfo.input = str_neighbor.basePtr;
-							StencilInfo.arguments.erase(StencilInfo.arguments.begin() + i);
+						if(Stencil->arguments[i] == str_neighbor.basePtr){
+							Stencil->input = str_neighbor.basePtr;
+							Stencil->arguments.erase(Stencil->arguments.begin() + i);
 							//errs()<<"Remove"<<"\n";
 						}
 					}
-					if(!StencilInfo.input){
+					if(!Stencil->input){
 						errs()<<"ERROR! Pointer swap does not match computation loop pointer\n";
 						return false;
 					}
 				}
 				
-				errs()<<"Stencil Input: "<<*StencilInfo.input<<"\n";
-				errs()<<"Stencil Arguments: "<<StencilInfo.arguments.size()<<"\n";
+				errs()<<"Stencil Input: "<<*Stencil->input<<"\n";
+				errs()<<"Stencil Arguments: "<<Stencil->arguments.size()<<"\n";
 				
-				for (auto i : StencilInfo.arguments){
+				for (auto i : Stencil->arguments){
 					errs()<<"\t"<<*i<<"\n";
 				}
 			}
@@ -683,12 +703,11 @@ PHINode* Stencil::getPHINode(Loop* loop){
 	} 
 }
 
-
 bool Stencil::runOnFunction(Function &F) {
 	this->LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
     this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
 	this->SE = &getAnalysis<ScalarEvolution>();
-	
+	//this->SE = getAnalysis<ScalarEvolutionWrapperPass>(F).getSE();
     this->RP = &getAnalysis<RegionInfoPass>();
     this->AA = &getAnalysis<AliasAnalysis>();
     this->ptrRA = &getAnalysis<PtrRangeAnalysis>();
@@ -697,20 +716,31 @@ bool Stencil::runOnFunction(Function &F) {
     //this->rr = &getAnalysis<RegionReconstructor>();
     //this->st = &getAnalysis<ScopeTree>();
 	
-    
-	//ScalarEvolution &SE = getAnalysis<ScalarEvolutionWrapperPass>(F).getSE();
-	//int loopCounter = 0;
-	
-    errs() << "\nFunction: " << F.getName() + "\n";
+	errs() << "\nFunction: " << F.getName() + "\n";
     errs() << "Arguments: ";
     for (auto& A : F.getArgumentList()) {
         errs() << A << "\t";
     }
     errs() << "\n";
     
+    CurrentFn = &F;
     
-    
-    /*errs() << "Dumping loops:\n";
+    if(verifyStencil()){
+		errs()<<"Function "<< F.getName()<<" constains Stencil Computation\n";
+	}
+	return false;
+}
+
+bool Stencil::verifyStencil() {
+	 StencilInfo Stencil;
+	 
+     int loopCount = 0;
+     for (LoopInfo::iterator i = LI->begin(), e = LI->end(); i != e; ++i) {
+		 loopCount++;
+	 }
+	 errs()<<"Function  has "<<loopCount<<" outermost loops\n";
+	 
+	 /*errs() << "Dumping loops:\n";
 	for(auto bb = F.begin(); bb!=F.end(); bb++){
         if(LI->isLoopHeader(&(*bb))){
             Loop *loop = LI->getLoopFor(&(*bb));
@@ -718,12 +748,6 @@ bool Stencil::runOnFunction(Function &F) {
 		}
 	}
 	*/
-	
-     int loopCount = 0;
-     for (LoopInfo::iterator i = LI->begin(), e = LI->end(); i != e; ++i) {
-		 loopCount++;
-	 }
-	 errs()<<"Function "<< F.getName()<<" has "<<loopCount<<" outermost loops\n";
 	 
 	 if(loopCount == 0){
 		 errs()<<"ERROR! Function has no loops\n";
@@ -736,30 +760,51 @@ bool Stencil::runOnFunction(Function &F) {
 	 else{
 		//outermost loop
 		Loop *it_loop = LI->begin()[0];
+		vector<Loop*> subLoops = it_loop->getSubLoops();
+		
+		
 		if(it_loop->isAnnotatedParallel()){
 			errs()<<"Outermost loop is Annotated Parallel\n";
 		}
-		if(!verifyIterationLoop(it_loop))
-			return false;
 		
-		//computation loops
-		vector<Loop*> subLoops = it_loop->getSubLoops();
-		
-		if(subLoops.size() != 2){
-			errs()<<"ERROR! Expected 2 subloops for outermost loop\n";
-			return false;
-		}
-		else{
-			if(!verifyComputationLoops(subLoops[0],1)){
-				errs()<<"Computation loop does not match stencil\n";
+		if(subLoops.size() == 1) { //!verifyIterationLoop(it_loop)
+			/* Considers it is a single iteration stencil */
+			errs()<<"Considering a single iteration stencil\n";
+			
+			if(!verifyComputationLoops(it_loop,1, &Stencil)){
+				errs()<<"ERROR! Computation loop does not match stencil\n";
 				return false;
 			}
-			if(!verifySwapLoops(subLoops[1],1))
+			
+			llvm::Type *i64_type = llvm::IntegerType::getInt64Ty(llvm::getGlobalContext());
+			llvm::Constant *i64_val = llvm::ConstantInt::get(i64_type, 1, false);
+			Stencil.iteration_value = dyn_cast<Value>(i64_val);
+		}
+		else {
+			// iteration loop
+			if(!verifyIterationLoop(it_loop, &Stencil)){
 				return false;
+			}
+			// computation loops
+			if(subLoops.size() != 2){
+				errs()<<"ERROR! Expected 2 subloops for outermost loop\n";
+				return false;
+			}
+			else{
+				if(!verifyComputationLoops(subLoops[0],1, &Stencil)){
+					errs()<<"Computation loop does not match stencil\n";
+					return false;
+				}
+				if(!verifySwapLoops(subLoops[1],1, &Stencil)) {
+					errs()<<"Swap loop does not match stencil\n";
+					return false;
+				}
+			}
 		}
 	}
-	errs()<<"Function "<< F.getName()<<" constains Stencil Computation\n";
-    return false;
+	
+	StencilData[CurrentFn] = Stencil;
+    return true;
 }
 
 
@@ -783,7 +828,7 @@ bool Stencil::containsOpCode(Value *Val, unsigned opCode){
 }
 
 
-void Stencil::showArrayAccess(){
+void Stencil::showArrayAccess(ArrayAccess arrayAcc){
 	errs()<<"ArrayAccess"<<"\n";
 	for(auto it : arrayAcc){
 		errs()<<*it.first<<"\n";
@@ -819,7 +864,7 @@ bool Stencil::matchInstruction(Value *Val, unsigned opcode){
 }
 
 bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
-	//errs()<<"Parse load: "<<*Val<<"\n";
+	errs()<<"Parse load: "<<*Val<<"\n";
 	if(isa<LoadInst>(Val)){
 		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), neighbor)){
 			errs()<<"ERROR parsing gep"<<"\n";

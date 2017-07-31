@@ -71,7 +71,7 @@ class Stencil : public FunctionPass {
 	  }
   };
   
-  struct StencilData {
+  struct StencilInfo {
 	int 		dimension;
 	Value* 		iteration_value;
 	PHINode* 	iteration_phinode;
@@ -85,18 +85,26 @@ class Stencil : public FunctionPass {
 	std::vector<Neighbor2D> neighbors;
 	std::vector<Value*> arguments;
 	
-	StencilData() {
+	StencilInfo() {
 		dimension = 0;
+		num_neighbors = 0;
 	}
   };
   //===---------------------------------------------------------------------===
+
+  // Function being analysed.
+  Function *CurrentFn;
+  
+  
+  std::map<Function*, StencilInfo> StencilData;
+
 
   Value* getPointerOperand (Instruction *Ins);
   void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
   void populateArrayAccess (Value *Val, ArrayAccess *acc);
   void traverseArrayExpression( ArrayExpression *ArrayExp, Value *Val);
   void showArrayExpression (ArrayExpression *ArrayExp, Value *Val);
-  void showArrayAccess();
+  void showArrayAccess(ArrayAccess arrayAcc);
   bool containsOpCode (Value *Val, unsigned opCode);
 
   bool matchInstruction (Value *Val, unsigned opCode);
@@ -113,15 +121,16 @@ class Stencil : public FunctionPass {
   
   void buildRange (Loop *loop);
   void printLoopDetails (Loop *loop);
-  void printNeighbors ();
+  void printNeighbors (StencilInfo *Stencil);
   
-  bool verifyIterationLoop (Loop *loop);
-  bool verifyComputationLoops (Loop *loop, unsigned int dimension);
-  bool verifySwapLoops (Loop *loop, unsigned int dimension);
-  bool verifyStore (Loop* loop);
-  bool verifySwap (Loop* loop);
+  bool verifyStencil();
+  bool verifyIterationLoop (Loop *loop, StencilInfo *Stencil);
+  bool verifyComputationLoops (Loop *loop, unsigned int dimension, StencilInfo *Stencil);
+  bool verifySwapLoops (Loop *loop, unsigned int dimension, StencilInfo *Stencil);
+  bool verifyStore (Loop* loop, StencilInfo *Stencil);
+  bool verifySwap (Loop* loop, StencilInfo *Stencil);
   PHINode* getPHINode (Loop *loop);
-  bool matchStencilNeighborhood(Neighbor2D *str_neighbor);
+  bool matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *Stencil);
   
   Value* visit(const SCEV *S);
   Value* visitAddExpr(const SCEVAddExpr *S);
@@ -129,8 +138,19 @@ class Stencil : public FunctionPass {
   Value* visitUMaxExpr(const SCEVUMaxExpr *S);
   Value* visitUnknown(const SCEVUnknown *S);
   
-  void showRange();
+  void showRange(Loop *loop);
   
+  
+  ScalarEvolution *SE;
+  LoopInfo *LI;
+  PtrRangeAnalysis *ptrRA;
+  RegionInfoPass *RP;
+  AliasAnalysis *AA;
+  DominatorTree *DT;
+  
+  //RecoverNames *rn;
+  //RegionReconstructor *rr;
+  //ScopeTree *st;
  
   public:
 
@@ -146,8 +166,6 @@ class Stencil : public FunctionPass {
   //The key value is the pointer Operand of a GEP ( GEP->getOperandPointer() )
   //The 
   //typedef std::multimap<Value*,arrayExpression> arrayAccess;
-  ArrayAccess arrayAcc;
-  StencilData StencilInfo;
 
   //===---------------------------------------------------------------------===
 
@@ -174,19 +192,7 @@ class Stencil : public FunctionPass {
       AU.addRequired<LoopInfoWrapperPass>();
       AU.addRequired<ScalarEvolution>();
       AU.setPreservesAll();
-  }
-
-  ScalarEvolution *SE;
-  LoopInfo *LI;
-  PtrRangeAnalysis *ptrRA;
-  RegionInfoPass *RP;
-  AliasAnalysis *AA;
-  DominatorTree *DT;
-  
-  //RecoverNames *rn;
-  //RegionReconstructor *rr;
-  //ScopeTree *st;
-  
+  }  
 };
 
 //===------------------------ Stencil.h --------------------------===//
