@@ -101,7 +101,7 @@ class Stencil : public FunctionPass {
 
   Value* getPointerOperand (Instruction *Ins);
   void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
-  void populateArrayAccess (Value *Val, ArrayAccess *acc);
+  bool populateArrayAccess (Value *Val, ArrayAccess *acc);
   void traverseArrayExpression( ArrayExpression *ArrayExp, Value *Val);
   void showArrayExpression (ArrayExpression *ArrayExp, Value *Val);
   void showArrayAccess(ArrayAccess arrayAcc);
@@ -109,7 +109,7 @@ class Stencil : public FunctionPass {
 
   bool matchInstruction (Value *Val, unsigned opCode);
   bool parse_load (Value *Val, Neighbor2D *neighbor);
-  bool parse_gep (Value *Val, Neighbor2D *neighbor);
+  bool parse_gep (Value *Val, const SCEV *ElementSize, Neighbor2D *neighbor);
   bool parse_idxprom (Value *Val, Neighbor2D *neighbor);
   bool parse_start (Value *Val, Neighbor2D *neighbor);
   bool parse_xoffset (Value *Val, Neighbor2D *neighbor);

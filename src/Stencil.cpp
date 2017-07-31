@@ -79,7 +79,7 @@ void Stencil::populateArrayExpression (ArrayExpression *arr, Value *Val) {
     }
 }
 
-void Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
+bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
     Instruction *Ins;
     int numOperands = 0;
     if ((Ins = dyn_cast<Instruction>(Val))){
@@ -116,6 +116,8 @@ void Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
     else {
         //errs()<<"Val is not a Instruction: "<<*Val<<"\n";
     }
+
+    return (acc->size() != 0);
 }
 /*
 void Stencil::populateArrayAccess (Value *Val) {
@@ -446,7 +448,7 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	Value *PtrOp;
 	//Value *ValOp;
-	Instruction *Ins;
+	//Instruction *Ins;
 	GetElementPtrInst *GEP;
 	LoadInst *LD;
 	Neighbor2D store_neighbor;
@@ -466,72 +468,75 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 		return false;
 	}
 	
-	for(auto I : StrIns){
-		errs()<<"Store: "<<*I<<"\n";	
-		if(isa<StoreInst>(I)){
-			Ins = dyn_cast<Instruction>(I);
-			//errs() << "Store Instruction: "<< *Ins << "\n";
+	for(auto Ins : StrIns){
+		errs()<<"Store: "<<*Ins<<"\n";	
+        //errs() << "Store Instruction: "<< *Ins << "\n";
+        
+        // Get base pointer of store instruction operand
+        PtrOp = getPointerOperand(Ins);
+
+        const SCEV *ElementSize = SE->getElementSize(Ins);
+            
+        //errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
+        if(!parse_gep(PtrOp, ElementSize, &store_neighbor))
+            return false;
+        
+        while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
+            if((LD = dyn_cast<LoadInst>(PtrOp)))
+                PtrOp = LD->getPointerOperand();
+            if((GEP = dyn_cast<GetElementPtrInst>(PtrOp)))
+                PtrOp = GEP->getPointerOperand();
+            //errs()<<"Passou "<<"\n";
+        }
+        
+        //errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
+        Stencil->output = PtrOp;
+        
+        //errs() << "GEP: "<<*GEP<<"\n";
+        
+        StoreInst *Str = dyn_cast<StoreInst>(Ins);
+        //Output Computation Value
+        errs()<<"Store Value Operand: "<<*Str->getValueOperand()<<"\n";
+        //Output GEP
+        //errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
+       
+        // Populate map with memory access of the store
+        // Return false if no load is found
+        if(!populateArrayAccess(Str->getValueOperand(), &arrayAcc)){
+            errs()<<"ERROR! Store Instruction has no memory access!"<<"\n";
+            return false;
+        }
+
+        errs()<<"ArrayAccess Size: "<<arrayAcc.size()<<"\n";
+        for(auto i : arrayAcc){
+            Neighbor2D neighbor;
+            errs()<<"Parsing: "<<*i.first<<"\n";
+            if(parse_load(i.first, &neighbor)){
+                //errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
+                Stencil->neighbors.push_back(neighbor);
+
+                // initially considers all pointers as arguments
+                // the input pointer will be in the swap loop
+                if(std::find(Stencil->arguments.begin(),Stencil->arguments.end(),neighbor.basePtr) == Stencil->arguments.end()){
+                    //errs()<<"Inserted: "<<neighbor.basePtr<<"\n";
+                    Value *Val = neighbor.basePtr;
+                    Stencil->arguments.push_back(Val);
+                }
+            }
+            else{
+                errs()<<"Error parsing: "<<i.first<<"\n";
+                return false;
+            }
+        }		
+        
+        printNeighbors(Stencil);	
 			
-			// Get base pointer of store instruction operand
-			PtrOp = getPointerOperand(Ins);
-			//errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
-			if(!parse_gep(PtrOp, &store_neighbor))
-				return false;
-			
-			while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
-				if((LD = dyn_cast<LoadInst>(PtrOp)))
-					PtrOp = LD->getPointerOperand();
-				if((GEP = dyn_cast<GetElementPtrInst>(PtrOp)))
-					PtrOp = GEP->getPointerOperand();
-				//errs()<<"Passou "<<"\n";
-			}
-			
-			//errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
-			Stencil->output = PtrOp;
-			
-			//errs() << "GEP: "<<*GEP<<"\n";
-			
-			StoreInst *Str = dyn_cast<StoreInst>(Ins);
-			//Output Computation Value
-			errs()<<"Store Value Operand: "<<*Str->getValueOperand()<<"\n";
-			//Output GEP
-			//errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
-		   
-			//Populate map with memory access of the store
-			populateArrayAccess(Str->getValueOperand(), &arrayAcc);   //Saved values
-			//populateArrayAccess(Str->getPointerOperand());
-			
-			for(auto i : arrayAcc){
-				Neighbor2D neighbor;
-				errs()<<"Parsing: "<<*i.first<<"\n";
-				if(parse_load(i.first, &neighbor)){
-					//errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
-					Stencil->neighbors.push_back(neighbor);
-					// initially considers all pointers as arguments
-					// the input pointer will be in the swap loop
-					
-					if(std::find(Stencil->arguments.begin(),Stencil->arguments.end(),neighbor.basePtr) == Stencil->arguments.end()){
-						//errs()<<"Inserted: "<<neighbor.basePtr<<"\n";
-						Value *Val = neighbor.basePtr;
-						Stencil->arguments.push_back(Val);
-					}
-				}
-				else{
-					errs()<<"Error parsing: "<<i.first<<"\n";
-					return false;
-				}
-			}		
-			
-			printNeighbors(Stencil);	
-			
-			/* Match access */
-			if(!matchStencilNeighborhood(&store_neighbor, Stencil))
-				return false;
-			
-			errs()<<"Stencil Output: "<<*Stencil->output<<"\n";
-			
-		}	   
-	}
+        /* Match access */
+        if(!matchStencilNeighborhood(&store_neighbor, Stencil))
+            return false;
+        }
+
+    errs()<<"Stencil Output: "<<*Stencil->output<<"\n";
 	return true;
 }
 
@@ -608,8 +613,9 @@ bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 				
 				// Get base pointer of store instruction operand
 				InputVal = getPointerOperand(Ins);
+                const SCEV *ElementSize = SE->getElementSize(I);
 				//errs()<<"PtrOp: "<<*InputVal<<"\n";
-				parse_gep(InputVal, &str_neighbor);
+				parse_gep(InputVal, ElementSize, &str_neighbor);
 				
 				while (isa<LoadInst>(InputVal) || isa<GetElementPtrInst>(InputVal)){
 					if((LD = dyn_cast<LoadInst>(InputVal)))
@@ -865,8 +871,10 @@ bool Stencil::matchInstruction(Value *Val, unsigned opcode){
 
 bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
 	errs()<<"Parse load: "<<*Val<<"\n";
+    const SCEV* ElementSize = SE->getElementSize(dyn_cast<Instruction>(Val));
+    errs()<<"Element Size: "<<*ElementSize<<"\n";
 	if(isa<LoadInst>(Val)){
-		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), neighbor)){
+		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), ElementSize, neighbor)){
 			errs()<<"ERROR parsing gep"<<"\n";
 			return false;
 		}
@@ -878,7 +886,7 @@ bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
 	return true;
 }
 
-bool Stencil::parse_gep(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor2D *neighbor) {
 	//errs()<<"Parse gep: "<<*Val<<"\n";
 	if(GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(Val)) {
 		//errs()<<"GEP: "<<*GEP<<"\n";
@@ -886,6 +894,38 @@ bool Stencil::parse_gep(Value *Val, Neighbor2D *neighbor) {
 		Loop *L = LI->getLoopFor(bb);
 		//errs()<<"Val: "<<*Val<<"\n";
 		const SCEV* scev_exp = SE->getSCEVAtScope(Val, L);
+
+        /* TODO try to delinearize
+        const SCEV *AccessFn = SE->getSCEVAtScope(Val, L);
+        errs()<<"AccessFn: "<<*AccessFn<<"\n";
+
+        const SCEVUnknown *BasePointer = dyn_cast<SCEVUnknown>(SE->getPointerBase(AccessFn));
+        errs()<<"BasePtr: "<<*BasePointer<<"\n";
+
+        AccessFn = SE->getMinusSCEV(AccessFn, BasePointer);
+        errs()<<"AccessFn: "<<*AccessFn<<"\n";
+        
+        const SCEVAddRecExpr *AR = dyn_cast<SCEVAddRecExpr>(AccessFn);
+
+        errs()<<"AR: "<<*AR<<"\n";
+      
+        SmallVector<const SCEV*, 3> Subscripts;
+        SmallVector<const SCEV*, 3> Sizes;
+        SE->delinearize(AR, Subscripts, Sizes, ElementSize);
+
+       
+        int Size = Subscripts.size();
+         errs() << "Size: "<<Size<<"\n";
+        for (int i = 0; i < Size - 1; i++)
+            errs() << "[" << *Sizes[i] << "]";
+        errs() << " with elements of " << *Sizes[Size - 1] << " bytes.\n";
+
+        errs() << "ArrayRef";
+        for (int i = 0; i < Size; i++)
+            errs() << "[" << *Subscripts[i] << "]";
+        errs() << "\n";
+        */
+        
 		//errs()<<"SCEV: "<<*scev_exp<<"\n";
 		neighbor->scev_exp = scev_exp;
 		neighbor->basePtr = GEP->getOperand(0);
