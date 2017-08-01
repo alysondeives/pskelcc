@@ -16,10 +16,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <omp.h>
+//#include <omp.h>
 
 /* Include polybench common header. */
-#include "../common/polybenchUtilFuncts.h"
+#include "../../common/polybenchUtilFuncts.h"
 
 /* Include benchmark-specific header. */
 /* Default data type is float, default size is 256x256x256. */
@@ -31,9 +31,9 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-#define NI 512
-#define NJ 512
-#define NK 512
+//#define NI 512
+//#define NJ 512
+//#define NK 512
 
 /* Can switch DATA_TYPE between float and double */
 //typedef float DATA_TYPE;
