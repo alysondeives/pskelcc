@@ -14,9 +14,9 @@
 #include <math.h>
 #include <assert.h>
 #include <sys/time.h>
-#include <omp.h>
+//#include <omp.h>
 
-#include "../common/polybenchUtilFuncts.h"
+#include "../../common/polybenchUtilFuncts.h"
 
 //define the error threshold for the results "not matching"
 #define ERROR_THRESHOLD 1.05

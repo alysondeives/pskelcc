@@ -15,9 +15,9 @@
 #include <assert.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <omp.h>
+//#include <omp.h>
 
-#include "../common/polybenchUtilFuncts.h"
+#include "../../common/polybenchUtilFuncts.h"
 
 //define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05
@@ -91,7 +91,7 @@ void compareResults(DATA_TYPE *G, DATA_TYPE *G_outputFromGpu)
   printf("Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\n", PERCENT_DIFF_ERROR_THRESHOLD, fail);
 }
 
-void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E, DATA_TYPE *F, DATA_TYPE *G)
+void mm3(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E, DATA_TYPE *F, DATA_TYPE *G)
 {
   int i,j,k;
 	
@@ -135,53 +135,6 @@ void mm3_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *
     }
 }
 
-void GPU__mm3(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E, DATA_TYPE *F, DATA_TYPE *G)
-{
-  int i,j,k;
-	
-  /* E := A*B */
-  #pragma acc loop independent
-  for (i = 0; i < NI; i++)
-    {
-      for (j = 0; j < NJ; j++)
-	{
-	  E[i*NJ + j] = 0;
-	  for (k = 0; k < NK; ++k)
-	    {
-	      E[i*NJ + j] += A[i*NK + k] * B[k*NJ + j];
-	    }
-	}
-    }
-  
-  /* F := C*D */
-  #pragma acc loop independent
-  for (i = 0; i < NJ; i++)
-    {
-      for (j = 0; j < NL; j++)
-	{
-	  F[i*NL + j] = 0;
-	  for (k = 0; k < NM; ++k)
-	    {
-	      F[i*NL + j] += C[i*NM + k] * D[k*NL + j];
-	    }
-	}
-    }
-
-  /* G := E*F */
-  #pragma acc loop independent
-  for (i = 0; i < NI; i++)
-    {
-      for (j = 0; j < NL; j++)
-	{
-	  G[i*NL + j] = 0;
-	  for (k = 0; k < NJ; ++k)
-	    {
-	      G[i*NL + j] += E[i*NJ + k] * F[k*NL + j];
-	    }
-	}
-    }
-}
-
 int main(int argc, char** argv)
 {
   double t_start, t_end;
@@ -193,7 +146,6 @@ int main(int argc, char** argv)
   DATA_TYPE* E;
   DATA_TYPE* F;
   DATA_TYPE* G;
-  DATA_TYPE* G_outputFromGpu;
 
   A = (DATA_TYPE*)malloc(NI*NK*sizeof(DATA_TYPE));
   B = (DATA_TYPE*)malloc(NK*NJ*sizeof(DATA_TYPE));
@@ -202,25 +154,16 @@ int main(int argc, char** argv)
   E = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
   F = (DATA_TYPE*)malloc(NJ*NL*sizeof(DATA_TYPE));
   G = (DATA_TYPE*)malloc(NI*NL*sizeof(DATA_TYPE));
-  G_outputFromGpu = (DATA_TYPE*)malloc(NI*NL*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Linear Algebra: 3 Matrix Multiplications (E=A.B; F=C.D; G=E.F) >>\n");
 
   init_array(A, B, C, D);
 
   t_start = rtclock();
-  GPU__mm3(A, B, C, D, E, F, G_outputFromGpu);
-  t_end = rtclock();	
-
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  t_start = rtclock();
-  mm3_cpu(A, B, C, D, E, F, G);
+  mm3(A, B, C, D, E, F, G);
   t_end = rtclock();
 
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  compareResults(G, G_outputFromGpu);
 
   free(A);
   free(B);
@@ -229,7 +172,6 @@ int main(int argc, char** argv)
   free(E);
   free(F);
   free(G);
-  free(G_outputFromGpu);
 
   return 0;
 }
