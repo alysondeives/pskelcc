@@ -73,9 +73,12 @@ class Stencil : public FunctionPass {
   
   struct StencilInfo {
 	int 		dimension;
+    std::tuple<Loop*, PHINode*, Value*> dimensions;
+    std::tuple<Loop*, PHINode*, Value*> iteration;
 	Value* 		iteration_value;
 	PHINode* 	iteration_phinode;
 	Loop*		iteration_loop;
+    Loop*       outer_loop;
 	SmallVector<Value*,3> 		dimension_value;
 	SmallVector<PHINode*,3> 	dimension_phinode;
 	SmallVector<Loop*,3>		dimension_loops;
@@ -96,7 +99,7 @@ class Stencil : public FunctionPass {
   Function *CurrentFn;
   
   
-  std::map<Function*, StencilInfo> StencilData;
+  std::multimap<Function*, StencilInfo> StencilData;
 
 
   Value* getPointerOperand (Instruction *Ins);

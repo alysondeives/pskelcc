@@ -397,10 +397,12 @@ bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 		 Stencil->iteration_phinode = phiNode;
 		 Stencil->iteration_value = bound;
 		 Stencil->iteration_loop = loop;
+
+        Stencil->iteration = std::make_tuple(loop,phiNode, bound);
 		 
-		 errs() << "Iteration loop PHINode: "<<*phiNode<<"\n";
-		 errs() << "Iteration loop Bound: "<<*Stencil->iteration_value<<"\n";
-		 return true;
+        errs() << "Iteration loop PHINode: "<<*phiNode<<"\n";
+		errs() << "Iteration loop Bound: "<<*Stencil->iteration_value<<"\n";
+		return true;
 	}
     else {
 		errs() << "Could not find canonical ind-var\n";
@@ -547,9 +549,11 @@ bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *St
 			neighbor.phinode_y != str_neighbor->phinode_y ||
 			neighbor.stride_x != str_neighbor->stride_x ) {
 				errs()<<"Does not match stencil computation\n";
+                errs()<<"Neighbor\t\t\t\t\t\t\t\tOutput\n";
+                errs()<<"BasePtr:   "<<*neighbor.basePtr<<"\t\t\t\t\t\t\t"<<*str_neighbor->basePtr<<"\n";
 				errs()<<"Phinode X: "<<*neighbor.phinode_x<<"\t"<<*str_neighbor->phinode_x<<"\n";
 				errs()<<"Phinode Y: "<<*neighbor.phinode_y<<"\t"<<*str_neighbor->phinode_y<<"\n";
-				errs()<<"Stride X: "<<*neighbor.stride_x<<"\t"<<*str_neighbor->stride_x<<"\n";
+				errs()<<"Stride X:  "<<*neighbor.stride_x<<"\t\t\t\t\t\t\t"<<*str_neighbor->stride_x<<"\n";
 				return false;
 		}
 	}
@@ -557,10 +561,14 @@ bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *St
 }
 
 void Stencil::printNeighbors(StencilInfo *Stencil){
-	errs()<<"# of Neighbors: "<<Stencil->neighbors.size()<<"\n";
+	errs()<<"# of Neighbors of base pointer "<<*Stencil->output;
+    errs()<<" : "<<Stencil->neighbors.size()<<"\n";
+
+    errs()<<"-----------------------------------------------------------------\n";
 	for(auto i : Stencil->neighbors){
 		i.dump();
 	}
+    errs()<<"-----------------------------------------------------------------\n";
 }
 
 bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension, StencilInfo *Stencil){
@@ -730,23 +738,8 @@ bool Stencil::runOnFunction(Function &F) {
     errs() << "\n";
     
     CurrentFn = &F;
-    
-    if(verifyStencil()){
-		errs()<<"Function "<< F.getName()<<" constains Stencil Computation\n";
-	}
-	return false;
-}
 
-bool Stencil::verifyStencil() {
-	 StencilInfo Stencil;
-	 
-     int loopCount = 0;
-     for (LoopInfo::iterator i = LI->begin(), e = LI->end(); i != e; ++i) {
-		 loopCount++;
-	 }
-	 errs()<<"Function  has "<<loopCount<<" outermost loops\n";
-	 
-	 /*errs() << "Dumping loops:\n";
+    /*errs() << "Dumping loops:\n";
 	for(auto bb = F.begin(); bb!=F.end(); bb++){
         if(LI->isLoopHeader(&(*bb))){
             Loop *loop = LI->getLoopFor(&(*bb));
@@ -754,20 +747,38 @@ bool Stencil::verifyStencil() {
 		}
 	}
 	*/
+    
+    if(verifyStencil()){
+		errs()<<"Function "<< F.getName()<<" constains Stencil Computation\n";
+	}
+	return false;
+}
+
+bool Stencil::verifyStencil() {	 
+     int loopCount = 0;
+     for (LoopInfo::iterator i = LI->begin(), e = LI->end(); i != e; ++i) {
+		 loopCount++;
+	 }
+	 errs()<<"Function  has "<<loopCount<<" outermost loops\n";
 	 
-	 if(loopCount == 0){
+	if(LI->empty()){
 		 errs()<<"ERROR! Function has no loops\n";
 		 return (false);
-	 }
-	 if(loopCount > 1){
-		 errs()<<"ERROR! Expected only 1 outermost loop\n";
-		 return (false);
-	 }
-	 else{
+	}
+
+    //if(loopCount > 1){
+	//	 errs()<<"ERROR! Expected only 1 outermost loop\n";
+		 //return (false);
+    //}
+	 //else{
+         
+    for (LoopInfo::iterator it = LI->begin(), e = LI->end(); it != e; ++it) {
+        Loop *it_loop = *it;
+        StencilInfo Stencil;
+             
 		//outermost loop
-		Loop *it_loop = LI->begin()[0];
+		//Loop *it_loop = LI->begin()[0];
 		vector<Loop*> subLoops = it_loop->getSubLoops();
-		
 		
 		if(it_loop->isAnnotatedParallel()){
 			errs()<<"Outermost loop is Annotated Parallel\n";
@@ -779,7 +790,8 @@ bool Stencil::verifyStencil() {
 			
 			if(!verifyComputationLoops(it_loop,1, &Stencil)){
 				errs()<<"ERROR! Computation loop does not match stencil\n";
-				return false;
+				//return false;
+                continue;
 			}
 			
 			llvm::Type *i64_type = llvm::IntegerType::getInt64Ty(llvm::getGlobalContext());
@@ -789,28 +801,33 @@ bool Stencil::verifyStencil() {
 		else {
 			// iteration loop
 			if(!verifyIterationLoop(it_loop, &Stencil)){
-				return false;
+				//return false;
+                continue;
 			}
 			// computation loops
 			if(subLoops.size() != 2){
 				errs()<<"ERROR! Expected 2 subloops for outermost loop\n";
-				return false;
+                //return false;
+                continue;
 			}
 			else{
 				if(!verifyComputationLoops(subLoops[0],1, &Stencil)){
 					errs()<<"Computation loop does not match stencil\n";
-					return false;
+					//return false;
+                    continue;
 				}
 				if(!verifySwapLoops(subLoops[1],1, &Stencil)) {
 					errs()<<"Swap loop does not match stencil\n";
-					return false;
+					//return false;
+                    continue;
 				}
 			}
 		}
+        errs()<<"INSERTING!\n";
+        StencilData.insert(std::pair<Function*, StencilInfo>(CurrentFn,Stencil));
 	}
 	
-	StencilData[CurrentFn] = Stencil;
-    return true;
+	return (!StencilData.empty());
 }
 
 
@@ -894,7 +911,7 @@ bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor2D *neighbo
 		Loop *L = LI->getLoopFor(bb);
 		//errs()<<"Val: "<<*Val<<"\n";
 		const SCEV* scev_exp = SE->getSCEVAtScope(Val, L);
-
+        errs()<<"SCEV: "<<*scev_exp<<"\n";
         /* TODO try to delinearize
         const SCEV *AccessFn = SE->getSCEVAtScope(Val, L);
         errs()<<"AccessFn: "<<*AccessFn<<"\n";
@@ -926,7 +943,6 @@ bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor2D *neighbo
         errs() << "\n";
         */
         
-		//errs()<<"SCEV: "<<*scev_exp<<"\n";
 		neighbor->scev_exp = scev_exp;
 		neighbor->basePtr = GEP->getOperand(0);
 		if(!parse_idxprom(GEP->getOperand(1), neighbor))
