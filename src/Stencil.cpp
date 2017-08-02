@@ -85,7 +85,18 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
     if ((Ins = dyn_cast<Instruction>(Val))){
         numOperands = Ins->getNumOperands();
         //errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
-        if(isa<LoadInst>(*Ins)){
+        if(LoadInst *LD = dyn_cast<LoadInst>(Ins)){
+            // Print SCEV
+            BasicBlock *bb = LD->getParent();
+            Loop *L = LI->getLoopFor(bb);
+            //errs()<<"Val: "<<*Val<<"\n";
+            //const SCEV* scev_exp = SE->getSCEVAtScope(LD->getPointerOperand(), L);
+            const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
+            errs()<<"-----------------------------------------------------------\n";
+            errs()<<"SCEV Access: "<<*scev_exp<<"\n";
+            printSCEV(scev_exp);
+
+            
 			ArrayExpression arr;
 			//errs()<<"PointerOperand: "<<*(dyn_cast<LoadInst>(Ins))->getPointerOperand()<<"\n";
 			populateArrayExpression(&arr, Ins->getOperand(0));
@@ -143,14 +154,117 @@ void Stencil::populateArrayAccess (Value *Val) {
 }
 */
 
+void Stencil::printSCEV(const SCEV *S){
+    switch (S->getSCEVType()) {
+    case scConstant:
+      //return visitConstant((const SCEVConstant *)S);
+      errs()<<"Constant: ";
+      S->dump();
+      break;
+    case scTruncate:
+      errs()<<"TruncateExpr: ";
+      S->dump();
+      printCastExpr((const SCEVTruncateExpr *)S);
+      break;
+    case scZeroExtend:
+      errs()<<"ZeroExtendExpr: ";
+      S->dump();
+      printCastExpr((const SCEVZeroExtendExpr *)S);
+      //return visitZeroExtendExpr((const SCEVZeroExtendExpr *)S);
+      break;
+    case scSignExtend:
+      errs()<<"SignExtendExpr: ";
+      S->dump();
+      printCastExpr((const SCEVSignExtendExpr *)S);
+      //return visitSignExtendExpr((const SCEVSignExtendExpr *)S);
+      break;
+    case scAddExpr:
+	  errs()<<"AddExpr: ";
+	  S->dump();
+      printNAryExpr((const SCEVAddExpr *)S);
+      break;
+    case scMulExpr:
+      errs()<<"MulExpr: ";
+      S->dump();
+      printNAryExpr((const SCEVMulExpr *)S);
+      break;
+    case scUDivExpr:
+      //return visitUDivExpr((const SCEVUDivExpr *)S);
+      errs()<<"ZeroUDivExpr: ";
+      S->dump();
+      break;
+    case scAddRecExpr:
+      errs()<<"AddRecExpr: ";
+      S->dump();
+      printAddRecExpr((const SCEVAddRecExpr *)S);
+      break;
+    case scSMaxExpr:
+      errs()<<"SMaxExpr: ";
+      S->dump();
+      printNAryExpr((const SCEVSMaxExpr *)S);
+      break;
+    case scUMaxExpr:
+      errs()<<"UMaxExpr: ";
+      S->dump();
+      printNAryExpr((const SCEVUMaxExpr *)S);
+      break;
+    case scUnknown:
+	  errs()<<"Unknown: ";
+	  S->dump();
+      break;
+      //return visitUnknown((const SCEVUnknown *)S);
+    case scCouldNotCompute:
+      errs()<<"CouldNotCompute: "<<"\n";
+      S->dump();
+      break;
+      //return nullptr;
+    default:
+      llvm_unreachable("Unknown SCEV type!");
+      break;
+    }
+}
+
+template<typename T>
+void Stencil::printNAryExpr(T *S){
+    errs()<<"Num Operands: "<<S->getNumOperands()<<"\n";
+    for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
+        printSCEV(S->getOperand(I));
+	}
+}
+
+template<typename T>
+void Stencil::printCastExpr(T *S){
+    printSCEV(S->getOperand());
+}
+
+void Stencil::printAddRecExpr(const SCEVAddRecExpr *S){
+    const SCEV *Start = S->getStart();
+    const SCEV *Step = S->getStepRecurrence(*SE);
+    const Loop *L = S->getLoop();
+
+    errs()<<"Start: "<<*Start<<"\n";
+    errs()<<"Step: "<<*Step<<"\n";
+    errs()<<"Loop: ";
+    L->print(errs());
+    errs()<<"Backedge: "<<*SE->getBackedgeTakenCount(L)<<"\n";
+
+    for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
+        //errs()<<"AddRecExpr Operand "<<I<<": "<<*S->getOperand(I)<<"\n";
+        printSCEV(S->getOperand(I));
+	}
+
+}
+
+
+
 // We need to overwrite this method so the most specialized visit methods are
 // called before the visitors on SCEVExpander.
 Value* Stencil::visit(const SCEV *S) {
     switch (S->getSCEVType()) {
     case scConstant:
       //return visitConstant((const SCEVConstant *)S);
-      //errs()<<"Constant: ";
-      //S->dump();
+      errs()<<"Constant: ";
+      S->dump();
     case scTruncate:
       //return visitTruncateExpr((const SCEVTruncateExpr *)S);
       //errs()<<"TruncateExpr: "<<"\n";
@@ -176,9 +290,9 @@ Value* Stencil::visit(const SCEV *S) {
       //errs()<<"ZeroUDivExpr: ";
       //S->dump();
     case scAddRecExpr:
-      //return visitAddRecExpr((const SCEVAddRecExpr *));
       //errs()<<"AddRecExpr: ";
       //S->dump();
+      //return visitAddRecExpr((const SCEVAddRecExpr *));
     case scSMaxExpr:
       //errs()<<"SMaxExpr: ";
       //S->dump();
@@ -887,9 +1001,9 @@ bool Stencil::matchInstruction(Value *Val, unsigned opcode){
 }
 
 bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
-	errs()<<"Parse load: "<<*Val<<"\n";
+	//errs()<<"Parse load: "<<*Val<<"\n";
     const SCEV* ElementSize = SE->getElementSize(dyn_cast<Instruction>(Val));
-    errs()<<"Element Size: "<<*ElementSize<<"\n";
+    //errs()<<"Element Size: "<<*ElementSize<<"\n";
 	if(isa<LoadInst>(Val)){
 		if(!parse_gep((dyn_cast<LoadInst>(Val))->getPointerOperand(), ElementSize, neighbor)){
 			errs()<<"ERROR parsing gep"<<"\n";

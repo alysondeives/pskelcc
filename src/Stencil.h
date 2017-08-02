@@ -142,6 +142,16 @@ class Stencil : public FunctionPass {
   Value* visitUnknown(const SCEVUnknown *S);
   
   void showRange(Loop *loop);
+
+  void printSCEV(const SCEV *S);
+
+  template<typename T>
+  void printNAryExpr(T *S);
+
+  template<typename T>
+  void printCastExpr(T *S);
+
+  void printAddRecExpr(const SCEVAddRecExpr *S);
   
   
   ScalarEvolution *SE;
