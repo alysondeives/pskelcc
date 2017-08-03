@@ -94,8 +94,8 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
             const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
             errs()<<"-----------------------------------------------------------\n";
             errs()<<"SCEV Access: "<<*scev_exp<<"\n";
-            printSCEV(scev_exp);
-
+            printSCEV(scev_exp, SE->getElementSize(dyn_cast<Instruction>(LD->getPointerOperand())));
+			errs()<<"ElementSize: "<<*SE->getElementSize(LD)<<"\n";
             
 			ArrayExpression arr;
 			//errs()<<"PointerOperand: "<<*(dyn_cast<LoadInst>(Ins))->getPointerOperand()<<"\n";
@@ -154,7 +154,7 @@ void Stencil::populateArrayAccess (Value *Val) {
 }
 */
 
-void Stencil::printSCEV(const SCEV *S){
+void Stencil::printSCEV(const SCEV *S, const SCEV *E){
     switch (S->getSCEVType()) {
     case scConstant:
       //return visitConstant((const SCEVConstant *)S);
@@ -164,29 +164,29 @@ void Stencil::printSCEV(const SCEV *S){
     case scTruncate:
       errs()<<"TruncateExpr: ";
       S->dump();
-      printCastExpr((const SCEVTruncateExpr *)S);
+      printCastExpr((const SCEVTruncateExpr *)S,E);
       break;
     case scZeroExtend:
       errs()<<"ZeroExtendExpr: ";
       S->dump();
-      printCastExpr((const SCEVZeroExtendExpr *)S);
+      printCastExpr((const SCEVZeroExtendExpr *)S, E);
       //return visitZeroExtendExpr((const SCEVZeroExtendExpr *)S);
       break;
     case scSignExtend:
       errs()<<"SignExtendExpr: ";
       S->dump();
-      printCastExpr((const SCEVSignExtendExpr *)S);
+      printCastExpr((const SCEVSignExtendExpr *)S, E);
       //return visitSignExtendExpr((const SCEVSignExtendExpr *)S);
       break;
     case scAddExpr:
 	  errs()<<"AddExpr: ";
 	  S->dump();
-      printNAryExpr((const SCEVAddExpr *)S);
+      printNAryExpr((const SCEVAddExpr *)S, E);
       break;
     case scMulExpr:
       errs()<<"MulExpr: ";
       S->dump();
-      printNAryExpr((const SCEVMulExpr *)S);
+      printNAryExpr((const SCEVMulExpr *)S, E);
       break;
     case scUDivExpr:
       //return visitUDivExpr((const SCEVUDivExpr *)S);
@@ -196,17 +196,17 @@ void Stencil::printSCEV(const SCEV *S){
     case scAddRecExpr:
       errs()<<"AddRecExpr: ";
       S->dump();
-      printAddRecExpr((const SCEVAddRecExpr *)S);
+      printAddRecExpr((const SCEVAddRecExpr *)S, E);
       break;
     case scSMaxExpr:
       errs()<<"SMaxExpr: ";
       S->dump();
-      printNAryExpr((const SCEVSMaxExpr *)S);
+      printNAryExpr((const SCEVSMaxExpr *)S, E);
       break;
     case scUMaxExpr:
       errs()<<"UMaxExpr: ";
       S->dump();
-      printNAryExpr((const SCEVUMaxExpr *)S);
+      printNAryExpr((const SCEVUMaxExpr *)S, E);
       break;
     case scUnknown:
 	  errs()<<"Unknown: ";
@@ -225,19 +225,19 @@ void Stencil::printSCEV(const SCEV *S){
 }
 
 template<typename T>
-void Stencil::printNAryExpr(T *S){
+void Stencil::printNAryExpr(T *S, const SCEV *E){
     errs()<<"Num Operands: "<<S->getNumOperands()<<"\n";
-    for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
-        printSCEV(S->getOperand(I));
+    for (unsigned I = 0, J = S->getNumOperands(); I < J; ++I) {
+        printSCEV(S->getOperand(I), E);
 	}
 }
 
 template<typename T>
-void Stencil::printCastExpr(T *S){
-    printSCEV(S->getOperand());
+void Stencil::printCastExpr(T *S, const SCEV *E){
+    printSCEV(S->getOperand(), E);
 }
 
-void Stencil::printAddRecExpr(const SCEVAddRecExpr *S){
+void Stencil::printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E){
     const SCEV *Start = S->getStart();
     const SCEV *Step = S->getStepRecurrence(*SE);
     const Loop *L = S->getLoop();
@@ -248,9 +248,21 @@ void Stencil::printAddRecExpr(const SCEVAddRecExpr *S){
     L->print(errs());
     errs()<<"Backedge: "<<*SE->getBackedgeTakenCount(L)<<"\n";
 
-    for (unsigned I = 0, E = S->getNumOperands(); I < E; ++I) {
+	SmallVector<const SCEV*,3> Subscripts;
+	SmallVector<const SCEV*,3> Sizes;
+	//const SCEV *ElementSize;
+	
+	SE->delinearize(S,Subscripts,Sizes,E);
+	
+	if (Subscripts.size() == 0 || Sizes.size() == 0 ||
+          Subscripts.size() != Sizes.size()) {
+        errs() << "Failed to delinearize\n";
+	}
+	
+
+    for (unsigned I = 0, J = S->getNumOperands(); I < J; ++I) {
         //errs()<<"AddRecExpr Operand "<<I<<": "<<*S->getOperand(I)<<"\n";
-        printSCEV(S->getOperand(I));
+		printSCEV(S->getOperand(I), E);
 	}
 
 }
@@ -592,7 +604,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         PtrOp = getPointerOperand(Ins);
 
         const SCEV *ElementSize = SE->getElementSize(Ins);
-            
+
         //errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
         if(!parse_gep(PtrOp, ElementSize, &store_neighbor))
             return false;
