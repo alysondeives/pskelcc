@@ -75,10 +75,13 @@ void kernel_jacobi_2d(int tsteps,
 	c1 = +0.2;
 	for (t = 0; t < _PB_TSTEPS; t++)
 	{
-		for (i = 1; i < _PB_N - 1; i++)
-			for (j = 1; j < _PB_N - 1; j++)
-				B[i*_PB_N + j] = c1 * (A[(i)*_PB_N + j] + A[(i)*_PB_N + (j-1)] 
-				                      + A[(i)*_PB_N + (j+1)] + A[(i+1)*_PB_N + j] + A[(i-1)*_PB_N + j]);
+		for (i = 2; i < _PB_N-2; i++)
+			for (j = 2; j < _PB_N-2; j++)
+                B[i*_PB_N + j] = A[(i-1)*_PB_N + (j-2)]; 
+                                 //A[(i+0)*_PB_N + (j)] +
+                                 //A[(i+1)*_PB_N + (j)];
+				//B[i*_PB_N + j] = c1 * (A[(i)*_PB_N + j] + A[(i)*_PB_N + (j-1)] 
+				//                      + A[(i)*_PB_N + (j+1)] + A[(i+1)*_PB_N + j] + A[(i-1)*_PB_N + j]);
 	  
 		for (i = 1; i < _PB_N-1; i++)
 			for (j = 1; j < _PB_N-1; j++)
