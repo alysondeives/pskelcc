@@ -19,20 +19,23 @@
 
 #include "../../common/polybenchUtilFuncts.h"
 
+/* Include benchmark-specific header. */
+#include "3mm.h"
+
 //define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05
 
-/* Problem size. */
+/* Problem size. 
 # define NI 1500
 # define NJ 1500
 # define NK 1500
 # define NL 1500
 # define NM 1500
-
+*/
 # define GPU_DEVICE 1
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_array(DATA_TYPE* A, DATA_TYPE* B, DATA_TYPE* C, DATA_TYPE* D)
 {
@@ -91,45 +94,46 @@ void compareResults(DATA_TYPE *G, DATA_TYPE *G_outputFromGpu)
   printf("Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\n", PERCENT_DIFF_ERROR_THRESHOLD, fail);
 }
 
-void mm3(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E, DATA_TYPE *F, DATA_TYPE *G)
+void mm3(int ni, int nj, int nk, int nl, int nm,
+         DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E, DATA_TYPE *F, DATA_TYPE *G)
 {
   int i,j,k;
 	
   /* E := A*B */
-  for (i = 0; i < NI; i++)
+  for (i = 0; i < _PB_NI; i++)
     {
-      for (j = 0; j < NJ; j++)
+      for (j = 0; j < _PB_NJ; j++)
 	{
 	  E[i*NJ + j] = 0;
-	  for (k = 0; k < NK; ++k)
+	  for (k = 0; k < _PB_NK; ++k)
 	    {
-	      E[i*NJ + j] += A[i*NK + k] * B[k*NJ + j];
+	      E[i*_PB_NJ + j] += A[i*_PB_NK + k] * B[k*_PB_NJ + j];
 	    }
 	}
     }
 		
   /* F := C*D */
-  for (i = 0; i < NJ; i++)
+  for (i = 0; i < _PB_NJ; i++)
     {
-      for (j = 0; j < NL; j++)
+      for (j = 0; j < _PB_NL; j++)
 	{
-	  F[i*NL + j] = 0;
-	  for (k = 0; k < NM; ++k)
+	  F[i*_PB_NL + j] = 0;
+	  for (k = 0; k < _PB_NM; ++k)
 	    {
-	      F[i*NL + j] += C[i*NM + k] * D[k*NL + j];
+	      F[i*_PB_NL + j] += C[i*_PB_NM + k] * D[k*_PB_NL + j];
 	    }
 	}
     }
 
   /* G := E*F */
-  for (i = 0; i < NI; i++)
+  for (i = 0; i < _PB_NI; i++)
     {
-      for (j = 0; j < NL; j++)
+      for (j = 0; j < _PB_NL; j++)
 	{
-	  G[i*NL + j] = 0;
-	  for (k = 0; k < NJ; ++k)
+	  G[i*_PB_NL + j] = 0;
+	  for (k = 0; k < _PB_NJ; ++k)
 	    {
-	      G[i*NL + j] += E[i*NJ + k] * F[k*NL + j];
+	      G[i*_PB_NL + j] += E[i*_PB_NJ + k] * F[k*_PB_NL + j];
 	    }
 	}
     }
@@ -138,6 +142,13 @@ void mm3(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E, D
 int main(int argc, char** argv)
 {
   double t_start, t_end;
+
+  /* Retrieve problem size. */
+  int ni = NI;
+  int nj = NJ;
+  int nk = NK;
+  int nl = NL;
+  int nm = NM;
 
   DATA_TYPE* A;
   DATA_TYPE* B;
@@ -160,7 +171,7 @@ int main(int argc, char** argv)
   init_array(A, B, C, D);
 
   t_start = rtclock();
-  mm3(A, B, C, D, E, F, G);
+  mm3(ni, nj, nk, nl, nm, A, B, C, D, E, F, G);
   t_end = rtclock();
 
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
