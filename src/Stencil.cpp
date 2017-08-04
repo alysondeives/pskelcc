@@ -607,7 +607,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 
         //errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
         if(!parse_gep(PtrOp, ElementSize, &store_neighbor))
-            return false;
+            //return false;
         
         while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
             if((LD = dyn_cast<LoadInst>(PtrOp)))
@@ -638,7 +638,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         errs()<<"ArrayAccess Size: "<<arrayAcc.size()<<"\n";
         for(auto i : arrayAcc){
             Neighbor2D neighbor;
-            errs()<<"Parsing: "<<*i.first<<"\n";
+            //errs()<<"Parsing: "<<*i.first<<"\n";
             if(parse_load(i.first, &neighbor)){
                 //errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
                 Stencil->neighbors.push_back(neighbor);
@@ -657,7 +657,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
             }
         }		
         
-        printNeighbors(Stencil);	
+        //printNeighbors(Stencil);	
 			
         /* Match access */
         if(!matchStencilNeighborhood(&store_neighbor, Stencil))
