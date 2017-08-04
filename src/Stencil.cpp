@@ -93,10 +93,11 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
             //const SCEV* scev_exp = SE->getSCEVAtScope(LD->getPointerOperand(), L);
             const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
             errs()<<"-----------------------------------------------------------\n";
-            errs()<<"SCEV Access: "<<*scev_exp<<"\n";
-            printSCEV(scev_exp, SE->getElementSize(dyn_cast<Instruction>(LD->getPointerOperand())));
-			errs()<<"ElementSize: "<<*SE->getElementSize(LD)<<"\n";
-            
+            //errs()<<"SCEV Access: "<<*scev_exp<<"\n";
+            //printSCEV(scev_exp, SE->getElementSize(dyn_cast<Instruction>(LD->getPointerOperand())));
+			//errs()<<"ElementSize: "<<*SE->getElementSize(LD)<<"\n";
+			Neighbor2D neighbor;
+            delinearize(scev_exp, neighbor);
 			ArrayExpression arr;
 			//errs()<<"PointerOperand: "<<*(dyn_cast<LoadInst>(Ins))->getPointerOperand()<<"\n";
 			populateArrayExpression(&arr, Ins->getOperand(0));
@@ -153,6 +154,106 @@ void Stencil::populateArrayAccess (Value *Val) {
     //}
 }
 */
+
+void Stencil::delinearize(const SCEV *S, Neighbor2D &str_neighbor){
+	errs()<<"SCEV Function: "<<*S<<"\n";
+	const SCEVUnknown *BasePointer = dyn_cast<SCEVUnknown>(SE->getPointerBase(S));
+	
+	// Do not delinearize if we cannot find the base pointer.
+    if (!BasePointer) {
+		errs()<<"Could not find base pointer in SCEV : "<<*S<<"\n";  
+	}
+	
+	Value *BasePtr = BasePointer->getValue();
+	S = SE->getMinusSCEV(S, BasePointer);
+	
+	//errs()<<"Minus SCEV Function: "<<*S<<"\n";
+	
+	const SCEVMulExpr *M1 = dyn_cast<SCEVMulExpr>(S);
+	if(!M1) {
+		errs()<<"Expected Mul Expression: "<<*S<<"\n";
+	}
+	
+	if(M1->getNumOperands() != 2){
+		errs()<<"Expected 2 Operands in MulExpr: "<<*M1<<"\n";
+	}
+	
+	const SCEV *ElementSize = M1->getOperand(0);
+	
+	const SCEVSignExtendExpr *Sign = dyn_cast<SCEVSignExtendExpr>(M1->getOperand(1));
+	
+	if(!Sign){
+		errs()<<"Expected SExt expression: "<<*M1<<"\n";
+	}
+	
+	Type *SignType = Sign->getType();
+	
+	const SCEV *S1 = Sign->getOperand();
+	
+	if(!isa<SCEVAddRecExpr>(S1)){
+		errs()<<"Expected SCEV AddRec expression: "<<*Sign<<"\n";
+	}
+	
+	errs()<<"Base Pointer: "<<*BasePtr<<"\n";
+	errs()<<"Access SCEV: "<<*S1<<"\n";
+	
+	//Now we have a AddRec SCEV. We need to traverse it! 
+	std::map<const Loop*,const SCEV*> Loops;
+	
+	while(isa<SCEVAddRecExpr>(S1)){
+		const Loop *L = dyn_cast<SCEVAddRecExpr>(S1)->getLoop();
+		const SCEV *Step = dyn_cast<SCEVAddRecExpr>(S1)->getStepRecurrence(*SE);
+		
+		Loops.insert(std::pair<const Loop*,const SCEV*>(L,Step));
+		S1 = dyn_cast<SCEVAddRecExpr>(S1)->getStart();
+	}
+	
+	switch (Loops.size()){
+		case 1:
+			//TODO parse1D
+			//parseSCEV(S1,Loops);
+			break;
+		case 2:
+			parse2DSCEV(S1,Loops);
+			break;
+		case 3:
+			//TODO parse3D
+			//parse3DSCEV(S1,Loops);
+			break;
+	}
+	
+	
+	
+	//printSCEV(S1, ElementSize);
+    
+}
+
+void Stencil::parse2DSCEV(const SCEV *S, std::map<const Loop*,const SCEV*> Loops){
+	switch(S->getSCEVType()){
+	case scConstant:
+		// 2D Case
+		// InnerLoop - offset = -1*PHINODE-initial-value
+		// OuterLoop - offset = Constant - PHINODE-initial-value
+		break;
+	case scUnknown:
+		//2D Case
+		// InnerLoop = offset = PHINODE-initial-value - 1
+		// OuterLoop = offset = -1*PHINODE-initial-value
+		break;
+	case scAddExpr:
+		// 2D Case: Constant + MulExpr | Unknown
+		// InnerLoop = if unknown = (PHINODE-initial-value - 1) else (MUlOperand(0) - PHINODE-initial-value)
+		// OuterLoop = Constant - PHINODE-initial-value
+		break;
+	case scMulExpr:
+		//2D Case
+		// InnerLoop - offset = MUlOperand(0) - PHINODE-initial-value
+		// OuterLoop = offset = -1 * PHINODE-initial-value
+		break;
+	default:
+		llvm_unreachable("Unknown SCEV kind!");
+	}
+}
 
 void Stencil::printSCEV(const SCEV *S, const SCEV *E){
     switch (S->getSCEVType()) {
@@ -241,13 +342,18 @@ void Stencil::printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E){
     const SCEV *Start = S->getStart();
     const SCEV *Step = S->getStepRecurrence(*SE);
     const Loop *L = S->getLoop();
+	const SCEV *Post = S->getPostIncExpr(*SE);
+	const SCEV *Minus = SE->getMinusSCEV(Post,S);
 
     errs()<<"Start: "<<*Start<<"\n";
     errs()<<"Step: "<<*Step<<"\n";
+    errs()<<"Post: "<<*Post<<"\n";
+    errs()<<"Minus: "<<*Minus<<"\n";
     errs()<<"Loop: ";
     L->print(errs());
     errs()<<"Backedge: "<<*SE->getBackedgeTakenCount(L)<<"\n";
 
+	/*
 	SmallVector<const SCEV*,3> Subscripts;
 	SmallVector<const SCEV*,3> Sizes;
 	//const SCEV *ElementSize;
@@ -258,7 +364,7 @@ void Stencil::printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E){
           Subscripts.size() != Sizes.size()) {
         errs() << "Failed to delinearize\n";
 	}
-	
+	*/
 
     for (unsigned I = 0, J = S->getNumOperands(); I < J; ++I) {
         //errs()<<"AddRecExpr Operand "<<I<<": "<<*S->getOperand(I)<<"\n";

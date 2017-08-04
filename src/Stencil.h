@@ -152,7 +152,8 @@ class Stencil : public FunctionPass {
   void printCastExpr(T *S, const SCEV *E);
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
-  
+  void delinearize(const SCEV *S, Neighbor2D &N);
+  void parse2DSCEV(const SCEV *S, std::map<const Loop*, const SCEV*> Loops);
   
   ScalarEvolution *SE;
   LoopInfo *LI;
