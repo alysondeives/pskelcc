@@ -132,7 +132,7 @@ class Stencil : public FunctionPass {
   bool verifySwapLoops (Loop *loop, unsigned int dimension, StencilInfo *Stencil);
   bool verifyStore (Loop* loop, StencilInfo *Stencil);
   bool verifySwap (Loop* loop, StencilInfo *Stencil);
-  PHINode* getPHINode (Loop *loop);
+  PHINode* getPHINode (const Loop *loop);
   bool matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *Stencil);
   
   Value* visit(const SCEV *S);
@@ -153,7 +153,7 @@ class Stencil : public FunctionPass {
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
   void delinearize(const SCEV *S, Neighbor2D &N);
-  void parse2DSCEV(const SCEV *S, std::map<const Loop*, const SCEV*> Loops);
+  void parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
   
   ScalarEvolution *SE;
   LoopInfo *LI;
