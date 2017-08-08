@@ -372,47 +372,72 @@ void Stencil::parse3DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVec
 		break;
 	case scAddExpr:
         //3D Case:
+        // Constant + NK
         // Constant + (NJ * NK) or
         // Constant + (Constant * NJ * NK)
         // Constant + ((Constant + (Constant * NJ)) * NK)
-
+		// Constant + ((Constant + NJ) * NK)
         AddExpr = dyn_cast<SCEVAddExpr>(S);
-        MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1));
+        
 
         Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
         offsetInner = Const->getValue()->getSExtValue()-innerVal;
-
-        if(MulExpr->getNumOperands() == 2){
-            if(isa<SCEVUnknown>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
-                offsetMid = 1 - midVal;
-                offsetOuter = -1 * outerVal;
-            }
-            else if(isa<SCEVAddExpr>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
-                AddExpr = dyn_cast<SCEVAddExpr>(MulExpr->getOperand(0));
-                Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
-                offsetOuter = Const->getValue()->getSExtValue() - outerVal;
-
-                MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1));
-                Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
-                offsetMid = Const->getValue()->getSExtValue() - midVal;
-            }
-            else{
-                errs()<<"ERROR! Expected (Unknown * Unknown) SCEV: "<<*MulExpr<<"\n";
-            }
-        }
-        else if(MulExpr->getNumOperands() == 3) {
-            Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
-            if(isa<SCEVUnknown>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
-                offsetMid = Const->getValue()->getSExtValue() - midVal;
-                offsetOuter = -1 * outerVal;
-            }
-            else{
-                errs()<<"ERROR! Expected (Constant * Unknow * Unknown) SCEV: "<<*MulExpr<<"\n";
-            }
-        }
-        else {
-            errs()<<"ERROR! Expected (Unknown * Unknown) or (Constant * Unknown * Unknown) SCEV : "<<*MulExpr<<"\n";
-        }
+        
+        if((MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1)))){
+			if(MulExpr->getNumOperands() == 2){
+				// Constant + (NJ * NK)
+				if(isa<SCEVUnknown>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
+					offsetMid = 1 - midVal;
+					offsetOuter = -1 * outerVal;
+				}
+				// Constant + ((Constant + NJ) * NK) or
+				// Constant + ((Constant + (Constant * NJ)) * NK)
+				else if(isa<SCEVAddExpr>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
+					AddExpr = dyn_cast<SCEVAddExpr>(MulExpr->getOperand(0));
+					Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
+					offsetOuter = Const->getValue()->getSExtValue() - outerVal;
+					
+					if((MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1)))) {
+						Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+						offsetMid = Const->getValue()->getSExtValue() - midVal;
+					}
+					else if(isa<SCEVUnknown>(AddExpr->getOperand(1))){
+						offsetMid = 1 - midVal;
+					}
+				}
+				else if(isa<SCEVConstant>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
+					Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+					offsetOuter = Const->getValue()->getSExtValue() - outerVal;
+					
+					offsetMid = -1 * midVal;
+				}
+				else{
+					errs()<<"ERROR! Expected (Unknown * Unknown) SCEV: "<<*MulExpr<<"\n";
+				}
+			}
+			else if(MulExpr->getNumOperands() == 3) {
+				Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+				if(isa<SCEVUnknown>(MulExpr->getOperand(1)) && isa<SCEVUnknown>(MulExpr->getOperand(2))) {
+					offsetMid = Const->getValue()->getSExtValue() - midVal;
+					offsetOuter = -1 * outerVal;
+				}
+				else{
+					errs()<<"ERROR! Expected (Constant * Unknow * Unknown) SCEV: "<<*MulExpr<<"\n";
+				}
+			}
+			else {
+				errs()<<"ERROR! Expected (Unknown * Unknown) or (Constant * Unknown * Unknown) SCEV : "<<*MulExpr<<"\n";
+			}
+		}
+		else {
+			if(isa<SCEVUnknown>(AddExpr->getOperand(1))){
+				offsetMid = -1 * midVal;
+				offsetOuter = 1 - outerVal;
+			}
+			else{
+				errs()<<"ERROR! Expected (Constant + Unknown) SCEV: "<<*S<<"\n";
+			}
+		}
 		break;
 	case scMulExpr:
 		//3D Case
