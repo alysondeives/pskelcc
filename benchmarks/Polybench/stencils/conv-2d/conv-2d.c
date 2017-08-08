@@ -38,8 +38,8 @@ void conv2D(int ni, int nj, DATA_TYPE* A, DATA_TYPE* B)
   c12 = -0.3;  c22 = +0.6;  c32 = -0.9;
   c13 = +0.4;  c23 = +0.7;  c33 = +0.10;
 
-	for (i = 1; i < _PB_NI - 1; ++i)
-		for (j = 1; j < _PB_NJ - 1; ++j)
+	for (i = 3; i < _PB_NI - 3; ++i)
+		for (j = 2; j < _PB_NJ - 2; ++j)
 			B[i*_PB_NJ + j] = c11 * A[(i-1)*_PB_NJ + (j-1)] + c12 * A[(i)*_PB_NJ + (j-1)] + c13 * A[(i+1)*_PB_NJ + (j-1)]
 							+ c21 * A[(i-1)*_PB_NJ + (j)]   + c22 * A[(i)*_PB_NJ + (j)]   + c23 * A[(i+1)*_PB_NJ + (j)] 
 							+ c31 * A[(i-1)*_PB_NJ + (j+1)] + c32 * A[(i)*_PB_NJ + (j+1)] + c33 * A[(i+1)*_PB_NJ + (j+1)];
