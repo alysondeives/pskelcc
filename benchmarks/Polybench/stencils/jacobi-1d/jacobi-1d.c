@@ -7,13 +7,22 @@
  * 
  * Copyright 2013, The University of Delaware
  */
-#include <stdio.h>
+
 #include <unistd.h>
+#include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
-#include <math.h>
+
+//#include <stdio.h>
+//#include <unistd.h>
+//#include <string.h>
+//#include <math.h>
 
 /* Include polybench common header. */
-#include "../common/polybenchUtilFuncts.h"
+#include "../../common/polybenchUtilFuncts.h"
 
 /* Include benchmark-specific header. */
 /* Default data type is double, default size is 100x10000. */
@@ -22,9 +31,7 @@
 
 /* Array initialization. */
 static
-void init_array (int n,
-		 DATA_TYPE *A,
-		 DATA_TYPE *B)
+void init_array (int n, DATA_TYPE *A, DATA_TYPE *B)
 {
 	int i;
 
@@ -39,8 +46,7 @@ void init_array (int n,
 /* DCE code. Must scan the entire live-out data.
    Can be used also to check the correctness of the output. */
 static
-void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(A,N,n))
+void print_array(int n, DATA_TYPE* A)
 
 {
   int i;
@@ -57,17 +63,15 @@ void print_array(int n,
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
 static
-void kernel_jacobi_1d(int tsteps,
-			    int n,
-			    DATA_TYPE *A,
-			    DATA_TYPE *B)
+void kernel_jacobi_1d(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B)
 {
 	int t, i, j;
+    DATA_TYPE c1 = +0.33333;
 
     for (t = 0; t < _PB_TSTEPS; t++)
 	{
 		for (i = 1; i < _PB_N - 1; i++)
-			B[i] = 0.33333 * (A[i-1] + A[i] + A[i + 1]);
+			B[i] = c1 * (A[i-1] + A[i] + A[i + 1]);
 			
 		for (j = 1; j < _PB_N - 1; j++)
 			A[j] = B[j];
@@ -97,7 +101,7 @@ int main(int argc, char** argv)
   t_start = rtclock();
 
   /* Run kernel. */
-  kernel_jacobi_1d (tsteps, n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
+  kernel_jacobi_1d (tsteps, n, A, B);
 
   /* Stop and print timer. */
   t_end = rtclock();
