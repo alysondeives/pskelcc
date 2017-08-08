@@ -90,15 +90,19 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
             BasicBlock *bb = LD->getParent();
             Loop *L = LI->getLoopFor(bb);
             //errs()<<"Val: "<<*Val<<"\n";
-            //const SCEV* scev_exp = SE->getSCEVAtScope(LD->getPointerOperand(), L);
-            const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
+            const SCEV* scev_exp = SE->getSCEVAtScope(LD->getPointerOperand(), L);
+            //const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
             errs()<<"-----------------------------------------------------------\n";
-            //errs()<<"SCEV Access: "<<*scev_exp<<"\n";
+            errs()<<"SCEV Access: "<<*scev_exp<<"\n";
             //printSCEV(scev_exp, SE->getElementSize(dyn_cast<Instruction>(LD->getPointerOperand())));
 			//errs()<<"ElementSize: "<<*SE->getElementSize(LD)<<"\n";
 			Neighbor2D neighbor;
+
+            //TODO Move to verifyStore
             delinearize(scev_exp, neighbor);
-			ArrayExpression arr;
+
+
+            ArrayExpression arr;
 			//errs()<<"PointerOperand: "<<*(dyn_cast<LoadInst>(Ins))->getPointerOperand()<<"\n";
 			populateArrayExpression(&arr, Ins->getOperand(0));
 			//for(int i=0; i<numOperands;i++){
@@ -219,14 +223,14 @@ void Stencil::delinearize(const SCEV *S, Neighbor2D &str_neighbor){
 	switch (SCEVLoops.size()){
 		case 1:
 			//TODO parse1D
-			//parseSCEV(S1,Loops);
+			parse1DSCEV(S1,SCEVLoops, SCEVSteps);
 			break;
 		case 2:
 			parse2DSCEV(S1,SCEVLoops, SCEVSteps);
 			break;
 		case 3:
 			//TODO parse3D
-			//parse3DSCEV(S1,Loops);
+			parse3DSCEV(S1,SCEVLoops, SCEVSteps);
 			break;
 	}
 	
@@ -234,6 +238,10 @@ void Stencil::delinearize(const SCEV *S, Neighbor2D &str_neighbor){
 	
 	//printSCEV(S1, ElementSize);
     
+}
+
+void Stencil::parse1DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps){
+    errs()<<"1D SCEV: "<<*S<<"\n";
 }
 
 void Stencil::parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps){
@@ -248,6 +256,9 @@ void Stencil::parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVec
 
     int innerVal = InnerValue->getSExtValue();
     int outerVal = OuterValue->getSExtValue();
+
+    errs()<<"innerVal: "<<innerVal<<"\n";
+    errs()<<"outerVal: "<<outerVal<<"\n";
 
     int offsetOuter = 0;
     int offsetInner = 0;
@@ -267,22 +278,22 @@ void Stencil::parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVec
 		break;
 	case scUnknown:
 		//2D Case
-		// InnerLoop = offset = PHINODE-initial-value - 1
-		// OuterLoop = offset = -1*PHINODE-initial-value
-        offsetInner = innerVal - 1;
+		// InnerLoop  offset = PHINODE-initial-value - 1
+		// OuterLoop  offset = -1*PHINODE-initial-value
+        offsetInner = 1 - innerVal;  //innerVal - 1;
         offsetOuter = -1 * outerVal;
 		break;
 	case scAddExpr:
 		// 2D Case: Constant + MulExpr | Unknown
-		// InnerLoop = if unknown = (PHINODE-initial-value - 1) else (MUlOperand(0) - PHINODE-initial-value)
+		// InnerLoop = if unknown = (1 - PHINODE-initial-value) else (MUlOperand(0) - PHINODE-initial-value)
 		// OuterLoop = Constant - PHINODE-initial-value
         AddExpr = dyn_cast<SCEVAddExpr>(S);
-        if(MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1))){
+        if((MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1)))){
             Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
             offsetInner = Const->getValue()->getSExtValue()-innerVal;
         }
         else if(isa<SCEVUnknown>(AddExpr->getOperand(1))) {
-            offsetInner = innerVal - 1;
+            offsetInner = 1 - innerVal;
         }
         else {
             errs()<<"ERROR! Expected (Constant + MulExpr | Unknown) SCEV: "<<*S<<"\n";
@@ -290,11 +301,6 @@ void Stencil::parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVec
 
         Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
         offsetOuter = Const->getValue()->getSExtValue() - outerVal;
-
-        //if(isa<SCEVUnknown>(dyn_cast<SCEVAddExpr>(S)->getOperand(1)))
-        
-        //else if (isa<SCEVMulExpr>((dyn_cast<SCEVAddExpr>(S))->getOperand(1)))
-        //    offsetInner = dyn_cast<SCEVConstant>((dyn_cast<SCEVMulExpr>(S))->getOperand(1))->getValue()->getSExtValue() - innerVal;
 		break;
 	case scMulExpr:
 		//2D Case
@@ -312,8 +318,170 @@ void Stencil::parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVec
 
     errs()<<"Offset Inner: "<<offsetInner<<"\n";
     errs()<<"Offset Outer: "<<offsetOuter<<"\n";
-        
 }
+
+void Stencil::parse3DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps){
+    errs()<<"3D SCEV: "<<*S<<"\n";
+
+    PHINode *Outer = getPHINode(L[2]);   //for j
+    PHINode *Mid =  getPHINode(L[1]);    //for i
+    PHINode *Inner = getPHINode(L[0]);   //for k
+
+    //errs()<<"PHINode Inner: "<<*Inner<<"\n";
+    //errs()<<"PHINode Outer: "<<*Outer<<"\n";
+
+    ConstantInt *InnerValue = dyn_cast<ConstantInt>(Inner->getIncomingValue(0));
+    ConstantInt *MidValue = dyn_cast<ConstantInt>(Mid->getIncomingValue(0));
+    ConstantInt *OuterValue = dyn_cast<ConstantInt>(Outer->getIncomingValue(0));
+    
+
+    int innerVal = InnerValue->getSExtValue();
+    int midVal = MidValue->getSExtValue();
+    int outerVal = OuterValue->getSExtValue();
+    
+    errs()<<"innerVal: "<<innerVal<<"\n";
+    errs()<<"midVal: "<<midVal<<"\n";
+    errs()<<"outerVal: "<<outerVal<<"\n";
+
+    int offsetOuter = 0; // J
+    int offsetInner = 0; // K
+    int offsetMid = 0;  // I
+
+    const SCEVAddExpr *AddExpr;
+    const SCEVConstant *Const;
+    const SCEVMulExpr *MulExpr;
+
+    switch(S->getSCEVType()){
+    case scConstant:
+		// InnerLoop offset = -1*PHINODE-initial-value
+        // MidLoop offset = 
+		// OuterLoop offset = Constant - PHINODE-initial-value
+        Const = dyn_cast<SCEVConstant>(S);
+        offsetInner = Const->getValue()->getSExtValue() - innerVal;
+        offsetMid = -1 * midVal;
+        offsetOuter = -1 * outerVal;
+		break;
+	case scUnknown:
+		// InnerLoop  offset = PHINODE-initial-value - 1
+		// OuterLoop  offset = -1*PHINODE-initial-value
+        //offsetInner = 1 - innerVal;  //innerVal - 1;
+        //offsetOuter = -1 * outerVal;
+        offsetInner = -1 * innerVal;
+        offsetMid = -1 * midVal;
+        offsetOuter = 1 - outerVal;
+		break;
+	case scAddExpr:
+        //3D Case:
+        // Constant + (NJ * NK) or
+        // Constant + (Constant * NJ * NK)
+        // Constant + ((Constant + (Constant * NJ)) * NK)
+
+        AddExpr = dyn_cast<SCEVAddExpr>(S);
+        MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1));
+
+        Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
+        offsetInner = Const->getValue()->getSExtValue()-innerVal;
+
+        if(MulExpr->getNumOperands() == 2){
+            if(isa<SCEVUnknown>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
+                offsetMid = 1 - midVal;
+                offsetOuter = -1 * outerVal;
+            }
+            else if(isa<SCEVAddExpr>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
+                AddExpr = dyn_cast<SCEVAddExpr>(MulExpr->getOperand(0));
+                Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
+                offsetOuter = Const->getValue()->getSExtValue() - outerVal;
+
+                MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1));
+                Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+                offsetMid = Const->getValue()->getSExtValue() - midVal;
+            }
+            else{
+                errs()<<"ERROR! Expected (Unknown * Unknown) SCEV: "<<*MulExpr<<"\n";
+            }
+        }
+        else if(MulExpr->getNumOperands() == 3) {
+            Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+            if(isa<SCEVUnknown>(MulExpr->getOperand(0)) && isa<SCEVUnknown>(MulExpr->getOperand(1))) {
+                offsetMid = Const->getValue()->getSExtValue() - midVal;
+                offsetOuter = -1 * outerVal;
+            }
+            else{
+                errs()<<"ERROR! Expected (Constant * Unknow * Unknown) SCEV: "<<*MulExpr<<"\n";
+            }
+        }
+        else {
+            errs()<<"ERROR! Expected (Unknown * Unknown) or (Constant * Unknown * Unknown) SCEV : "<<*MulExpr<<"\n";
+        }
+		break;
+	case scMulExpr:
+		//3D Case
+        //  NJ * NK
+        //  Constant * NJ
+		//  Constant * NJ * NK or
+        // (Constant + NJ) * NK or
+        // (Constant + (Constant * NJ)) * NK
+        MulExpr = dyn_cast<SCEVMulExpr>(S);
+        
+        if(MulExpr->getNumOperands() == 3){
+            Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+            offsetMid = Const->getValue()->getSExtValue() - midVal;
+            offsetInner = -1 * innerVal;
+            offsetOuter = -1 * outerVal;
+        }
+        else if(MulExpr->getNumOperands() == 2){
+            if(isa<SCEVUnknown>(MulExpr->getOperand(0))){
+                offsetInner = -1 * innerVal;
+                offsetOuter = -1 * outerVal;
+                offsetMid = 1 - outerVal;
+            }
+            else if((Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0)))){
+                offsetOuter = Const->getValue()->getSExtValue() - outerVal;
+                offsetInner = -1 * innerVal;
+                offsetMid = -1 * midVal;
+            }
+            else if((AddExpr = dyn_cast<SCEVAddExpr>(MulExpr->getOperand(0)))){
+                if(isa<SCEVUnknown>(AddExpr->getOperand(1))){
+                    offsetInner = -1 * innerVal;
+
+                    Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
+                    offsetOuter = Const->getValue()->getSExtValue() - outerVal;
+
+                    offsetMid = 1 - midVal;
+                }
+                else if(isa<SCEVMulExpr>(AddExpr->getOperand(1))){
+                    offsetInner = -1 * innerVal;
+
+                    Const = dyn_cast<SCEVConstant>(AddExpr->getOperand(0));
+                    offsetOuter = Const->getValue()->getSExtValue() - outerVal;
+
+                    MulExpr = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(1));
+                    Const = dyn_cast<SCEVConstant>(MulExpr->getOperand(0));
+                    offsetMid = Const->getValue()->getSExtValue() - midVal;
+                }
+                else{
+                    errs()<<"ERROR! Expected Unknown or MulExpr: "<<*AddExpr->getOperand(1)<<"\n";
+                }
+            }
+            else {
+                errs()<<"ERROR! Expected (Constant * Unknown) or (AddExpr * Unknown) :"<<*MulExpr<<"\n";
+            }
+        }
+        else{
+            errs()<<"ERROR! Expected 2 or 3 operands in MulExpr: "<<*MulExpr<<"\n";
+        } 
+        
+		break;
+	default:
+		llvm_unreachable("Unknown SCEV kind!");
+	}
+
+    errs()<<"Offset Mid: "<<offsetMid<<"\n";
+    errs()<<"Offset Outer: "<<offsetOuter<<"\n";
+    errs()<<"Offset Inner: "<<offsetInner<<"\n";
+    
+}
+
 
 void Stencil::printSCEV(const SCEV *S, const SCEV *E){
     switch (S->getSCEVType()) {
@@ -772,7 +940,8 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         const SCEV *ElementSize = SE->getElementSize(Ins);
 
         //errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
-        if(!parse_gep(PtrOp, ElementSize, &store_neighbor))
+        //TODO move this to SCEV parse
+        //if(!parse_gep(PtrOp, ElementSize, &store_neighbor))
             //return false;
         
         while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
@@ -801,6 +970,16 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
             return false;
         }
 
+        const SCEV *StrSCEV = SE->getSCEV(Str->getPointerOperand());
+
+        errs()<<"-----------------------------------------------------------\n";
+        errs()<<"Str SCEV Access: "<<*StrSCEV<<"\n";
+
+        //parseSCEVs
+
+        
+        
+        /* //TODO move this to SCEV parsing
         errs()<<"ArrayAccess Size: "<<arrayAcc.size()<<"\n";
         for(auto i : arrayAcc){
             Neighbor2D neighbor;
@@ -822,7 +1001,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
                 return false;
             }
         }		
-        
+        */
         //printNeighbors(Stencil);	
 			
         /* Match access */

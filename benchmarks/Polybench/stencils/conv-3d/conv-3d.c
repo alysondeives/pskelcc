@@ -50,7 +50,37 @@ void conv3D(int ni, int nj, int nk, DATA_TYPE* A, DATA_TYPE* B)
   for (j = 1; j < _PB_NJ - 1; ++j){
     for (i = 1; i < _PB_NI - 1; ++i){
 	  for (k = 1; k < _PB_NK -1; ++k){
-	    B[i*(_PB_NK * _PB_NJ) + j*_PB_NK + k] = c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]
+        B[i*(_PB_NK * _PB_NJ) + j*_PB_NK + k] = c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k  )]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k  )]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k  )]  + //check
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  + //check
+
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k-1)]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k-1)]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k-1)]  +
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k  )]  + //excep
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k  )]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k  )]  +
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k+1)]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k+1)]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k+1)]  +
+                    
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k  )]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k  )]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k  )]  +
+                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]  +
+                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]  +
+                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)];
+
+        /*B[i*(_PB_NK * _PB_NJ) + j*_PB_NK + k] = c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
                                                 c13 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
                                                 c21 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
                                                 c23 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
@@ -64,9 +94,10 @@ void conv3D(int ni, int nj, int nk, DATA_TYPE* A, DATA_TYPE* B)
                                                 c21 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+0)*_PB_NK + (k+1)]  +
                                                 c23 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+0)*_PB_NK + (k+1)]  +
                                                 c31 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]  +
-                                                c33 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]
-                                                ;
-	    }
+                                                c33 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)];
+	    
+	    */
+        }
 	}
     }
 }

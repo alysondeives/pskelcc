@@ -153,7 +153,9 @@ class Stencil : public FunctionPass {
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
   void delinearize(const SCEV *S, Neighbor2D &N);
+  void parse1DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
   void parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
+  void parse3DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
   
   ScalarEvolution *SE;
   LoopInfo *LI;
