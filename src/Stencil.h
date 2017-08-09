@@ -41,33 +41,54 @@ class Stencil : public FunctionPass {
   //The mapped values are each arrayAccess from this base pointer
   typedef std::multimap<Value*, ArrayAccess> BasePointers;
   
-  struct Neighbor2D {
+  struct Neighbor{
 	  const SCEV* scev_exp;
+	  SmallVector<const Loop*,3> SCEVLoops;
+	  SmallVector<const SCEV*,3> SCEVSteps;
 	  Value*   basePtr;
+	  LoadInst *LoadAccess;
+	  
 	  PHINode* phinode_x;
 	  PHINode* phinode_y;
+	  PHINode* phinode_z;
+	  
 	  int offset_x;
 	  int offset_y;
+	  int offset_z;
 	  Value* stride_x;
 	  
-	  Neighbor2D() {
+	  
+	  Neighbor() {
 		basePtr = nullptr;
 		phinode_x = nullptr;
 		phinode_y = nullptr;
+		phinode_z = nullptr;
 		stride_x = nullptr;
 		offset_x = 0;
 		offset_y = 0;
+		offset_z = 0;
 		scev_exp = nullptr;
 	  }
 	  
 	  void dump() {
-		errs()<<"Base pointer: "<< *basePtr <<"\n";
-		errs()<<"SCEV: "<< *scev_exp <<"\n";
-		errs()<<"PHINode X: "<<*phinode_x<<"\n";
-		errs()<<"X Offset: "<<offset_x<<"\n";
-		errs()<<"PHINode Y: "<<*phinode_y<<"\n";
-		errs()<<"Y Offset: "<<offset_y<<"\n";
-		errs()<<"Stride X: "<<*stride_x<<"\n";
+		if(basePtr)
+			errs()<<"Base pointer: "<< *basePtr <<"\n";
+		if(scev_exp)
+			errs()<<"SCEV: "<< *scev_exp <<"\n";
+		if(phinode_x){
+			errs()<<"PHINode X: "<<*phinode_x<<"\n";
+			errs()<<"X Offset: "<<offset_x<<"\n";
+		}
+		if(phinode_y){
+			errs()<<"PHINode Y: "<<*phinode_y<<"\n";
+			errs()<<"Y Offset: "<<offset_y<<"\n";
+		}
+		if(phinode_z){
+			errs()<<"PHINode Z: "<<*phinode_z<<"\n";
+			errs()<<"Z Offset: "<<offset_z<<"\n";
+		}
+		if(stride_x)
+			errs()<<"Stride X: "<<*stride_x<<"\n";
 	  }
   };
   
@@ -85,7 +106,7 @@ class Stencil : public FunctionPass {
 	int 		num_neighbors;
 	Value*		input;
 	Value*		output;
-	std::vector<Neighbor2D> neighbors;
+	std::vector<Neighbor> neighbors;
 	std::vector<Value*> arguments;
 	
 	StencilInfo() {
@@ -111,16 +132,16 @@ class Stencil : public FunctionPass {
   bool containsOpCode (Value *Val, unsigned opCode);
 
   bool matchInstruction (Value *Val, unsigned opCode);
-  bool parse_load (Value *Val, Neighbor2D *neighbor);
-  bool parse_gep (Value *Val, const SCEV *ElementSize, Neighbor2D *neighbor);
-  bool parse_idxprom (Value *Val, Neighbor2D *neighbor);
-  bool parse_start (Value *Val, Neighbor2D *neighbor);
-  bool parse_xoffset (Value *Val, Neighbor2D *neighbor);
-  bool parse_xoffset_add (Value *Val, int sign, Neighbor2D *neighbor);
-  bool parse_yoffset (Value *Val, Neighbor2D *neighbor);
-  bool parse_yoffset_add (Value *Val, int sign, Neighbor2D *neighbor);
-  bool parse_yoffset_mul (Value *Val, Neighbor2D *neighbor);
-  bool parse_yoffset_stride (Value *Val, Neighbor2D *neighbor);
+  bool parse_load (Value *Val, Neighbor *neighbor);
+  bool parse_gep (Value *Val, const SCEV *ElementSize, Neighbor *neighbor);
+  bool parse_idxprom (Value *Val, Neighbor *neighbor);
+  bool parse_start (Value *Val, Neighbor *neighbor);
+  bool parse_xoffset (Value *Val, Neighbor *neighbor);
+  bool parse_xoffset_add (Value *Val, int sign, Neighbor *neighbor);
+  bool parse_yoffset (Value *Val, Neighbor *neighbor);
+  bool parse_yoffset_add (Value *Val, int sign, Neighbor *neighbor);
+  bool parse_yoffset_mul (Value *Val, Neighbor *neighbor);
+  bool parse_yoffset_stride (Value *Val, Neighbor *neighbor);
   
   void buildRange (Loop *loop);
   void printLoopDetails (Loop *loop);
@@ -134,7 +155,7 @@ class Stencil : public FunctionPass {
   bool verifyStore (Loop* loop, StencilInfo *Stencil);
   bool verifySwap (Loop* loop, StencilInfo *Stencil);
   PHINode* getPHINode (const Loop *loop);
-  bool matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *Stencil);
+  bool matchStencilNeighborhood(Neighbor *str_neighbor, StencilInfo *Stencil);
   
   Value* visit(const SCEV *S);
   Value* visitAddExpr(const SCEVAddExpr *S);
@@ -153,7 +174,7 @@ class Stencil : public FunctionPass {
   void printCastExpr(T *S, const SCEV *E);
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
-  void delinearize(const SCEV *S, const SCEV *E, Neighbor2D &N);
+  void delinearize(const SCEV *S, const SCEV *E, Neighbor &N);
   void parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *E);
   void parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
   void parse3DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);

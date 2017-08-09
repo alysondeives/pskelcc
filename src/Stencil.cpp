@@ -97,7 +97,7 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
             //printSCEV(scev_exp, SE->getElementSize(dyn_cast<Instruction>(LD->getPointerOperand())));
             const SCEV *ElementSize = SE->getElementSize(LD);
 			//errs()<<"ElementSize: "<<ElementSize<<"\n";
-			Neighbor2D neighbor;
+			Neighbor neighbor;
 
             //TODO Move to verifyStore
             delinearize(scev_exp, ElementSize, neighbor);
@@ -161,7 +161,7 @@ void Stencil::populateArrayAccess (Value *Val) {
 
 
 // TODO Save values to Neighbor struct
-void Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor2D &str_neighbor){
+void Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor &str_neighbor){
 	errs()<<"SCEV Function: "<<*S<<"\n";
     const SCEVUnknown *BasePointer;
 
@@ -1006,7 +1006,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	//Instruction *Ins;
 	GetElementPtrInst *GEP;
 	LoadInst *LD;
-	Neighbor2D store_neighbor;
+	Neighbor store_neighbor;
 	ArrayAccess arrayAcc;
 	
 	std::vector<Instruction*> StrIns;
@@ -1075,7 +1075,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         /* //TODO move this to SCEV parsing
         errs()<<"ArrayAccess Size: "<<arrayAcc.size()<<"\n";
         for(auto i : arrayAcc){
-            Neighbor2D neighbor;
+            Neighbor neighbor;
             //errs()<<"Parsing: "<<*i.first<<"\n";
             if(parse_load(i.first, &neighbor)){
                 //errs()<<"Neighbor scev: "<<*neighbor.scev_exp<<"\n";
@@ -1106,7 +1106,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	return true;
 }
 
-bool Stencil::matchStencilNeighborhood(Neighbor2D *str_neighbor, StencilInfo *Stencil){
+bool Stencil::matchStencilNeighborhood(Neighbor *str_neighbor, StencilInfo *Stencil){
 	for(auto neighbor : Stencil->neighbors){
 		//errs()<<"Position "<<*str_neighbor->scev_exp<<"\n";
 		if( neighbor.phinode_x != str_neighbor->phinode_x ||
@@ -1170,8 +1170,8 @@ bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension, StencilInfo *S
 
 bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 	ArrayAccess arr;
-	Neighbor2D str_neighbor;
-	Neighbor2D neighbor;
+	Neighbor str_neighbor;
+	Neighbor neighbor;
 	Value* OutputVal; // Base Pointer of the value stored
 	Value* InputVal;  // Base Pointer of the store
 	LoadInst *LD;
@@ -1217,7 +1217,7 @@ bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 					return false;
 				}
 				
-				Neighbor2D neighbor;
+				Neighbor neighbor;
 				if(parse_load(arr.begin()->first, &neighbor)){
 					//errs()<<"Load scev: "<<*neighbor.scev_exp<<"\n";
 					OutputVal = neighbor.basePtr;
@@ -1453,7 +1453,7 @@ bool Stencil::matchInstruction(Value *Val, unsigned opcode){
     }
 }
 
-bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_load(Value *Val, Neighbor *neighbor) {
 	//errs()<<"Parse load: "<<*Val<<"\n";
     const SCEV* ElementSize = SE->getElementSize(dyn_cast<Instruction>(Val));
     //errs()<<"Element Size: "<<*ElementSize<<"\n";
@@ -1470,7 +1470,7 @@ bool Stencil::parse_load(Value *Val, Neighbor2D *neighbor) {
 	return true;
 }
 
-bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor2D *neighbor) {
+bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor *neighbor) {
 	//errs()<<"Parse gep: "<<*Val<<"\n";
 	if(GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(Val)) {
 		//errs()<<"GEP: "<<*GEP<<"\n";
@@ -1522,7 +1522,7 @@ bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor2D *neighbo
 	return true;
 }
 
-bool Stencil::parse_idxprom(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_idxprom(Value *Val, Neighbor *neighbor) {
 	if(isa<SExtInst>(Val)){
 		if(!parse_start(dyn_cast<Instruction>(Val)->getOperand(0), neighbor))
 			return false;
@@ -1534,7 +1534,7 @@ bool Stencil::parse_idxprom(Value *Val, Neighbor2D *neighbor) {
 	return true;
 }
 
-bool Stencil::parse_start(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_start(Value *Val, Neighbor *neighbor) {
     if(matchInstruction(Val, Instruction::Add)){
         Instruction *Ins = dyn_cast<Instruction>(Val);
         if(matchInstruction(Ins->getOperand(0),Instruction::Mul)){
@@ -1562,7 +1562,7 @@ bool Stencil::parse_start(Value *Val, Neighbor2D *neighbor) {
 }
 
 
-bool Stencil::parse_xoffset(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_xoffset(Value *Val, Neighbor *neighbor) {
     if(matchInstruction(Val, Instruction::PHI)){
 		neighbor->phinode_x = (PHINode*) Val;
 		neighbor->offset_x = 0;
@@ -1583,7 +1583,7 @@ bool Stencil::parse_xoffset(Value *Val, Neighbor2D *neighbor) {
     return true;
 }
 
-bool Stencil::parse_xoffset_add(Value *Val, int sign, Neighbor2D *neighbor) {
+bool Stencil::parse_xoffset_add(Value *Val, int sign, Neighbor *neighbor) {
     Instruction *Ins = dyn_cast<Instruction>(Val);
     PHINode *Phi;
     ConstantInt *Const;
@@ -1620,7 +1620,7 @@ bool Stencil::parse_xoffset_add(Value *Val, int sign, Neighbor2D *neighbor) {
     return true;
 }
 
-bool Stencil::parse_yoffset_mul(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_yoffset_mul(Value *Val, Neighbor *neighbor) {
     Instruction *Ins = dyn_cast<Instruction>(Val);
 	if(matchInstruction(Ins->getOperand(0),Instruction::PHI) || 
 	   matchInstruction(Ins->getOperand(0),Instruction::Add) || 
@@ -1645,7 +1645,7 @@ bool Stencil::parse_yoffset_mul(Value *Val, Neighbor2D *neighbor) {
 	return true;
 }
 
-bool Stencil::parse_yoffset_stride(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_yoffset_stride(Value *Val, Neighbor *neighbor) {
     if(isa<Constant>(Val)){
         //errs()<<"CONSTANT: "<<*Val<<"\n";
         neighbor->stride_x = Val;
@@ -1667,7 +1667,7 @@ bool Stencil::parse_yoffset_stride(Value *Val, Neighbor2D *neighbor) {
     return true;
 }
 
-bool Stencil::parse_yoffset(Value *Val, Neighbor2D *neighbor) {
+bool Stencil::parse_yoffset(Value *Val, Neighbor *neighbor) {
     if(matchInstruction(Val, Instruction::PHI)){
 		neighbor->phinode_y = (PHINode*) Val;
 		neighbor->offset_y = 0;
@@ -1689,7 +1689,7 @@ bool Stencil::parse_yoffset(Value *Val, Neighbor2D *neighbor) {
     return true;
 }
 
-bool Stencil::parse_yoffset_add(Value *Val, int sign, Neighbor2D *neighbor) {
+bool Stencil::parse_yoffset_add(Value *Val, int sign, Neighbor *neighbor) {
     Instruction *Ins = dyn_cast<Instruction>(Val);
     PHINode *Phi;
     ConstantInt *Const;
