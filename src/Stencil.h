@@ -125,6 +125,7 @@ class Stencil : public FunctionPass {
   void buildRange (Loop *loop);
   void printLoopDetails (Loop *loop);
   void printNeighbors (StencilInfo *Stencil);
+  void printPtrRangeAnalysis(Loop *loop);
   
   bool verifyStencil();
   bool verifyIterationLoop (Loop *loop, StencilInfo *Stencil);
@@ -152,8 +153,8 @@ class Stencil : public FunctionPass {
   void printCastExpr(T *S, const SCEV *E);
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
-  void delinearize(const SCEV *S, Neighbor2D &N);
-  void parse1DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
+  void delinearize(const SCEV *S, const SCEV *E, Neighbor2D &N);
+  void parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *E);
   void parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
   void parse3DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
   
