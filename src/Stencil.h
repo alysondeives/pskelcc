@@ -42,10 +42,10 @@ class Stencil : public FunctionPass {
   typedef std::multimap<Value*, ArrayAccess> BasePointers;
   
   struct Neighbor{
-	  const SCEV* scev_exp;
+	  const SCEV* SCEVAccess;
 	  SmallVector<const Loop*,3> SCEVLoops;
 	  SmallVector<const SCEV*,3> SCEVSteps;
-	  Value*   basePtr;
+	  Value*   BasePtr;
 	  LoadInst *LoadAccess;
 	  
 	  PHINode* phinode_x;
@@ -59,7 +59,7 @@ class Stencil : public FunctionPass {
 	  
 	  
 	  Neighbor() {
-		basePtr = nullptr;
+		BasePtr = nullptr;
 		phinode_x = nullptr;
 		phinode_y = nullptr;
 		phinode_z = nullptr;
@@ -67,14 +67,14 @@ class Stencil : public FunctionPass {
 		offset_x = 0;
 		offset_y = 0;
 		offset_z = 0;
-		scev_exp = nullptr;
+		SCEVAccess = nullptr;
 	  }
 	  
 	  void dump() {
-		if(basePtr)
-			errs()<<"Base pointer: "<< *basePtr <<"\n";
-		if(scev_exp)
-			errs()<<"SCEV: "<< *scev_exp <<"\n";
+		if(BasePtr)
+			errs()<<"Base pointer: "<< *BasePtr <<"\n";
+		if(SCEVAccess)
+			errs()<<"SCEV: "<< *SCEVAccess<<"\n";
 		if(phinode_x){
 			errs()<<"PHINode X: "<<*phinode_x<<"\n";
 			errs()<<"X Offset: "<<offset_x<<"\n";
@@ -155,7 +155,7 @@ class Stencil : public FunctionPass {
   bool verifyStore (Loop* loop, StencilInfo *Stencil);
   bool verifySwap (Loop* loop, StencilInfo *Stencil);
   PHINode* getPHINode (const Loop *loop);
-  bool matchStencilNeighborhood(Neighbor *str_neighbor, StencilInfo *Stencil);
+  bool matchStencilNeighborhood(Neighbor &Str, Neighbor &N);
   
   Value* visit(const SCEV *S);
   Value* visitAddExpr(const SCEVAddExpr *S);
@@ -174,10 +174,10 @@ class Stencil : public FunctionPass {
   void printCastExpr(T *S, const SCEV *E);
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
-  void delinearize(const SCEV *S, const SCEV *E, Neighbor &N);
-  void parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *E);
-  void parse2DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
-  void parse3DSCEV(const SCEV *S, SmallVector<const Loop*,3> &L, SmallVector<const SCEV*,3> &Steps);
+  bool delinearize(const SCEV *S, const SCEV *E, Neighbor &N);
+  bool parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *E, Neighbor &N);
+  bool parse2DSCEV(const SCEV *S, Neighbor &N);
+  bool parse3DSCEV(const SCEV *S, Neighbor &N);
   
   ScalarEvolution *SE;
   LoopInfo *LI;
