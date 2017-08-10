@@ -299,10 +299,14 @@ bool Stencil::parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *ElementSize, Neig
         constVal = constVal/sizeVal;
 
         offsetInner = constVal - innerVal;
-        BasePtr = dyn_cast<SCEVUnknown>(Start);
+        BasePtr = dyn_cast<SCEVUnknown>(AddExpr->getOperand(1));
     }
     else if((BasePtr = dyn_cast<SCEVUnknown>(Start))){
         offsetInner = -1 * innerVal;
+    }
+    else{
+        errs()<<"ERROR! Unexpected SCEV Start: "<<*Start<<"\n";
+        return false;
     }
 
     errs()<<"Offset Inner: "<<offsetInner<<"\n";
@@ -1023,6 +1027,7 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 	PHINode* phi = getPHINode(loop);
 	
 	errs()<<"Computation Loop "<<Stencil->dimension<<" Phinode: "<<*phi<<"\n";
+    errs()<<"Computation Loop "<<Stencil->dimension<<" SCEV: "<<*backedge<<"\n";
 	errs()<<"Computation Loop "<<Stencil->dimension<<" Bound: "<<*bound<<"\n";
 	 
 	vector<Loop*> subLoops = loop->getSubLoops();
@@ -1074,10 +1079,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 
         const SCEV *ElementSize = SE->getElementSize(Ins);
 
-        //errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
-        //TODO move this to SCEV parse
-        //if(!parse_gep(PtrOp, ElementSize, &store_neighbor))
-            //return false;
+        errs()<<"Str PtrOp: "<<*PtrOp<<"\n";
         
         while (isa<LoadInst>(PtrOp) || isa<GetElementPtrInst>(PtrOp)){
             if((LD = dyn_cast<LoadInst>(PtrOp)))
@@ -1106,7 +1108,11 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         }
 
         const SCEV *StrSCEV = SE->getSCEV(Str->getPointerOperand());
-
+        if(!delinearize(StrSCEV, ElementSize, store_neighbor)){
+			errs()<<"Error delinearizing: "<<*Str<<" with SCEV "<<*StrSCEV<<"\n";
+            return false;
+        }
+        
         errs()<<"-----------------------------------------------------------\n";
         errs()<<"Str SCEV Access: "<<*StrSCEV<<"\n";
 
@@ -1125,15 +1131,15 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
             errs()<<"-----------------------------------------------------------\n";
    
             if(!delinearize(SCEVExpr, ElementSize, N)){
-				errs()<<"Error delinearizing: "<<i.first<<" with SCEV "<<*SCEVExpr<<"\n";
+				errs()<<"Error delinearizing: "<<*i.first<<" with SCEV "<<*SCEVExpr<<"\n";
                 return false;
 			}
 			
 			/* Match access */
-			if(!matchStencilNeighborhood(store_neighbor, N)){
+			if(!(matchStencilNeighborhood(store_neighbor, N))){
 				errs()<<"ERROR! Str and Neighbor access does not match\n";
-				errs()<<"\tStr: "<<*store_neighbor.SCEVAccess<<"\n";
-				errs()<<"\tNeighbor: "<<*N.SCEVAccess<<"\n";
+				errs()<<"\tStr: "<<*(store_neighbor.SCEVAccess)<<"\n";
+				errs()<<"\tNeighbor: "<<*(N.SCEVAccess)<<"\n";
 				return false;
 			}	
 			
@@ -1148,24 +1154,59 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 			}
         }			
 	}
-	printNeighbors(Stencil);		
 	errs()<<"Stencil Output: "<<*Stencil->output<<"\n";
+    printNeighbors(Stencil);		
 	return true;
 }
 
+/*
+bool Stencil::matchStencilSwap(Neighbor &Str, Neighbor &N){
+    if(Str.SCEVLoops.size() != Str.SCEVLoops.size())
+		return false;
+	
+    for (int i=0; i<Str.SCEVLoops.size(); i++){
+		if(Str.SCEVLoops[i] != N.SCEVLoops[i])
+			return false;
+			
+		if(Str.SCEVSteps[i] != N.SCEVSteps[i])
+			return false;
+		}
+	}
+}
+*/
+
 bool Stencil::matchStencilNeighborhood(Neighbor &Str, Neighbor &N){
 	/* Match SCEV Loops */
-	if(Str.SCEVLoops.size() != Str.SCEVLoops.size()){
+	if(Str.SCEVLoops.size() != N.SCEVLoops.size()){
 		/* They have different sizes, but can be a neighbor argument */
 		return true;
 	}
 	else {
-		for (int i=0; i<Str.SCEVLoops.size(); i++){
-			if(Str.SCEVLoops[i] != N.SCEVLoops[i])
+		for (unsigned int i=0; i<Str.SCEVLoops.size(); i++){
+            const SCEV *StrSCEV = Str.SCEVSteps[i];
+            const SCEV *NSCEV = N.SCEVSteps[i];
+
+            /*if(StrSCEV != NSCEV){
+                errs()<<"ERROR! Store and Neighbor SCEV Steps differs\n";
+                errs()<<"\t Store: "<<*StrSCEV<<"\n";
+                errs()<<"\t Neighbor: "<<*NSCEV<<"\n";
 				return false;
+            }*/
+            
+			if(Str.SCEVLoops[i] != N.SCEVLoops[i]){
+                errs()<<"ERROR! Store and Neighbor SCEV Loops differs\n";
+                errs()<<"\t Store: "<<*(Str.SCEVLoops[i])<<"\n";
+                errs()<<"\t Neighbor: "<<*(N.SCEVLoops[i])<<"\n";
+				return false;
+            }
 			
-			if(Str.SCEVSteps[i] != N.SCEVSteps[i])
+			if(Str.SCEVSteps[i] != N.SCEVSteps[i]){
+				errs()<<"ERROR! Store and Neighbor SCEV Steps differs\n";
+                errs()<<"\t Store: "<<*(Str.SCEVSteps[i])<<"\n";
+                errs()<<"\t Neighbor: "<<*(N.SCEVSteps[i])<<"\n";
 				return false;
+            }
+            
 		}
 	}
 	//for(auto neighbor : Stencil->neighbors){
@@ -1230,25 +1271,99 @@ bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension, StencilInfo *S
 	return true;
 }
 
-bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
-	ArrayAccess arr;
-	Neighbor str_neighbor;
-	Neighbor neighbor;
-	Value* OutputVal; // Base Pointer of the value stored
-	Value* InputVal;  // Base Pointer of the store
+bool Stencil::verifySwap(Loop *L, StencilInfo *Stencil){
+	//ArrayAccess arr;
+	//Neighbor str_neighbor;
+	//Neighbor neighbor;
+	//Value* OutputVal; // Base Pointer of the value stored
+	//Value* InputVal;  // Base Pointer of the store
 	LoadInst *LD;
 	GetElementPtrInst *GEP;
-	
-	for(Loop::block_iterator bb = loop->block_begin();bb!=loop->block_end(); ++bb){
+
+    //TODO Store all the Store Inst first and then loop through them
+	for(Loop::block_iterator bb = L->block_begin();bb!=L->block_end(); ++bb){
 		for(BasicBlock::iterator I = (*bb)->begin(), E = (*bb)->end(); I != E; ++I){
 			if(isa<StoreInst>(I)){
-				Instruction *Ins = dyn_cast<Instruction>(&*I);
+                StoreInst *Str = dyn_cast<StoreInst>(I);
+                
+                Value *StrPointer = Str->getPointerOperand();
+                Value *StrValue = Str->getValueOperand();
+
+                if(!(GEP = dyn_cast<GetElementPtrInst>(StrPointer))){
+                    errs()<<"ERROR! Expected GEP as Store Pointer Operand: "<<*StrPointer<<"\n";
+                }
+
+                if(!(LD = dyn_cast<LoadInst>(StrValue))){
+                    errs()<<"ERROR! Expected LoadInst as Store Value Operand: "<<*StrValue<<"\n";
+                }
+
+                const SCEV* SCEVStrPointer = SE->getSCEVAtScope(GEP, L);
+                const SCEV* SCEVStrValue = SE->getSCEVAtScope(LD->getPointerOperand(), L);
+                const SCEV* SCEVMinus = SE->getMinusSCEV(SCEVStrValue,SCEVStrPointer);
+                
+                //errs()<<"SCEV StrPointer: "<<*SCEVStrPointer<<"\n";
+                //errs()<<"SCEV StrValue: "<<*SCEVStrValue<<"\n";
+                //errs()<<"SCEV StrMinus: "<<*SCEVMinus<<"\n";
+
+                /* We expect the SCEVMinus to be on the form ((-1 * %INPUT) + %OUTPUT) */
+                const SCEVAddExpr *AddExpr;
+                const SCEVUnknown *SCEVOutput;
+                const SCEVMulExpr *SCEVInput;
+                
+                if(!(AddExpr = dyn_cast<SCEVAddExpr>(SCEVMinus)))
+                    return false;
+                
+                if(!(SCEVInput = dyn_cast<SCEVMulExpr>(AddExpr->getOperand(0))))
+                    return false;
+
+                if(!(SCEVOutput = dyn_cast<SCEVUnknown>(AddExpr->getOperand(1))))
+                    return false;
+
+                Value *Input = dyn_cast<SCEVUnknown>(SCEVInput->getOperand(1))->getValue();
+                Value *Output = SCEVOutput->getValue();
+
+                /* Match Output Value */
+                if(Stencil->output != Output){
+                    errs()<<"ERROR! Output Pointer Values does not match";
+                    errs()<<"\tSwap Loop Output: "<<*Output<<"\n";
+                    errs()<<"\tComputation Loop Output: "<<*Stencil->output<<"\n";
+                }
+
+                /* Match Input Value and remove it from arguments list */
+                for(unsigned int i = 0; i < Stencil->arguments.size(); ++i){
+                    //errs()<<"Swap: "<<&(*it)<<"\n";
+                    if(Stencil->arguments[i] == Input){
+                        Stencil->input = Input;
+                        Stencil->arguments.erase(Stencil->arguments.begin() + i);
+                    }
+                }
+
+                if(!Stencil->input){
+                    errs()<<"ERROR! Input Pointer value does not match\n";
+                    errs()<<"\tSwap Loop Input: "<<*Input<<"\n";
+                    errs()<<"\tComputation Loop Inputs: \n";
+                    for(auto i : Stencil->arguments){
+                        errs()<<"\t"<<*i<<"\n";
+                    }
+                    return false;
+                }
+                
+                //Instruction *Ins = dyn_cast<Instruction>(&*I);
 				//errs() << "Store Instruction: "<< *Ins << "\n";
-				
+
+                /*
 				// Get base pointer of store instruction operand
-				InputVal = getPointerOperand(Ins);
+                InputVal = getPointerOperand(Ins);
+                GEP = dyn_cast<GetElementPtrInst>(InputVal);
+                
                 const SCEV *ElementSize = SE->getElementSize(I);
 				//errs()<<"PtrOp: "<<*InputVal<<"\n";
+
+                const SCEV* SCEVExpr = SE->getSCEVAtScope(GEP->getPointerOperand(), L);
+                */
+                
+
+                /*
 				parse_gep(InputVal, ElementSize, &str_neighbor);
 				
 				while (isa<LoadInst>(InputVal) || isa<GetElementPtrInst>(InputVal)){
@@ -1258,11 +1373,11 @@ bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 						InputVal = GEP->getPointerOperand();
 					//errs()<<"Passou "<<"\n";
 				}
-				
+				*/
 				//errs() << "Swap Store Base pointer: "<<*InputVal << "\n"; 
 				//errs() << "Swap GEP: "<<*GEP<<"\n";
 				
-				StoreInst *Str = dyn_cast<StoreInst>(Ins);
+				
 			
 				//Output Computation Value
 				//errs()<<"Swap Store Value Operand: "<<*Str->getValueOperand()<<"\n";
@@ -1271,7 +1386,7 @@ bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 				//errs()<<"Swap Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
 			   
 				//Populate map with memory access of the store
-				populateArrayAccess(Str->getValueOperand(),&arr);   //Saved values
+				/*populateArrayAccess(Str->getValueOperand(),&arr);   //Saved values
 				//populateArrayAccess(Str->getPointerOperand());
 				
 				if(arr.size() > 1){
@@ -1327,6 +1442,7 @@ bool Stencil::verifySwap(Loop *loop, StencilInfo *Stencil){
 				for (auto i : Stencil->arguments){
 					errs()<<"\t"<<*i<<"\n";
 				}
+                */
 			}
 		}
 	}
@@ -1375,12 +1491,14 @@ bool Stencil::runOnFunction(Function &F) {
 	*/
     
     if(verifyStencil()){
-		errs()<<"Function "<< F.getName()<<" constains Stencil Computation\n";
+		errs()<<"FUNCTION "<< F.getName()<<" CONTAINS STENCIL!\n";
 	}
+    else{
+        errs()<<"Function "<< F.getName()<<" does not constain Stencil\n";
+    }
 	return false;
 }
 
-// TODO Match Neighbor Values to Stencil Computation
 // TODO Generate Stencil Computation tree for future Code Generation
 bool Stencil::verifyStencil() {	 
      int loopCount = 0;
@@ -1419,7 +1537,10 @@ bool Stencil::verifyStencil() {
 			if(!verifyComputationLoops(it_loop,1, &Stencil)){
 				errs()<<"ERROR! Computation loop does not match stencil\n";
 				//return false;
-                continue;
+                if(loopCount == 1)
+                    return false;
+                else
+                    continue;
 			}
 			
 			llvm::Type *i64_type = llvm::IntegerType::getInt64Ty(llvm::getGlobalContext());
@@ -1429,30 +1550,42 @@ bool Stencil::verifyStencil() {
 		else {
 			// iteration loop
 			if(!verifyIterationLoop(it_loop, &Stencil)){
-				//return false;
-                continue;
+                if(loopCount == 1)
+                    return false;
+                else
+                    continue;
 			}
 			// computation loops
 			if(subLoops.size() != 2){
 				errs()<<"ERROR! Expected 2 subloops for outermost loop\n";
                 //return false;
-                continue;
+                 if(loopCount == 1)
+                    return false;
+                else
+                    continue;
 			}
 			else{
 				if(!verifyComputationLoops(subLoops[0],1, &Stencil)){
 					errs()<<"Computation loop does not match stencil\n";
 					//return false;
-                    continue;
+                    if(loopCount == 1)
+                        return false;
+                    else
+                        continue;
 				}
 				if(!verifySwapLoops(subLoops[1],1, &Stencil)) {
 					errs()<<"Swap loop does not match stencil\n";
 					//return false;
-                    continue;
+                    if(loopCount == 1)
+                        return false;
+                    else
+                        continue;
 				}
 			}
 		}
         errs()<<"INSERTING!\n";
         StencilData.insert(std::pair<Function*, StencilInfo>(CurrentFn,Stencil));
+        loopCount--;
 	}
 	
 	return (!StencilData.empty());
@@ -1498,6 +1631,7 @@ void Stencil::showArrayExpression(ArrayExpression *exp, Value *Val){
     }
 }
 
+/*
 bool Stencil::matchInstruction(Value *Val, unsigned opcode){
     if(isa<Instruction>(Val)){
        Instruction *Ins = dyn_cast<Instruction>(Val); 
@@ -1530,6 +1664,7 @@ bool Stencil::parse_load(Value *Val, Neighbor *neighbor) {
 	return true;
 }
 
+
 bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor *neighbor) {
 	//errs()<<"Parse gep: "<<*Val<<"\n";
 	if(GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(Val)) {
@@ -1539,36 +1674,6 @@ bool Stencil::parse_gep(Value *Val, const SCEV *ElementSize, Neighbor *neighbor)
 		//errs()<<"Val: "<<*Val<<"\n";
 		const SCEV* scev_exp = SE->getSCEVAtScope(Val, L);
         errs()<<"SCEV: "<<*scev_exp<<"\n";
-        /* TODO try to delinearize
-        const SCEV *AccessFn = SE->getSCEVAtScope(Val, L);
-        errs()<<"AccessFn: "<<*AccessFn<<"\n";
-
-        const SCEVUnknown *BasePointer = dyn_cast<SCEVUnknown>(SE->getPointerBase(AccessFn));
-        errs()<<"BasePtr: "<<*BasePointer<<"\n";
-
-        AccessFn = SE->getMinusSCEV(AccessFn, BasePointer);
-        errs()<<"AccessFn: "<<*AccessFn<<"\n";
-        
-        const SCEVAddRecExpr *AR = dyn_cast<SCEVAddRecExpr>(AccessFn);
-
-        errs()<<"AR: "<<*AR<<"\n";
-      
-        SmallVector<const SCEV*, 3> Subscripts;
-        SmallVector<const SCEV*, 3> Sizes;
-        SE->delinearize(AR, Subscripts, Sizes, ElementSize);
-
-       
-        int Size = Subscripts.size();
-         errs() << "Size: "<<Size<<"\n";
-        for (int i = 0; i < Size - 1; i++)
-            errs() << "[" << *Sizes[i] << "]";
-        errs() << " with elements of " << *Sizes[Size - 1] << " bytes.\n";
-
-        errs() << "ArrayRef";
-        for (int i = 0; i < Size; i++)
-            errs() << "[" << *Subscripts[i] << "]";
-        errs() << "\n";
-        */
         
 		neighbor->SCEVAccess = scev_exp;
 		neighbor->BasePtr = GEP->getOperand(0);
@@ -1785,7 +1890,7 @@ bool Stencil::parse_yoffset_add(Value *Val, int sign, Neighbor *neighbor) {
     //errs()<<"Y offset: "<<sign * Const->getSExtValue()<<"\n";
     return true;
 }
-
+*/
 /*
 void Stencil::traverseArrayExpression(ArrayExpression *exp, Value *Val){
     Instruction *Ins;

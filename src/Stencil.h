@@ -67,7 +67,7 @@ class Stencil : public FunctionPass {
 		offset_x = 0;
 		offset_y = 0;
 		offset_z = 0;
-		SCEVAccess = nullptr;
+		//SCEVAccess = nullptr;
 	  }
 	  
 	  void dump() {
@@ -131,6 +131,7 @@ class Stencil : public FunctionPass {
   void showArrayAccess(ArrayAccess arrayAcc);
   bool containsOpCode (Value *Val, unsigned opCode);
 
+/*
   bool matchInstruction (Value *Val, unsigned opCode);
   bool parse_load (Value *Val, Neighbor *neighbor);
   bool parse_gep (Value *Val, const SCEV *ElementSize, Neighbor *neighbor);
@@ -142,7 +143,7 @@ class Stencil : public FunctionPass {
   bool parse_yoffset_add (Value *Val, int sign, Neighbor *neighbor);
   bool parse_yoffset_mul (Value *Val, Neighbor *neighbor);
   bool parse_yoffset_stride (Value *Val, Neighbor *neighbor);
-  
+*/  
   void buildRange (Loop *loop);
   void printLoopDetails (Loop *loop);
   void printNeighbors (StencilInfo *Stencil);
