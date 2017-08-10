@@ -15,7 +15,7 @@ pskelcc: ${PSKELCC}/src/Stencil.cpp
 # Compile source to llvm ir
 ir: $(SRC)
 	clang -S -emit-llvm -c $(SRC) -o ${OBJS}-base.ll
-	opt -S -mem2reg -instnamer -instcombine ${OBJS}-base.ll -o ${OBJS}.ll
+	opt -S -mem2reg -instnamer ${OBJS}-base.ll -o ${OBJS}.ll
 
 # Run stencil pass
 pass: ${OBJS}.ll
