@@ -48,132 +48,57 @@ void init_arrays(DATA_TYPE* data)
     }
 }
 
-void correlation(DATA_TYPE* data, DATA_TYPE* mean, DATA_TYPE* stddev, DATA_TYPE* symmat)
+void correlation(int m, int n, DATA_TYPE* data, DATA_TYPE* mean, DATA_TYPE* stddev, DATA_TYPE* symmat)
 {
   int i, j, j1, j2;	
 	
-  // Determine mean of column vectors of input data matrix 
-  for (j = 1; j < (M+1); j++)
-    {
-      mean[j] = 0.0;
-      
-      for (i = 1; i < (N+1); i++)
-	{
-	  mean[j] += data[i*(M+1) + j];
-	}
+    // Determine mean of column vectors of input data matrix 
+    for (j = 0; j < _PB_M; j++){
+        mean[j] = 0.0;
+        for (i = 0; i < _PB_N; i++){
+            mean[j] += data[i*_PB_M + j];
+        }
 		
-      mean[j] /= (DATA_TYPE)FLOAT_N;
+        mean[j] /= (DATA_TYPE)FLOAT_N;
     }
 
-  // Determine standard deviations of column vectors of data matrix. 
-  for (j = 1; j < (M+1); j++)
-    {
-      stddev[j] = 0.0;
+    // Determine standard deviations of column vectors of data matrix. 
+    for (j = 0; j < _PB_M; j++){
+        stddev[j] = 0.0;
       
-      for (i = 1; i < (N+1); i++)
-	{
-	  stddev[j] += (data[i*(M+1) + j] - mean[j]) * (data[i*(M+1) + j] - mean[j]);
-	}
+        for (i = 0; i < _PB_N; i++){
+            stddev[j] += (data[i*_PB_M + j] - mean[j]) * (data[i*_PB_M + j] - mean[j]);
+        }
 		
-      stddev[j] /= FLOAT_N;
-      stddev[j] = sqrt_of_array_cell(stddev, j);
-      stddev[j] = stddev[j] <= EPS ? 1.0 : stddev[j];
+        stddev[j] /= FLOAT_N;
+        stddev[j] = sqrt_of_array_cell(stddev, j);
+        stddev[j] = stddev[j] <= EPS ? 1.0 : stddev[j];
     }
 
-  //i - threadIdx.x, j = threadIdx.y
-  // Center and reduce the column vectors. 
-  for (i = 1; i < (N+1); i++)
-    {
-      for (j = 1; j < (M+1); j++)
-	{
-	  data[i*(M+1) + j] -= mean[j];
-	  data[i*(M+1) + j] /= (sqrt(FLOAT_N)*stddev[j]) ;
-	}
+    // Center and reduce the column vectors. 
+    for (i = 0; i < _PB_N; i++){
+      for (j = 0; j < _PB_M; j++){
+        data[i*_PB_M + j] -= mean[j];
+        data[i*_PB_M + j] /= (sqrt(FLOAT_N)*stddev[j]) ;
+        }
     }
 
-  // Calculate the m * m correlation matrix. 
-  for (j1 = 1; j1 < M; j1++)
-    {	
-      symmat[j1*(M+1) + j1] = 1.0;
+    // Calculate the m * m correlation matrix. 
+    for (j1 = 0; j1 < _PB_M-1; j1++){	
+        symmat[j1*_PB_M + j1] = 1.0;
       
-      for (j2 = j1+1; j2 < (M+1); j2++)
-	{
-	  symmat[j1*(M+1) + j2] = 0.0;
+        for (j2 = j1+1; j2 < _PB_M; j2++){
+            symmat[j1*_PB_M + j2] = 0.0;
 	  
-	  for (i = 1; i < (N+1); i++)
-	    {
-	      symmat[j1*(M+1) + j2] += (data[i*(M+1) + j1] * data[i*(M+1) + j2]);
-	    }
+            for (i = 0; i < _PB_N; i++){
+                symmat[j1*_PB_M + j2] += (data[i*_PB_M + j1] * data[i*_PB_M + j2]);
+            }
 	  
-	  symmat[j2*(M+1) + j1] = symmat[j1*(M+1) + j2];
-	}
+            symmat[j2*_PB_M + j1] = symmat[j1*_PB_M + j2];
+        }
     }
  
-  symmat[M*(M+1) + M] = 1.0;
-
-}
-
-
-void GPU__correlation(DATA_TYPE* data, DATA_TYPE* mean, DATA_TYPE* stddev, DATA_TYPE* symmat)
-{
-  int i, j, k;	
-	
-  // Determine mean of column vectors of input data matrix 
-  #pragma acc loop independent
-  for (j = 1; j < (M+1); j++)
-    {
-      mean[j] = 0.0;
-      for (i = 1; i < (N+1); i++)
-	{
-	  mean[j] += data[i*(M+1) + j];
-	}  
-      mean[j] /= (DATA_TYPE)FLOAT_N;
-    }
-
-  // Determine standard deviations of column vectors of data matrix. 
-  for (j = 1; j < (M+1); j++)
-    {
-      stddev[j] = 0.0;
-      for (i = 1; i < (N+1); i++)
-	{
-	  stddev[j] += (data[i*(M+1) + j] - mean[j]) * (data[i*(M+1) + j] - mean[j]);
-	}
-      
-      stddev[j] /= FLOAT_N;
-      stddev[j] = sqrt(stddev[j]);
-      if(stddev[j] <=EPS)
-	{
-	  stddev[j] = 1.0;
-	}
-    }
-
-  // Center and reduce the column vectors. 
-  for (i = 1; i < (N+1); i++)
-    {
-      for (j = 1; j < (M+1); j++)
-	{
-	  data[i*(M+1) + j] -= mean[j];
-	  data[i*(M+1) + j] /= (sqrt(FLOAT_N)*stddev[j]) ;
-	}
-    }
-
-  // Calculate the m * m correlation matrix. 
-  #pragma acc loop independent
-  for (k = 1; k < M; k++)
-    {	
-      symmat[k*(M+1) + k] = 1.0;
-      for (j = k+1; j < (M+1); j++)
-	{
-	  symmat[k*(M+1) + j] = 0.0;
-	  for (i = 1; i < (N+1); i++)
-	    {
-	      symmat[k*(M+1) + j] += (data[i*(M+1) + k] * data[i*(M+1) + j]);
-	    }	  
-	  symmat[j*(M+1) + k] = symmat[k*(M+1) + j];
-	}
-    }
-  
-  symmat[M*(M+1) + M] = 1.0;
+  symmat[(_PB_M-1)*(_PB_M) + (_PB_M-1)] = 1.0;
 
 }
 
@@ -202,44 +127,35 @@ int main()
 {
   double t_start, t_end;
 
+  /* Retrieve problem size. */
+  int n = N;
+  int m = M;
+
   DATA_TYPE* data;
   DATA_TYPE* mean;
   DATA_TYPE* stddev;
   DATA_TYPE* symmat;
-  DATA_TYPE* symmat_GPU;
 
   data = (DATA_TYPE*)malloc((M+1)*(N+1)*sizeof(DATA_TYPE));
   mean = (DATA_TYPE*)malloc((M+1)*sizeof(DATA_TYPE));
   stddev = (DATA_TYPE*)malloc((M+1)*sizeof(DATA_TYPE));
   symmat = (DATA_TYPE*)malloc((M+1)*(N+1)*sizeof(DATA_TYPE));
-  symmat_GPU = (DATA_TYPE*)malloc((M+1)*(N+1)*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Correlation Computation >>\n");
 
   init_arrays(data);
 
   t_start = rtclock();
-  GPU__correlation(data, mean, stddev, symmat_GPU);
-  t_end = rtclock();
-
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  init_arrays(data);
-
-  t_start = rtclock();
-  correlation(data, mean, stddev, symmat);
+  correlation(m,n,data, mean, stddev, symmat);
   t_end = rtclock();
 
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-    
-  compareResults(symmat, symmat_GPU);
 
   free(data);
   free(mean);
   free(stddev);
   free(symmat);
-  free(symmat_GPU);
-
+  
   return 0;
 }
 
