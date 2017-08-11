@@ -1010,10 +1010,53 @@ bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 	return false;
 }
 
+
 bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, StencilInfo *Stencil){
-	const SCEV* backedge = SE->getBackedgeTakenCount(loop);
-	Value *bound;
-	
+    Value *bound;
+
+    Stencil->dimension++;
+	Stencil->dimension_value.push_back(bound);
+	PHINode* phi = getPHINode(loop);
+    errs()<<"Computation Loop "<<Stencil->dimension<<" Phinode: "<<*phi<<"\n";
+
+    const SCEV* backedge = SE->getBackedgeTakenCount(loop);
+    errs()<<"Computation Loop "<<Stencil->dimension<<" Backedge SCEV: "<<*backedge<<"\n";
+
+    const SCEVConstant *Const;
+    const SCEVSMaxExpr *SMax;
+    const SCEVUnknown *Unknown;
+    const SCEVAddExpr *AddExpr;
+    if((Const = dyn_cast<SCEVConstant>(backedge))){
+		bound = Const->getValue();
+    }
+    else if((SMax = dyn_cast<SCEVSMaxExpr>(backedge))){
+        if(!(isa<SCEVConstant>(SMax->getOperand(0)))){
+            errs()<<"ERROR! Expected SCEVConstant for Operand 0 of SMaxExprSCEV: "<<*SMax<<"\n";
+            return false;
+        }
+        
+        if((Unknown = dyn_cast<SCEVUnknown>(SMax->getOperand(1)))){
+            bound = Unknown->getValue();
+        }
+        else if((AddExpr = dyn_cast<SCEVAddExpr>(SMax->getOperand(1)))){
+            if((Unknown = dyn_cast<SCEVUnknown>(AddExpr->getOperand(1)))){
+                bound = Unknown->getValue();
+            }
+            else{
+                errs()<<"ERROR! Expected Unknow SCEV in AddExpr SCEV: "<<*AddExpr<<"\n";
+                return false;
+            }
+        }
+        else{
+            errs()<<"ERROR! Expected Unknown or AddExpr SCEV for Operand 1 of SMaxExpr SCEV: "<<*SMax<<"\n";
+            return false;
+        }
+    }
+    else{
+        errs()<<"ERROR! Loop has unexpected SCEV backedge type: "<<*backedge<<"\n";
+        return false;
+    }
+    /*
 	if(!(backedge->getSCEVType() == scConstant)) {
 		bound = visit(backedge);
 	}
@@ -1021,13 +1064,7 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 		const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
 		bound = dyn_cast<Value>(scev_const->getValue());
 	}
-	
-	Stencil->dimension++;
-	Stencil->dimension_value.push_back(bound);
-	PHINode* phi = getPHINode(loop);
-	
-	errs()<<"Computation Loop "<<Stencil->dimension<<" Phinode: "<<*phi<<"\n";
-    errs()<<"Computation Loop "<<Stencil->dimension<<" SCEV: "<<*backedge<<"\n";
+    */
 	errs()<<"Computation Loop "<<Stencil->dimension<<" Bound: "<<*bound<<"\n";
 	 
 	vector<Loop*> subLoops = loop->getSubLoops();
@@ -1046,6 +1083,9 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 	}
 	return true;
 }
+
+//TODO Match Store SCEV Dimension with number of Computation Loops
+//TODO Verify if the only computation neighbor is the same store base pointer
 
 bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	Value *PtrOp;
@@ -1291,10 +1331,12 @@ bool Stencil::verifySwap(Loop *L, StencilInfo *Stencil){
 
                 if(!(GEP = dyn_cast<GetElementPtrInst>(StrPointer))){
                     errs()<<"ERROR! Expected GEP as Store Pointer Operand: "<<*StrPointer<<"\n";
+                    return false;
                 }
 
                 if(!(LD = dyn_cast<LoadInst>(StrValue))){
                     errs()<<"ERROR! Expected LoadInst as Store Value Operand: "<<*StrValue<<"\n";
+                    return false;
                 }
 
                 const SCEV* SCEVStrPointer = SE->getSCEVAtScope(GEP, L);
