@@ -24,8 +24,8 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-#define M 2048
-#define N 2048
+//#define M 2048
+//#define N 2048
 
 #define sqrt_of_array_cell(x,j) sqrt(x[j])
 
@@ -33,7 +33,7 @@
 #define EPS 0.005f
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_arrays(DATA_TYPE* data)
 {
@@ -78,8 +78,8 @@ void correlation(int m, int n, DATA_TYPE* data, DATA_TYPE* mean, DATA_TYPE* stdd
     // Center and reduce the column vectors. 
     for (i = 0; i < _PB_N; i++){
       for (j = 0; j < _PB_M; j++){
-        data[i*_PB_M + j] -= mean[j];
-        data[i*_PB_M + j] /= (sqrt(FLOAT_N)*stddev[j]) ;
+            data[i*_PB_M + j] -= mean[j];
+            data[i*_PB_M + j] /= (sqrt(FLOAT_N)*stddev[j]) ;
         }
     }
 
@@ -136,10 +136,10 @@ int main()
   DATA_TYPE* stddev;
   DATA_TYPE* symmat;
 
-  data = (DATA_TYPE*)malloc((M+1)*(N+1)*sizeof(DATA_TYPE));
-  mean = (DATA_TYPE*)malloc((M+1)*sizeof(DATA_TYPE));
-  stddev = (DATA_TYPE*)malloc((M+1)*sizeof(DATA_TYPE));
-  symmat = (DATA_TYPE*)malloc((M+1)*(N+1)*sizeof(DATA_TYPE));
+  data = (DATA_TYPE*)malloc(M*N*sizeof(DATA_TYPE));
+  mean = (DATA_TYPE*)malloc(M*sizeof(DATA_TYPE));
+  stddev = (DATA_TYPE*)malloc(M*sizeof(DATA_TYPE));
+  symmat = (DATA_TYPE*)malloc(M*N*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Correlation Computation >>\n");
 
@@ -158,5 +158,3 @@ int main()
   
   return 0;
 }
-
-

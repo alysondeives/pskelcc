@@ -8,6 +8,11 @@
 //define a small float value
 #define SMALL_FLOAT_VAL 0.00000001f
 
+# ifndef DATA_TYPE
+#  define DATA_TYPE float
+#  define DATA_PRINTF_MODIFIER "%0.2lf "
+# endif
+
 /* Default to LARGE_DATASET. */
 # if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
 #  define LARGE_DATASET
@@ -149,7 +154,7 @@
 	#define MAXGRID 512
 #endif
 
-# define _PB_M POLYBENCH_LOOP_BOUND(M,n)
+# define _PB_M POLYBENCH_LOOP_BOUND(M,m)
 # define _PB_N POLYBENCH_LOOP_BOUND(N,n)
 # define _PB_NI POLYBENCH_LOOP_BOUND(NI,ni)
 # define _PB_NJ POLYBENCH_LOOP_BOUND(NJ,nj)

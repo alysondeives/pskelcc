@@ -17,10 +17,11 @@
 #include <sys/time.h>
 //#include <omp.h>
 
+/* Include polybench common header. */
 #include "../../common/polybenchUtilFuncts.h"
 
 /* Include benchmark-specific header. */
-#include "3mm.h"
+//#include "3mm.h"
 
 //define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05

@@ -22,13 +22,13 @@
 //define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05
 
-#define GPU_DEVICE 1
+//#define GPU_DEVICE 1
 
 /* Problem size */
-#define N 4096
+//#define N 4096
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_array(DATA_TYPE* A, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_TYPE* y2, DATA_TYPE* x1_gpu, DATA_TYPE* x2_gpu)
 {
@@ -49,52 +49,23 @@ void init_array(DATA_TYPE* A, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_
     }
 }
 
-void runMvt(DATA_TYPE* a, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_TYPE* y2)
+void runMvt(int n, DATA_TYPE* a, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_TYPE* y2)
 {
   int i, j;
 	
-  for (i=0; i<N; i++) 
-    {
-      for (j=0; j<N; j++) 
-	{
-	  x1[i] = x1[i] + a[i*N + j] * y1[j];
-	}
+    for (i=0; i<_PB_N; i++){
+        for (j=0; j<_PB_N; j++){
+            x1[i] = x1[i] + a[i*_PB_N + j] * y1[j];
+        }
     }
   
-  for (i=0; i<N; i++) 
-    {
-      for (j=0; j<N; j++) 
-	{
-	  x2[i] = x2[i] + a[j*N + i] * y2[j];
-	}
+    for (i=0; i<_PB_N; i++){
+        for (j=0; j<_PB_N; j++){
+            x2[i] = x2[i] + a[j*_PB_N + i] * y2[j];
+        }
     }
 }
 
-void GPU__runMvt(DATA_TYPE* a, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_TYPE* y2)
-{
-  int i;
-  
-  //Note that you must collapse only outer loop to avoid conflicts
-  #pragma acc loop independent
-  for (i=0; i<N; i++) 
-    {
-      int j;
-      for (j=0; j<N; j++) 
-	{
-	  x1[i] = x1[i] + a[i*N + j] * y1[j];
-	}
-    }
-	
-  #pragma acc loop independent
-  for (i=0; i<N; i++) 
-    {
-      int j;
-      for (j=0; j<N; j++) 
-	{
-	  x2[i] = x2[i] + a[j*N + i] * y2[j];
-	}
-    }
-}
 
 void compareResults(DATA_TYPE* x1, DATA_TYPE* x1_outputFromGpu, DATA_TYPE* x2, DATA_TYPE* x2_outputFromGpu)
 {
@@ -123,6 +94,9 @@ int main()
 {
   double t_start, t_end;
 
+  /* Retrieve problem size. */
+  int n = N;
+
   DATA_TYPE* a;
   DATA_TYPE* x1;
   DATA_TYPE* x2;
@@ -142,19 +116,12 @@ int main()
   fprintf(stdout, "<< Matrix Vector Product and Transpose >>\n");
 
   init_array(a, x1, x2, y_1, y_2, x1_outputFromGpu, x2_outputFromGpu);
-	
-  t_start = rtclock();
-  GPU__runMvt(a, x1_outputFromGpu, x2_outputFromGpu, y_1, y_2);
-  t_end = rtclock();
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
   
   t_start = rtclock();
   //run the algorithm on the CPU
-  runMvt(a, x1, x2, y_1, y_2);
+  runMvt(n, a, x1, x2, y_1, y_2);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-  
-  compareResults(x1, x1_outputFromGpu, x2, x2_outputFromGpu);
   
   free(a);
   free(x1);

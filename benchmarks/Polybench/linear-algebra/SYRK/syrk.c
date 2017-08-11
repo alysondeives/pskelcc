@@ -22,8 +22,8 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-#define N 2048
-#define M 2048
+//#define N 2048
+//#define M 2048
 
 /* Declared constant values for alpha and beta */
 /* (same as values in PolyBench 2.0) */
@@ -31,7 +31,7 @@
 #define beta 4546
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_arrays(DATA_TYPE* A, DATA_TYPE* C, DATA_TYPE* D) {
   int i, j;
@@ -64,76 +64,46 @@ void compareResults(DATA_TYPE* C, DATA_TYPE* D) {
   printf("Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\n", ERROR_THRESHOLD, fail);
 }
 
-void syrk(DATA_TYPE* A, DATA_TYPE* C) {
+void syrk(int ni, int nj, DATA_TYPE* A, DATA_TYPE* C) {
   int i, j, k;
 	
-  for (i = 0; i < N; i++) {
-    for (j = 0; j < M; j++) {
-      C[i*M + j] *= beta;
+    for (i = 0; i < _PB_NI; i++) {
+        for (j = 0; j < _PB_NI; j++) {
+            C[i*_PB_NI + j] *= beta;
+        }
     }
-  }
 	
-  for (i = 0; i < N; i++) {
-    for (j = 0; j < M; j++) {
-      for (k = 0; k < M; k++) {
-	C[i*N + j] += alpha * A[i*M + k] * A[j*M + k];
-      }
+    for (i = 0; i < _PB_NI; i++) {
+        for (j = 0; j < _PB_NI; j++) {
+            for (k = 0; k < _PB_NJ; k++) {
+                C[i*_PB_NI + j] += alpha * A[i*_PB_NI + k] * A[j*_PB_NI + k];
+            }
+        }
     }
-  }
 }
-
-void GPU__syrk(DATA_TYPE* A, DATA_TYPE* D) {
-  int i, j;
-  double t_start, t_end;
-
-  t_start = rtclock();
-
-  #pragma acc loop independent
-  for (i = 0; i < N; i++) {
-    for (j = 0; j < M; j++) {
-      D[i * M + j] *= beta;
-    }
-  }
- 
-  #pragma acc loop independent
-  for (i = 0; i < N; i++) {
-    #pragma acc loop independent
-    for (j = 0; j < M; j++) {
-      int k;		
-      for(k=0; k< M; k++) {
-        D[i * M + j] += alpha * A[i * M + k] * A[j * M + k];
-      }
-    }
-  }
-  
-  t_end = rtclock();
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
-}
-
 
 int main() {
+  int ni = NI;
+  int nj = NJ; 
+
   double t_start, t_end;
 
   DATA_TYPE* A;
   DATA_TYPE* C;
   DATA_TYPE* D;
 
-  A = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
-  C = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
-  D = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
+  A = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
+  C = (DATA_TYPE*)malloc(NI*NI*sizeof(DATA_TYPE));
+  D = (DATA_TYPE*)malloc(NI*NI*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Symmetric rank-k operations >>\n");
 
   init_arrays(A, C, D);	
-  GPU__syrk(A, D);
 
   t_start = rtclock();
-  syrk(A, C);
+  syrk(ni,nj, A, C);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  compareResults(C, D);
 
   free(A);
   free(C);

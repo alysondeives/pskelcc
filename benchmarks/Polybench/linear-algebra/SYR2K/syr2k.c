@@ -23,8 +23,8 @@
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.10
 
 /* Problem size */
-#define N 2048
-#define M 2048
+//#define N 2048
+//#define M 2048
 
 #define GPU_DEVICE 1
 
@@ -33,7 +33,7 @@
 #define BETA 4546
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_arrays(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
 {
@@ -54,60 +54,27 @@ void init_arrays(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
     }
 }
 
-void syr2k(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
+void syr2k(int ni, int nj, DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
 {
   int i, j, k;
 		
-  for (i = 0; i < N; i++)
-    {
-      for (j = 0; j < N; j++)
-	{
-	  C[i*N + j] *= BETA;
-	}
+    for (i = 0; i < _PB_NI; i++){  
+        for (j = 0; j < _PB_NI; j++){
+            C[i*_PB_NI + j] *= BETA;
+        }
     }
 
-  for (i = 0; i < N; i++)
-    {
-      for (j = 0; j < N; j++)
-	{
-	  for (k = 0; k < M; k++)
-	    {
-	      C[i*N + j] += ALPHA * A[i*M + k] * B[j*M + k];
-	      C[i*N + j] += ALPHA * B[i*M + k] * A[j*M + k];
-	    }
-	}
+    for (i = 0; i < _PB_NI; i++){
+        for (j = 0; j < _PB_NI; j++){
+            for (k = 0; k < _PB_NJ; k++){
+                C[i*_PB_NI + j] += ALPHA * A[i*_PB_NJ + k] * B[j*_PB_NI + k];
+                C[i*_PB_NI + j] += ALPHA * B[i*_PB_NI + k] * A[j*_PB_NI + k];
+            }
+        }
     }
 }
 
-void GPU__syr2k(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
-{
-  int i, j, k;
-	
-  for (i = 0; i < N; i++)
-    {
-      for (j = 0; j < N; j++)
-	{
-	  C[i*N + j] *= BETA;
-	}
-    }
-
-  #pragma acc loop independent
-  for (i = 0; i < N; i++)
-    {
-      #pragma acc loop independent
-      for (j = 0; j < N; j++)
-	{
-	  for (k = 0; k < M; k++)
-	    {
-	      C[i*N + j] += ALPHA * A[i*M + k] * B[j*M + k];
-	      C[i*N + j] += ALPHA * B[i*M + k] * A[j*M + k];
-	    }
-	}
-    }
-}
-
-void compareResults(DATA_TYPE *C, DATA_TYPE *C_Gpu)
-{
+void compareResults(DATA_TYPE *C, DATA_TYPE *C_Gpu){
   int i,j,fail;
   fail = 0;
 
@@ -129,40 +96,32 @@ void compareResults(DATA_TYPE *C, DATA_TYPE *C_Gpu)
 
 int main()
 {
+  int ni = NI;
+  int nj = NJ;
+
   double t_start, t_end;
 
   DATA_TYPE* A;
   DATA_TYPE* B;
   DATA_TYPE* C;
-  DATA_TYPE* C_Gpu;
 
-  A = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
-  B = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
-  C = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
-  C_Gpu = (DATA_TYPE*)malloc(N*M*sizeof(DATA_TYPE));
+  A = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
+  B = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
+  C = (DATA_TYPE*)malloc(NI*NI*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Symmetric rank-2k operations >>\n");
 
-  init_arrays(A, B, C_Gpu);
-    
-  t_start = rtclock();
-  GPU__syr2k(A, B, C_Gpu);
-  t_end = rtclock();
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-	
   init_arrays(A, B, C);
 
   t_start = rtclock();
-  syr2k(A, B, C);
+  syr2k(ni,nj,A, B, C);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 
-  compareResults(C, C_Gpu);
 
   free(A);
   free(B);
   free(C);
-  free(C_Gpu);
   
   return 0;
 }

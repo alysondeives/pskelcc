@@ -22,17 +22,17 @@
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.7
 
 /* Problem size. */
-#define NX 8192
-#define NY 8192
+//#define NX 8192
+//#define NY 8192
 
-#define GPU_DEVICE 1
+//#define GPU_DEVICE 1
 
 #ifndef M_PI
 #define M_PI 3.14159
 #endif
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_array(DATA_TYPE *A, DATA_TYPE *p, DATA_TYPE *r)
 {
@@ -80,60 +80,29 @@ void compareResults(DATA_TYPE* s, DATA_TYPE* s_outputFromGpu, DATA_TYPE* q, DATA
 }
 
 
-void bicg_cpu(DATA_TYPE* A, DATA_TYPE* r, DATA_TYPE* s, DATA_TYPE* p, DATA_TYPE* q)
+void bicg_cpu(int nx, int ny, DATA_TYPE* A, DATA_TYPE* r, DATA_TYPE* s, DATA_TYPE* p, DATA_TYPE* q)
 {
   int i,j;
 	
-  for (i = 0; i < NY; i++)
-    {
-      s[i] = 0.0;
+    for (i = 0; i < _PB_NY; i++){
+        s[i] = 0.0;
     }
   
-  for (i = 0; i < NX; i++)
-    {
-      q[i] = 0.0;
-      for (j = 0; j < NY; j++)
-	{
-	  s[j] = s[j] + r[i] * A[i*NY + j];
-	  q[i] = q[i] + A[i*NY + j] * p[j];
-	}
+    for (i = 0; i < _PB_NX; i++){
+        q[i] = 0.0;
+        for (j = 0; j < _PB_NY; j++){
+            s[j] = s[j] + r[i] * A[i*_PB_NY + j];
+            q[i] = q[i] + p[j] * A[i*_PB_NY + j];
+        }
     }
 }
-
-void GPU__bicg(DATA_TYPE* A, DATA_TYPE* r, DATA_TYPE* s, DATA_TYPE* p, DATA_TYPE* q)
-{
-  int i, j;
-	
-  for (i = 0; i < NY; i++)
-    {
-      s[i] = 0.0;
-    }
-
-  {
-	  #pragma acc loop independent
-	  for (j = 0; j < NY; j++)
-	  {
-		for (i = 0; i < NX; i++)
-	  	{
-	    		s[j] = s[j] + r[i] * A[i*NY + j];
-	  	}
-	  }
-
-	   #pragma acc loop independent
-	   for (i = 0; i < NX; i++)
-	   {
-		q[i] = 0.0;
-		for (j = 0; j < NY; j++)
-	  	{
-	    		q[i] = q[i] + A[i*NY + j] * p[j];
-	  	}
-	   } 
-   }
-}
-
 
 int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int nx = NX;
+  int ny = NY;
+
   double t_start, t_end;
 
   DATA_TYPE* A;
@@ -141,42 +110,29 @@ int main(int argc, char** argv)
   DATA_TYPE* s;
   DATA_TYPE* p;
   DATA_TYPE* q;
-  DATA_TYPE* s_GPU;
-  DATA_TYPE* q_GPU;
- 	
+  
   A = (DATA_TYPE*)malloc(NX*NY*sizeof(DATA_TYPE));
   r = (DATA_TYPE*)malloc(NX*sizeof(DATA_TYPE));
   s = (DATA_TYPE*)malloc(NY*sizeof(DATA_TYPE));
   p = (DATA_TYPE*)malloc(NY*sizeof(DATA_TYPE));
   q = (DATA_TYPE*)malloc(NX*sizeof(DATA_TYPE));
-  s_GPU = (DATA_TYPE*)malloc(NY*sizeof(DATA_TYPE));
-  q_GPU = (DATA_TYPE*)malloc(NX*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< BiCG Sub Kernel of BiCGStab Linear Solver >>\n");
 
   init_array(A, p, r);
 
   t_start = rtclock();
-  GPU__bicg(A, r, s_GPU, p, q_GPU);
-  t_end = rtclock();
-
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  t_start = rtclock();
-  bicg_cpu(A, r, s, p, q);
+  bicg_cpu(nx, ny, A, r, s, p, q);
   t_end = rtclock();
 
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 
-  compareResults(s, s_GPU, q, q_GPU);
 
   free(A);
   free(r);
   free(s);
   free(p);
   free(q);
-  free(s_GPU);
-  free(q_GPU);
 
   return 0;
 }

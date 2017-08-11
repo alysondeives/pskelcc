@@ -11,8 +11,7 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.1 = private unnamed_addr constant [74 x i8] c"Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\0A\00", align 1
 @stdout = external global %struct._IO_FILE*, align 8
 @.str.2 = private unnamed_addr constant [43 x i8] c"<< Matrix Vector Product and Transpose >>\0A\00", align 1
-@.str.3 = private unnamed_addr constant [22 x i8] c"GPU Runtime: %0.6lfs\0A\00", align 1
-@.str.4 = private unnamed_addr constant [22 x i8] c"CPU Runtime: %0.6lfs\0A\00", align 1
+@.str.3 = private unnamed_addr constant [22 x i8] c"CPU Runtime: %0.6lfs\0A\00", align 1
 
 ; Function Attrs: nounwind uwtable
 define double @rtclock() #0 {
@@ -105,18 +104,18 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.34, %entry
   %i.0 = phi i32 [ 0, %entry ], [ %inc35, %for.inc.34 ]
-  %cmp = icmp slt i32 %i.0, 4096
+  %cmp = icmp slt i32 %i.0, 2048
   br i1 %cmp, label %for.body, label %for.end.36
 
 for.body:                                         ; preds = %for.cond
   %conv = sitofp i32 %i.0 to float
-  %div = fdiv float %conv, 4.096000e+03
+  %div = fdiv float %conv, 2.048000e+03
   %idxprom = sext i32 %i.0 to i64
   %arrayidx = getelementptr inbounds float, float* %x1, i64 %idxprom
   store float %div, float* %arrayidx, align 4
   %conv1 = sitofp i32 %i.0 to float
   %add = fadd float %conv1, 1.000000e+00
-  %div2 = fdiv float %add, 4.096000e+03
+  %div2 = fdiv float %add, 2.048000e+03
   %idxprom3 = sext i32 %i.0 to i64
   %arrayidx4 = getelementptr inbounds float, float* %x2, i64 %idxprom3
   store float %div2, float* %arrayidx4, align 4
@@ -134,13 +133,13 @@ for.body:                                         ; preds = %for.cond
   store float %tmp1, float* %arrayidx12, align 4
   %conv13 = sitofp i32 %i.0 to float
   %add14 = fadd float %conv13, 3.000000e+00
-  %div15 = fdiv float %add14, 4.096000e+03
+  %div15 = fdiv float %add14, 2.048000e+03
   %idxprom16 = sext i32 %i.0 to i64
   %arrayidx17 = getelementptr inbounds float, float* %y1, i64 %idxprom16
   store float %div15, float* %arrayidx17, align 4
   %conv18 = sitofp i32 %i.0 to float
   %add19 = fadd float %conv18, 4.000000e+00
-  %div20 = fdiv float %add19, 4.096000e+03
+  %div20 = fdiv float %add19, 2.048000e+03
   %idxprom21 = sext i32 %i.0 to i64
   %arrayidx22 = getelementptr inbounds float, float* %y2, i64 %idxprom21
   store float %div20, float* %arrayidx22, align 4
@@ -148,15 +147,15 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.23:                                      ; preds = %for.inc, %for.body
   %j.0 = phi i32 [ 0, %for.body ], [ %inc, %for.inc ]
-  %cmp24 = icmp slt i32 %j.0, 4096
+  %cmp24 = icmp slt i32 %j.0, 2048
   br i1 %cmp24, label %for.body.26, label %for.end
 
 for.body.26:                                      ; preds = %for.cond.23
   %conv27 = sitofp i32 %i.0 to float
   %conv28 = sitofp i32 %j.0 to float
   %mul = fmul float %conv27, %conv28
-  %div29 = fdiv float %mul, 4.096000e+03
-  %mul30 = mul nsw i32 %i.0, 4096
+  %div29 = fdiv float %mul, 2.048000e+03
+  %mul30 = mul nsw i32 %i.0, 2048
   %add31 = add nsw i32 %mul30, %j.0
   %idxprom32 = sext i32 %add31 to i64
   %arrayidx33 = getelementptr inbounds float, float* %A, i64 %idxprom32
@@ -179,13 +178,13 @@ for.end.36:                                       ; preds = %for.cond
 }
 
 ; Function Attrs: nounwind uwtable
-define void @runMvt(float* %a, float* %x1, float* %x2, float* %y1, float* %y2) #0 {
+define void @runMvt(i32 %n, float* %a, float* %x1, float* %x2, float* %y1, float* %y2) #0 {
 entry:
   br label %for.cond
 
 for.cond:                                         ; preds = %for.inc.12, %entry
   %i.0 = phi i32 [ 0, %entry ], [ %inc13, %for.inc.12 ]
-  %cmp = icmp slt i32 %i.0, 4096
+  %cmp = icmp slt i32 %i.0, %n
   br i1 %cmp, label %for.body, label %for.end.14
 
 for.body:                                         ; preds = %for.cond
@@ -193,14 +192,14 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc, %for.body
   %j.0 = phi i32 [ 0, %for.body ], [ %inc, %for.inc ]
-  %cmp2 = icmp slt i32 %j.0, 4096
+  %cmp2 = icmp slt i32 %j.0, %n
   br i1 %cmp2, label %for.body.3, label %for.end
 
 for.body.3:                                       ; preds = %for.cond.1
   %idxprom = sext i32 %i.0 to i64
   %arrayidx = getelementptr inbounds float, float* %x1, i64 %idxprom
   %tmp = load float, float* %arrayidx, align 4
-  %mul = mul nsw i32 %i.0, 4096
+  %mul = mul nsw i32 %i.0, %n
   %add = add nsw i32 %mul, %j.0
   %idxprom4 = sext i32 %add to i64
   %arrayidx5 = getelementptr inbounds float, float* %a, i64 %idxprom4
@@ -231,7 +230,7 @@ for.end.14:                                       ; preds = %for.cond
 
 for.cond.15:                                      ; preds = %for.inc.36, %for.end.14
   %i.1 = phi i32 [ 0, %for.end.14 ], [ %inc37, %for.inc.36 ]
-  %cmp16 = icmp slt i32 %i.1, 4096
+  %cmp16 = icmp slt i32 %i.1, %n
   br i1 %cmp16, label %for.body.17, label %for.end.38
 
 for.body.17:                                      ; preds = %for.cond.15
@@ -239,14 +238,14 @@ for.body.17:                                      ; preds = %for.cond.15
 
 for.cond.18:                                      ; preds = %for.inc.33, %for.body.17
   %j.1 = phi i32 [ 0, %for.body.17 ], [ %inc34, %for.inc.33 ]
-  %cmp19 = icmp slt i32 %j.1, 4096
+  %cmp19 = icmp slt i32 %j.1, %n
   br i1 %cmp19, label %for.body.20, label %for.end.35
 
 for.body.20:                                      ; preds = %for.cond.18
   %idxprom21 = sext i32 %i.1 to i64
   %arrayidx22 = getelementptr inbounds float, float* %x2, i64 %idxprom21
   %tmp3 = load float, float* %arrayidx22, align 4
-  %mul23 = mul nsw i32 %j.1, 4096
+  %mul23 = mul nsw i32 %j.1, %n
   %add24 = add nsw i32 %mul23, %i.1
   %idxprom25 = sext i32 %add24 to i64
   %arrayidx26 = getelementptr inbounds float, float* %a, i64 %idxprom25
@@ -277,104 +276,6 @@ for.end.38:                                       ; preds = %for.cond.15
 }
 
 ; Function Attrs: nounwind uwtable
-define void @GPU__runMvt(float* %a, float* %x1, float* %x2, float* %y1, float* %y2) #0 {
-entry:
-  br label %for.cond
-
-for.cond:                                         ; preds = %for.inc.12, %entry
-  %i.0 = phi i32 [ 0, %entry ], [ %inc13, %for.inc.12 ]
-  %cmp = icmp slt i32 %i.0, 4096
-  br i1 %cmp, label %for.body, label %for.end.14
-
-for.body:                                         ; preds = %for.cond
-  br label %for.cond.1
-
-for.cond.1:                                       ; preds = %for.inc, %for.body
-  %j.0 = phi i32 [ 0, %for.body ], [ %inc, %for.inc ]
-  %cmp2 = icmp slt i32 %j.0, 4096
-  br i1 %cmp2, label %for.body.3, label %for.end
-
-for.body.3:                                       ; preds = %for.cond.1
-  %idxprom = sext i32 %i.0 to i64
-  %arrayidx = getelementptr inbounds float, float* %x1, i64 %idxprom
-  %tmp = load float, float* %arrayidx, align 4
-  %mul = mul nsw i32 %i.0, 4096
-  %add = add nsw i32 %mul, %j.0
-  %idxprom4 = sext i32 %add to i64
-  %arrayidx5 = getelementptr inbounds float, float* %a, i64 %idxprom4
-  %tmp1 = load float, float* %arrayidx5, align 4
-  %idxprom6 = sext i32 %j.0 to i64
-  %arrayidx7 = getelementptr inbounds float, float* %y1, i64 %idxprom6
-  %tmp2 = load float, float* %arrayidx7, align 4
-  %mul8 = fmul float %tmp1, %tmp2
-  %add9 = fadd float %tmp, %mul8
-  %idxprom10 = sext i32 %i.0 to i64
-  %arrayidx11 = getelementptr inbounds float, float* %x1, i64 %idxprom10
-  store float %add9, float* %arrayidx11, align 4
-  br label %for.inc
-
-for.inc:                                          ; preds = %for.body.3
-  %inc = add nsw i32 %j.0, 1
-  br label %for.cond.1
-
-for.end:                                          ; preds = %for.cond.1
-  br label %for.inc.12
-
-for.inc.12:                                       ; preds = %for.end
-  %inc13 = add nsw i32 %i.0, 1
-  br label %for.cond
-
-for.end.14:                                       ; preds = %for.cond
-  br label %for.cond.15
-
-for.cond.15:                                      ; preds = %for.inc.37, %for.end.14
-  %i.1 = phi i32 [ 0, %for.end.14 ], [ %inc38, %for.inc.37 ]
-  %cmp16 = icmp slt i32 %i.1, 4096
-  br i1 %cmp16, label %for.body.17, label %for.end.39
-
-for.body.17:                                      ; preds = %for.cond.15
-  br label %for.cond.19
-
-for.cond.19:                                      ; preds = %for.inc.34, %for.body.17
-  %j18.0 = phi i32 [ 0, %for.body.17 ], [ %inc35, %for.inc.34 ]
-  %cmp20 = icmp slt i32 %j18.0, 4096
-  br i1 %cmp20, label %for.body.21, label %for.end.36
-
-for.body.21:                                      ; preds = %for.cond.19
-  %idxprom22 = sext i32 %i.1 to i64
-  %arrayidx23 = getelementptr inbounds float, float* %x2, i64 %idxprom22
-  %tmp3 = load float, float* %arrayidx23, align 4
-  %mul24 = mul nsw i32 %j18.0, 4096
-  %add25 = add nsw i32 %mul24, %i.1
-  %idxprom26 = sext i32 %add25 to i64
-  %arrayidx27 = getelementptr inbounds float, float* %a, i64 %idxprom26
-  %tmp4 = load float, float* %arrayidx27, align 4
-  %idxprom28 = sext i32 %j18.0 to i64
-  %arrayidx29 = getelementptr inbounds float, float* %y2, i64 %idxprom28
-  %tmp5 = load float, float* %arrayidx29, align 4
-  %mul30 = fmul float %tmp4, %tmp5
-  %add31 = fadd float %tmp3, %mul30
-  %idxprom32 = sext i32 %i.1 to i64
-  %arrayidx33 = getelementptr inbounds float, float* %x2, i64 %idxprom32
-  store float %add31, float* %arrayidx33, align 4
-  br label %for.inc.34
-
-for.inc.34:                                       ; preds = %for.body.21
-  %inc35 = add nsw i32 %j18.0, 1
-  br label %for.cond.19
-
-for.end.36:                                       ; preds = %for.cond.19
-  br label %for.inc.37
-
-for.inc.37:                                       ; preds = %for.end.36
-  %inc38 = add nsw i32 %i.1, 1
-  br label %for.cond.15
-
-for.end.39:                                       ; preds = %for.cond.15
-  ret void
-}
-
-; Function Attrs: nounwind uwtable
 define void @compareResults(float* %x1, float* %x1_outputFromGpu, float* %x2, float* %x2_outputFromGpu) #0 {
 entry:
   br label %for.cond
@@ -382,7 +283,7 @@ entry:
 for.cond:                                         ; preds = %for.inc, %entry
   %i.0 = phi i32 [ 0, %entry ], [ %inc20, %for.inc ]
   %fail.0 = phi i32 [ 0, %entry ], [ %fail.2, %for.inc ]
-  %cmp = icmp slt i32 %i.0, 4096
+  %cmp = icmp slt i32 %i.0, 2048
   br i1 %cmp, label %for.body, label %for.end
 
 for.body:                                         ; preds = %for.cond
@@ -438,50 +339,43 @@ for.end:                                          ; preds = %for.cond
 ; Function Attrs: nounwind uwtable
 define i32 @main() #0 {
 entry:
-  %call = call noalias i8* @malloc(i64 67108864) #3
+  %call = call noalias i8* @malloc(i64 16777216) #3
   %tmp = bitcast i8* %call to float*
-  %call1 = call noalias i8* @malloc(i64 16384) #3
+  %call1 = call noalias i8* @malloc(i64 8192) #3
   %tmp1 = bitcast i8* %call1 to float*
-  %call2 = call noalias i8* @malloc(i64 16384) #3
+  %call2 = call noalias i8* @malloc(i64 8192) #3
   %tmp2 = bitcast i8* %call2 to float*
-  %call3 = call noalias i8* @malloc(i64 16384) #3
+  %call3 = call noalias i8* @malloc(i64 8192) #3
   %tmp3 = bitcast i8* %call3 to float*
-  %call4 = call noalias i8* @malloc(i64 16384) #3
+  %call4 = call noalias i8* @malloc(i64 8192) #3
   %tmp4 = bitcast i8* %call4 to float*
-  %call5 = call noalias i8* @malloc(i64 16384) #3
+  %call5 = call noalias i8* @malloc(i64 8192) #3
   %tmp5 = bitcast i8* %call5 to float*
-  %call6 = call noalias i8* @malloc(i64 16384) #3
+  %call6 = call noalias i8* @malloc(i64 8192) #3
   %tmp6 = bitcast i8* %call6 to float*
   %tmp7 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %call7 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp7, i8* getelementptr inbounds ([43 x i8], [43 x i8]* @.str.2, i32 0, i32 0))
   call void @init_array(float* %tmp, float* %tmp1, float* %tmp2, float* %tmp5, float* %tmp6, float* %tmp3, float* %tmp4)
   %call8 = call double @rtclock()
-  call void @GPU__runMvt(float* %tmp, float* %tmp3, float* %tmp4, float* %tmp5, float* %tmp6)
+  call void @runMvt(i32 2048, float* %tmp, float* %tmp1, float* %tmp2, float* %tmp5, float* %tmp6)
   %call9 = call double @rtclock()
   %tmp8 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call9, %call8
   %call10 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp8, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.3, i32 0, i32 0), double %sub)
-  %call11 = call double @rtclock()
-  call void @runMvt(float* %tmp, float* %tmp1, float* %tmp2, float* %tmp5, float* %tmp6)
-  %call12 = call double @rtclock()
-  %tmp9 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
-  %sub13 = fsub double %call12, %call11
-  %call14 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp9, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.4, i32 0, i32 0), double %sub13)
-  call void @compareResults(float* %tmp1, float* %tmp3, float* %tmp2, float* %tmp4)
-  %tmp10 = bitcast float* %tmp to i8*
+  %tmp9 = bitcast float* %tmp to i8*
+  call void @free(i8* %tmp9) #3
+  %tmp10 = bitcast float* %tmp1 to i8*
   call void @free(i8* %tmp10) #3
-  %tmp11 = bitcast float* %tmp1 to i8*
+  %tmp11 = bitcast float* %tmp2 to i8*
   call void @free(i8* %tmp11) #3
-  %tmp12 = bitcast float* %tmp2 to i8*
+  %tmp12 = bitcast float* %tmp3 to i8*
   call void @free(i8* %tmp12) #3
-  %tmp13 = bitcast float* %tmp3 to i8*
+  %tmp13 = bitcast float* %tmp4 to i8*
   call void @free(i8* %tmp13) #3
-  %tmp14 = bitcast float* %tmp4 to i8*
+  %tmp14 = bitcast float* %tmp5 to i8*
   call void @free(i8* %tmp14) #3
-  %tmp15 = bitcast float* %tmp5 to i8*
+  %tmp15 = bitcast float* %tmp6 to i8*
   call void @free(i8* %tmp15) #3
-  %tmp16 = bitcast float* %tmp6 to i8*
-  call void @free(i8* %tmp16) #3
   ret i32 0
 }
 

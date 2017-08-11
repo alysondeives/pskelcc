@@ -25,8 +25,8 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-#define M 2048
-#define N 2048
+//#define M 2048
+//#define N 2048
 
 #define sqrt_of_array_cell(x,j) sqrt(x[j])
 
@@ -34,7 +34,7 @@
 #define EPS 0.005
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 void init_arrays(DATA_TYPE* data)
 {
@@ -67,92 +67,45 @@ void compareResults(DATA_TYPE* symmat, DATA_TYPE* symmat_outputFromGpu)
   printf("Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\n", PERCENT_DIFF_ERROR_THRESHOLD, fail);
 }
 
-void covariance(DATA_TYPE* data, DATA_TYPE* symmat, DATA_TYPE* mean)
-{
-  int i, j, j1,j2;
+void covariance(int m, int n, DATA_TYPE* data, DATA_TYPE* symmat, DATA_TYPE* mean){
+    int i, j, j1,j2;
 
-  /* Determine mean of column vectors of input data matrix */
-  for (j = 1; j < (M+1); j++)
-    {
-      mean[j] = 0.0;
-      for (i = 1; i < (N+1); i++)
-	{
-	  mean[j] += data[i*(M+1) + j];
-	}
-      mean[j] /= FLOAT_N;
+    /* Determine mean of column vectors of input data matrix */
+    for (j = 0; j < _PB_M; j++){
+        mean[j] = 0.0;
+        for (i = 0; i < _PB_N; i++){
+            mean[j] += data[i*_PB_M + j];
+        }
+        mean[j] /= FLOAT_N;
     }
   
-  /* Center the column vectors. */
-  for (i = 1; i < (N+1); i++)
-    {
-      for (j = 1; j < (M+1); j++)
-	{
-	  data[i*(M+1) + j] -= mean[j];
-	}
+    /* Center the column vectors. */
+    for (i = 0; i < _PB_N; i++){
+        for (j = 0; j < _PB_M; j++){
+            data[i*_PB_M + j] -= mean[j];
+        }
     }
 
-  /* Calculate the m * m covariance matrix. */
-  for (j1 = 1; j1 < (M+1); j1++)
-    {
-      for (j2 = j1; j2 < (M+1); j2++)
-	{
-	  symmat[j1*(M+1) + j2] = 0.0;
-	  for (i = 1; i < N+1; i++)
-	    {
-	      symmat[j1*(M+1) + j2] += data[i*(M+1) + j1] * data[i*(M+1) + j2];
-	    }
-	  symmat[j2*(M+1) + j1] = symmat[j1*(M+1) + j2];
-	}
-    }
-}
+    /* Calculate the m * m covariance matrix. */
+    for (j1 = 0; j1 < _PB_M; j1++){
+        for (j2 = j1; j2 < _PB_M; j2++){
+            symmat[j1*_PB_M + j2] = 0.0;
 
-void GPU__covariance(DATA_TYPE* data, DATA_TYPE* symmat, DATA_TYPE* mean)
-{
-  int i, j, j1,j2;
+            for (i = 1; i < _PB_N; i++){
+                symmat[j1*_PB_M + j2] += data[i*_PB_M + j1] * data[i*_PB_M + j2];
+            }
 
-  /* Determine mean of column vectors of input data matrix */
-	
-  #pragma acc loop independent
-  for (j = 1; j < (M+1); j++)
-    {
-      mean[j] = 0.0;
-      for (i = 1; i < (N+1); i++)
-	{
-	  mean[j] += data[i*(M+1) + j];
-	}
-      mean[j] /= FLOAT_N;
-    }
-  
-  /* Center the column vectors. */
-  #pragma acc loop independent
-  for (i = 1; i < (N+1); i++)
-    {
-      #pragma acc loop independent
-      for (j = 1; j < (M+1); j++)
-	{
-	  data[i*(M+1) + j] -= mean[j];
-	}
-    }
-  
-  /* Calculate the m * m covariance matrix. */
-  #pragma acc loop independent
-  for (j1 = 1; j1 < (M+1); j1++)
-    {
-      #pragma acc loop independent
-      for (j2 = j1; j2 < (M+1); j2++)
-	{
-	  symmat[j1*(M+1) + j2] = 0.0;
-	  for (i = 1; i < N+1; i++)
-	    {
-	      symmat[j1*(M+1) + j2] += data[i*(M+1) + j1] * data[i*(M+1) + j2];
-	    }
-	  symmat[j2*(M+1) + j1] = symmat[j1*(M+1) + j2];
-	}
+            symmat[j2*_PB_M + j1] = symmat[j1*_PB_M + j2];
+        }
     }
 }
 
 int main()
 {
+  /* Retrieve problem size. */
+  int n = N;
+  int m = M;
+
   double t_start, t_end;
 
   DATA_TYPE* data;
@@ -168,20 +121,12 @@ int main()
   fprintf(stdout, "<< Covariance Computation >>\n");
 
   init_arrays(data);
-    
-  t_start = rtclock();
-  GPU__covariance(data, symmat_outputFromGpu, mean);
-  t_end = rtclock();
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  init_arrays(data);
 
   t_start = rtclock();
-  covariance(data, symmat, mean);
+  covariance(m,n,data, symmat, mean);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 
-  compareResults(symmat, symmat_outputFromGpu);
 
   free(data);
   free(symmat);

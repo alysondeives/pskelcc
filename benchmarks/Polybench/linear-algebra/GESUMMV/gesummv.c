@@ -26,49 +26,28 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-#define N 8192
+//#define N 8192
 
 /* Declared constant values for ALPHA and BETA (same as values in PolyBench 2.0) */
 #define ALPHA 43532.0f
 #define BETA 12313.0f
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
-void gesummv(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp)
+void gesummv(int n, DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp)
 {
   int i, j;
 	
-  for (i = 0; i < N; i++)
-    {
-      tmp[i] = 0;
-      y[i] = 0;
-      for (j = 0; j < N; j++)
-	{
-	  tmp[i] = A[i*N + j] * x[j] + tmp[i];
-	  y[i] = B[i*N + j] * x[j] + y[i];
-	}
+    for (i = 0; i < _PB_N; i++){
+        tmp[i] = 0;
+        y[i] = 0;
+        for (j = 0; j < _PB_N; j++){
+            tmp[i] = A[i*_PB_N + j] * x[j] + tmp[i];
+            y[i] = B[i*_PB_N + j] * x[j] + y[i];
+        }
 		
-      y[i] = ALPHA * tmp[i] + BETA * y[i];
-    }
-}
-
-void GPU__gesummv(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *x, DATA_TYPE *y, DATA_TYPE *tmp)
-{
-  int i, j;
-	
-  #pragma acc loop independent
-  for (i = 0; i < N; i++)
-    {
-      tmp[i] = 0;
-      y[i] = 0;
-      for (j = 0; j < N; j++)
-	{
-	  tmp[i] = A[i*N + j] * x[j] + tmp[i];
-	  y[i] = B[i*N + j] * x[j] + y[i];
-	}
-      
-      y[i] = ALPHA * tmp[i] + BETA * y[i];
+        y[i] = ALPHA * tmp[i] + BETA * y[i];
     }
 }
 
@@ -106,20 +85,21 @@ void compareResults(DATA_TYPE* y, DATA_TYPE* y_outputFromGpu)
 
 int main(int argc, char *argv[])
 {
+  /* Retrieve problem size. */
+  int n = N;
+
   double t_start, t_end;
 
   DATA_TYPE* A;
   DATA_TYPE* B;  
   DATA_TYPE* x;  
   DATA_TYPE* y;
-  DATA_TYPE* y_outputFromGpu;
   DATA_TYPE* tmp;
 	
   A = (DATA_TYPE*)malloc(N*N*sizeof(DATA_TYPE));
   B = (DATA_TYPE*)malloc(N*N*sizeof(DATA_TYPE));
   x = (DATA_TYPE*)malloc(N*sizeof(DATA_TYPE)); 
   y = (DATA_TYPE*)malloc(N*sizeof(DATA_TYPE));
-  y_outputFromGpu = (DATA_TYPE*)malloc(N*sizeof(DATA_TYPE));
   tmp = (DATA_TYPE*)malloc(N*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Scalar, Vector and Matrix Multiplication >>\n");
@@ -127,22 +107,15 @@ int main(int argc, char *argv[])
   init(A, x);
 	
   t_start = rtclock();
-  GPU__gesummv(A, B, x, y_outputFromGpu, tmp);
-  t_end = rtclock();
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-	
-  t_start = rtclock();
-  gesummv(A, B, x, y, tmp);
+  gesummv(n, A, B, x, y, tmp);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 	
-  compareResults(y, y_outputFromGpu);
 
   free(A);
   free(B);  
   free(x);  
   free(y);
-  free(y_outputFromGpu);
   free(tmp);
 
   return 0;

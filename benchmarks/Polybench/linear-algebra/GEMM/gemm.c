@@ -24,57 +24,33 @@
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05
 
 /* Problem size */
-#define NI 2048
-#define NJ 2048
-#define NK 2048
+//#define NI 2048
+//#define NJ 2048
+//#define NK 2048
 
 /* Declared constant values for ALPHA and BETA (same as values in PolyBench 2.0) */
 #define ALPHA 32412.0f
 #define BETA 2123.0f
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
 #define GPU_DEVICE 1
 
-void gemm(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
+void gemm(int ni, int nj, int nk, DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
 {
   int i,j,k;
 	
-  for (i = 0; i < NI; i++)
-    {
-      for (j = 0; j < NJ; j++)
-	{
-	  C[i*NJ + j] *= BETA;
+    for (i = 0; i < _PB_NI; i++){
+        for (j = 0; j < _PB_NJ; j++){
+            C[i*NJ + j] *= BETA;
 	  
-	  for (k = 0; k < NK; ++k)
-	    {
-	      C[i*NJ + j] += ALPHA * A[i*NK + k] * B[k*NJ + j];
-	    }
-	}
+            for (k = 0; k < _PB_NK; ++k){
+                C[i*_PB_NJ + j] += ALPHA * A[i*_PB_NK + k] * B[k*_PB_NJ + j];
+            }
+        }
     }
 }
-
-void GPU__gemm(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C)
-{
-  int i,j,k;
-	
-  #pragma acc loop independent
-  for (i = 0; i < NI; i++)
-    {
-      #pragma acc loop independent
-      for (j = 0; j < NJ; j++)
-	{
-	  C[i*NJ + j] *= BETA;
-	
-	  for (k = 0; k < NK; ++k)
-	    {
-	      C[i*NJ + j] += ALPHA * A[i*NK + k] * B[k*NJ + j];
-	    }
-	}
-    }
-}
-
 
 void init(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *C_OMP)
 {
@@ -132,6 +108,11 @@ int main(int argc, char *argv[])
 {
   double t_start, t_end;
 
+  /* Retrieve problem size. */
+  int ni = NI;
+  int nj = NJ;
+  int nk = NK;
+
   DATA_TYPE* A;
   DATA_TYPE* B;  
   DATA_TYPE* C;  
@@ -145,24 +126,16 @@ int main(int argc, char *argv[])
   fprintf(stdout, "<< Matrix-multiply C=alpha.A.B+beta.C >>\n");
 
   init(A, B, C, C_outputFromGpu);
-  
-  t_start = rtclock();	
-  GPU__gemm(A, B, C_outputFromGpu);
-  t_end = rtclock();
-  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
 
   t_start = rtclock();	
-  gemm(A, B, C);
+  gemm(ni,nk,nk,A, B, C);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-	
-  compareResults(C, C_outputFromGpu);
 
   free(A);
   free(B);  
-  free(C);  
-  free(C_outputFromGpu); 
-
+  free(C);
+  
   return 0;
 }
 

@@ -25,61 +25,61 @@
 #define GPU_DEVICE 1
 
 /* Problem size. */
-# define NI 1500
-# define NJ 1500
-# define NK 1500
-# define NL 1500
+//# define NI 1500
+//# define NJ 1500
+//# define NK 1500
+//# define NL 1500
 
 /* Can switch DATA_TYPE between float and double */
-typedef float DATA_TYPE;
+//typedef float DATA_TYPE;
 
-void init_array(DATA_TYPE* A, DATA_TYPE* B, DATA_TYPE* C, DATA_TYPE* D)
+void init_array(int ni, int nj, int nk, int nl, DATA_TYPE* A, DATA_TYPE* B, DATA_TYPE* C, DATA_TYPE* D)
 {
   int i, j;
 
-  for (i = 0; i < NI; i++)
+  for (i = 0; i < _PB_NI; i++)
     {
-      for (j = 0; j < NK; j++)
+      for (j = 0; j < _PB_NK; j++)
 	{
-	  A[i*NI + j] = ((DATA_TYPE) i*j) / NI;
+	  A[i*_PB_NI + j] = ((DATA_TYPE) i*j) / _PB_NI;
 	}
     }
   
-  for (i = 0; i < NK; i++)
+  for (i = 0; i < _PB_NK; i++)
     {
-      for (j = 0; j < NJ; j++)
+      for (j = 0; j < _PB_NJ; j++)
 	{
-	  B[i*NK + j] = ((DATA_TYPE) i*(j+1)) / NJ;
+	  B[i*_PB_NK + j] = ((DATA_TYPE) i*(j+1)) / _PB_NJ;
 	}
     }
   
-  for (i = 0; i < NL; i++)
+  for (i = 0; i < _PB_NL; i++)
     {
-      for (j = 0; j < NJ; j++)
+      for (j = 0; j < _PB_NJ; j++)
 	{
-	  C[i*NL + j] = ((DATA_TYPE) i*(j+3)) / NL;
+	  C[i*_PB_NL + j] = ((DATA_TYPE) i*(j+3)) / _PB_NL;
 	}
     }
   
-  for (i = 0; i < NI; i++)
+  for (i = 0; i < _PB_NI; i++)
     {
-      for (j = 0; j < NL; j++)
+      for (j = 0; j < _PB_NL; j++)
 	{
-	  D[i*NL + j] = ((DATA_TYPE) i*(j+2)) / NK;	
+	  D[i*_PB_NL + j] = ((DATA_TYPE) i*(j+2)) / _PB_NK;	
 	}
     }
 }
 
-void compareResults(DATA_TYPE *E, DATA_TYPE *E_GPU)
+void compareResults(int ni, int nl, DATA_TYPE *E, DATA_TYPE *E_GPU)
 {
   int i,j,fail;
   fail = 0;
 
-  for (i=0; i < NL; i++)
+  for (i=0; i < _PB_NL; i++)
     {
-      for (j=0; j < NI; j++)
+      for (j=0; j < _PB_NI; j++)
 	{
-	  if (percentDiff(E[i*NI + j], E_GPU[i*NI + j]) > ERROR_THRESHOLD)
+	  if (percentDiff(E[i*_PB_NI + j], E_GPU[i*_PB_NI + j]) > ERROR_THRESHOLD)
 	    {
 	      fail++;
 	    }
@@ -90,30 +90,30 @@ void compareResults(DATA_TYPE *E, DATA_TYPE *E_GPU)
   printf("Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\n", ERROR_THRESHOLD, fail);
 }
 
-void mm2(DATA_TYPE* A, DATA_TYPE* B, DATA_TYPE* C, DATA_TYPE* D, DATA_TYPE* E)
+void mm2(int ni, int nj, int nk, int nl, DATA_TYPE* A, DATA_TYPE* B, DATA_TYPE* C, DATA_TYPE* D, DATA_TYPE* E)
 {
   int i, j, k;
 
-  for (i = 0; i < NI; i++)
+  for (i = 0; i < _PB_NI; i++)
     {
-      for (j = 0; j < NJ; j++)
+      for (j = 0; j < _PB_NJ; j++)
 	{
-	  C[i*NJ + j] = 0.0;
-	  for (k = 0; k < NK; ++k)
+	  C[i*_PB_NJ + j] = 0.0;
+	  for (k = 0; k < _PB_NK; ++k)
 	    {
-	      C[i*NJ + j] += A[i*NK + k] * B[k*NJ + j];
+	      C[i*_PB_NJ + j] += A[i*_PB_NK + k] * B[k*_PB_NJ + j];
 	    }
 	}
     }
   
-    for (i = 0; i < NI; i++)
+    for (i = 0; i < _PB_NI; i++)
     {
-      for (j = 0; j < NL; j++)
+      for (j = 0; j < _PB_NL; j++)
 	{
-	  E[i*NL + j] = 0.0;
-	  for (k = 0; k < NJ; ++k)
+	  E[i*_PB_NL + j] = 0.0;
+	  for (k = 0; k < _PB_NJ; ++k)
 	    {
-	      E[i*NL + j] += C[i*NJ + k] * D[k*NL + j];
+	      E[i*_PB_NL + j] += C[i*_PB_NJ + k] * D[k*_PB_NL + j];
 	    }
 	}
     }
@@ -122,39 +122,41 @@ void mm2(DATA_TYPE* A, DATA_TYPE* B, DATA_TYPE* C, DATA_TYPE* D, DATA_TYPE* E)
 
 int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int ni = NI;
+  int nj = NJ;
+  int nk = NK;
+  int nl = NL;
+
   double t_start, t_end, t_start_GPU, t_end_GPU;
 
+  /* Variable declaration/allocation. */
   DATA_TYPE* C;
   DATA_TYPE* A;
   DATA_TYPE* B;
   DATA_TYPE* D;
   DATA_TYPE* E;
-  DATA_TYPE* E_GPU;
 
-  C = (DATA_TYPE*)malloc(NI*NJ*sizeof(DATA_TYPE));
-  A = (DATA_TYPE*)malloc(NI*NK*sizeof(DATA_TYPE));
-  B = (DATA_TYPE*)malloc(NK*NJ*sizeof(DATA_TYPE));
-  D = (DATA_TYPE*)malloc(NJ*NL*sizeof(DATA_TYPE));
-  E = (DATA_TYPE*)malloc(NI*NL*sizeof(DATA_TYPE));
-  E_GPU = (DATA_TYPE*)malloc(NI*NL*sizeof(DATA_TYPE));
+  C = (DATA_TYPE*)malloc(ni*nj*sizeof(DATA_TYPE));
+  A = (DATA_TYPE*)malloc(ni*nk*sizeof(DATA_TYPE));
+  B = (DATA_TYPE*)malloc(nk*nj*sizeof(DATA_TYPE));
+  D = (DATA_TYPE*)malloc(nj*nl*sizeof(DATA_TYPE));
+  E = (DATA_TYPE*)malloc(ni*nl*sizeof(DATA_TYPE));
 
   fprintf(stdout, "<< Linear Algebra: 2 Matrix Multiplications (D=A.B; E=C.D) >>\n");
 
-  init_array(A, B, C, D);
+  init_array(ni,nj,nk,nl,A, B, C, D);
 
   t_start = rtclock();
-  mm2(A, B, C, D, E);
+  mm2(ni,nj,nk,nl,A, B, C, D, E);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-
-  compareResults(E, E_GPU);
 
   free(C);
   free(A);
   free(B);
   free(D);
   free(E);
-  free(E_GPU);
 
   return 0;
 }
