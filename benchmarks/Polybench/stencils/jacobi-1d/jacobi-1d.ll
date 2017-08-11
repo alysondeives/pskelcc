@@ -98,17 +98,17 @@ return:                                           ; preds = %if.else, %if.then
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
-  %conv = sext i32 10000 to i64
+  %conv = sext i32 2048 to i64
   %mul = mul i64 %conv, 4
   %call = call noalias i8* @malloc(i64 %mul) #3
   %tmp = bitcast i8* %call to float*
-  %conv1 = sext i32 10000 to i64
+  %conv1 = sext i32 2048 to i64
   %mul2 = mul i64 %conv1, 4
   %call3 = call noalias i8* @malloc(i64 %mul2) #3
   %tmp1 = bitcast i8* %call3 to float*
-  call void @init_array(i32 10000, float* %tmp, float* %tmp1)
+  call void @init_array(i32 2048, float* %tmp, float* %tmp1)
   %call4 = call double @rtclock()
-  call void @kernel_jacobi_1d(i32 100, i32 10000, float* %tmp, float* %tmp1)
+  call void @kernel_jacobi_1d(i32 5, i32 2048, float* %tmp, float* %tmp1)
   %call5 = call double @rtclock()
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call5, %call4

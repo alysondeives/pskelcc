@@ -16,19 +16,19 @@ define double @rtclock() #0 {
 entry:
   %Tzp = alloca %struct.timezone, align 4
   %Tp = alloca %struct.timeval, align 8
-  %call = call i32 @gettimeofday(%struct.timeval* nonnull %Tp, %struct.timezone* nonnull %Tzp) #3
-  %cmp = icmp eq i32 %call, 0
-  br i1 %cmp, label %if.end, label %if.then
+  %call = call i32 @gettimeofday(%struct.timeval* %Tp, %struct.timezone* %Tzp) #3
+  %cmp = icmp ne i32 %call, 0
+  br i1 %cmp, label %if.then, label %if.end
 
 if.then:                                          ; preds = %entry
-  %call1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([35 x i8], [35 x i8]* @.str, i64 0, i64 0), i32 %call) #3
+  %call1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([35 x i8], [35 x i8]* @.str, i32 0, i32 0), i32 %call)
   br label %if.end
 
-if.end:                                           ; preds = %entry, %if.then
-  %tv_sec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i64 0, i32 0
+if.end:                                           ; preds = %if.then, %entry
+  %tv_sec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i32 0, i32 0
   %tmp = load i64, i64* %tv_sec, align 8
   %conv = sitofp i64 %tmp to double
-  %tv_usec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i64 0, i32 1
+  %tv_usec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i32 0, i32 1
   %tmp1 = load i64, i64* %tv_usec, align 8
   %conv2 = sitofp i64 %tmp1 to double
   %mul = fmul double %conv2, 1.000000e-06
@@ -48,7 +48,7 @@ entry:
   br i1 %cmp, label %if.then, label %if.else
 
 if.then:                                          ; preds = %entry
-  %mul = fsub float -0.000000e+00, %a
+  %mul = fmul float %a, -1.000000e+00
   br label %return
 
 if.else:                                          ; preds = %entry
@@ -87,7 +87,7 @@ if.else:                                          ; preds = %land.lhs.true, %ent
   %call11 = call float @absVal(float %conv10)
   %div = fdiv float %call9, %call11
   %call12 = call float @absVal(float %div)
-  %mul = fmul float %call12, 1.000000e+02
+  %mul = fmul float 1.000000e+02, %call12
   br label %return
 
 return:                                           ; preds = %if.else, %if.then
@@ -158,19 +158,27 @@ for.end.22:                                       ; preds = %for.cond
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
-  %call = call noalias i8* @malloc(i64 4000000) #3
+  %mul = mul nsw i32 2048, 2048
+  %conv = sext i32 %mul to i64
+  %mul1 = mul i64 %conv, 4
+  %call = call noalias i8* @malloc(i64 %mul1) #3
   %tmp = bitcast i8* %call to float*
-  %call5 = call noalias i8* @malloc(i64 4000000) #3
+  %mul2 = mul nsw i32 2048, 2048
+  %conv3 = sext i32 %mul2 to i64
+  %mul4 = mul i64 %conv3, 4
+  %call5 = call noalias i8* @malloc(i64 %mul4) #3
   %tmp1 = bitcast i8* %call5 to float*
-  call void @init_array(i32 1000, float* %tmp, float* %tmp1)
+  call void @init_array(i32 2048, float* %tmp, float* %tmp1)
   %call6 = call double @rtclock()
-  call void @kernel_jacobi_2d(i32 20, i32 1000, float* %tmp, float* %tmp1)
+  call void @kernel_jacobi_2d(i32 5, i32 2048, float* %tmp, float* %tmp1)
   %call7 = call double @rtclock()
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call7, %call6
-  %call8 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp2, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.1, i64 0, i64 0), double %sub) #3
-  call void @free(i8* %call) #3
-  call void @free(i8* %call5) #3
+  %call8 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp2, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.1, i32 0, i32 0), double %sub)
+  %tmp3 = bitcast float* %tmp to i8*
+  call void @free(i8* %tmp3) #3
+  %tmp4 = bitcast float* %tmp1 to i8*
+  call void @free(i8* %tmp4) #3
   ret i32 0
 }
 
@@ -192,7 +200,7 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc.37, %for.body
   %i.0 = phi i32 [ 1, %for.body ], [ %inc38, %for.inc.37 ]
-  %sub = add nsw i32 %n, -1
+  %sub = sub nsw i32 %n, 1
   %cmp2 = icmp slt i32 %i.0, %sub
   br i1 %cmp2, label %for.body.3, label %for.end.39
 
@@ -201,7 +209,7 @@ for.body.3:                                       ; preds = %for.cond.1
 
 for.cond.4:                                       ; preds = %for.inc, %for.body.3
   %j.0 = phi i32 [ 1, %for.body.3 ], [ %inc, %for.inc ]
-  %sub5 = add nsw i32 %n, -1
+  %sub5 = sub nsw i32 %n, 1
   %cmp6 = icmp slt i32 %j.0, %sub5
   br i1 %cmp6, label %for.body.7, label %for.end
 
@@ -212,7 +220,7 @@ for.body.7:                                       ; preds = %for.cond.4
   %arrayidx = getelementptr inbounds float, float* %A, i64 %idxprom
   %tmp = load float, float* %arrayidx, align 4
   %mul8 = mul nsw i32 %i.0, %n
-  %sub9 = add nsw i32 %j.0, -1
+  %sub9 = sub nsw i32 %j.0, 1
   %add10 = add nsw i32 %mul8, %sub9
   %idxprom11 = sext i32 %add10 to i64
   %arrayidx12 = getelementptr inbounds float, float* %A, i64 %idxprom11
@@ -232,14 +240,14 @@ for.body.7:                                       ; preds = %for.cond.4
   %arrayidx24 = getelementptr inbounds float, float* %A, i64 %idxprom23
   %tmp3 = load float, float* %arrayidx24, align 4
   %add25 = fadd float %add19, %tmp3
-  %sub26 = add nsw i32 %i.0, -1
+  %sub26 = sub nsw i32 %i.0, 1
   %mul27 = mul nsw i32 %sub26, %n
   %add28 = add nsw i32 %mul27, %j.0
   %idxprom29 = sext i32 %add28 to i64
   %arrayidx30 = getelementptr inbounds float, float* %A, i64 %idxprom29
   %tmp4 = load float, float* %arrayidx30, align 4
   %add31 = fadd float %add25, %tmp4
-  %mul32 = fmul float %add31, 0x3FC99999A0000000
+  %mul32 = fmul float 0x3FC99999A0000000, %add31
   %mul33 = mul nsw i32 %i.0, %n
   %add34 = add nsw i32 %mul33, %j.0
   %idxprom35 = sext i32 %add34 to i64
@@ -263,7 +271,7 @@ for.end.39:                                       ; preds = %for.cond.1
 
 for.cond.40:                                      ; preds = %for.inc.59, %for.end.39
   %i.1 = phi i32 [ 1, %for.end.39 ], [ %inc60, %for.inc.59 ]
-  %sub41 = add nsw i32 %n, -1
+  %sub41 = sub nsw i32 %n, 1
   %cmp42 = icmp slt i32 %i.1, %sub41
   br i1 %cmp42, label %for.body.43, label %for.end.61
 
@@ -272,7 +280,7 @@ for.body.43:                                      ; preds = %for.cond.40
 
 for.cond.44:                                      ; preds = %for.inc.56, %for.body.43
   %j.1 = phi i32 [ 1, %for.body.43 ], [ %inc57, %for.inc.56 ]
-  %sub45 = add nsw i32 %n, -1
+  %sub45 = sub nsw i32 %n, 1
   %cmp46 = icmp slt i32 %j.1, %sub45
   br i1 %cmp46, label %for.body.47, label %for.end.58
 
@@ -281,14 +289,12 @@ for.body.47:                                      ; preds = %for.cond.44
   %add49 = add nsw i32 %mul48, %j.1
   %idxprom50 = sext i32 %add49 to i64
   %arrayidx51 = getelementptr inbounds float, float* %B, i64 %idxprom50
-  %0 = bitcast float* %arrayidx51 to i32*
-  %tmp56 = load i32, i32* %0, align 4
+  %tmp5 = load float, float* %arrayidx51, align 4
   %mul52 = mul nsw i32 %i.1, %n
   %add53 = add nsw i32 %mul52, %j.1
   %idxprom54 = sext i32 %add53 to i64
   %arrayidx55 = getelementptr inbounds float, float* %A, i64 %idxprom54
-  %1 = bitcast float* %arrayidx55 to i32*
-  store i32 %tmp56, i32* %1, align 4
+  store float %tmp5, float* %arrayidx55, align 4
   br label %for.inc.56
 
 for.inc.56:                                       ; preds = %for.body.47

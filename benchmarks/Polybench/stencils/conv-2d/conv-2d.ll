@@ -269,7 +269,7 @@ entry:
 for.cond:                                         ; preds = %for.inc.13, %entry
   %i.0 = phi i32 [ 1, %entry ], [ %inc14, %for.inc.13 ]
   %fail.0 = phi i32 [ 0, %entry ], [ %fail.1, %for.inc.13 ]
-  %cmp = icmp slt i32 %i.0, 4095
+  %cmp = icmp slt i32 %i.0, 2047
   br i1 %cmp, label %for.body, label %for.end.15
 
 for.body:                                         ; preds = %for.cond
@@ -278,17 +278,17 @@ for.body:                                         ; preds = %for.cond
 for.cond.1:                                       ; preds = %for.inc, %for.body
   %j.0 = phi i32 [ 1, %for.body ], [ %inc12, %for.inc ]
   %fail.1 = phi i32 [ %fail.0, %for.body ], [ %fail.2, %for.inc ]
-  %cmp2 = icmp slt i32 %j.0, 4095
+  %cmp2 = icmp slt i32 %j.0, 2047
   br i1 %cmp2, label %for.body.3, label %for.end
 
 for.body.3:                                       ; preds = %for.cond.1
-  %mul = mul nsw i32 %i.0, 4096
+  %mul = mul nsw i32 %i.0, 2048
   %add = add nsw i32 %mul, %j.0
   %idxprom = sext i32 %add to i64
   %arrayidx = getelementptr inbounds float, float* %B, i64 %idxprom
   %tmp = load float, float* %arrayidx, align 4
   %conv = fpext float %tmp to double
-  %mul4 = mul nsw i32 %i.0, 4096
+  %mul4 = mul nsw i32 %i.0, 2048
   %add5 = add nsw i32 %mul4, %j.0
   %idxprom6 = sext i32 %add5 to i64
   %arrayidx7 = getelementptr inbounds float, float* %B_GPU, i64 %idxprom6
@@ -326,21 +326,21 @@ for.end.15:                                       ; preds = %for.cond
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
-  %mul = mul nsw i32 4096, 4096
+  %mul = mul nsw i32 2048, 2048
   %conv = sext i32 %mul to i64
   %mul1 = mul i64 %conv, 4
   %call = call noalias i8* @malloc(i64 %mul1) #3
   %tmp = bitcast i8* %call to float*
-  %mul2 = mul nsw i32 4096, 4096
+  %mul2 = mul nsw i32 2048, 2048
   %conv3 = sext i32 %mul2 to i64
   %mul4 = mul i64 %conv3, 4
   %call5 = call noalias i8* @malloc(i64 %mul4) #3
   %tmp1 = bitcast i8* %call5 to float*
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %call6 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp2, i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.2, i32 0, i32 0))
-  call void @init(i32 4096, i32 4096, float* %tmp)
+  call void @init(i32 2048, i32 2048, float* %tmp)
   %call7 = call double @rtclock()
-  call void @conv2D(i32 4096, i32 4096, float* %tmp, float* %tmp1)
+  call void @conv2D(i32 2048, i32 2048, float* %tmp, float* %tmp1)
   %call8 = call double @rtclock()
   %tmp3 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call8, %call7
