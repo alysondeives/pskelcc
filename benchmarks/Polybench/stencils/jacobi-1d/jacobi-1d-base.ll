@@ -134,8 +134,8 @@ entry:
   store i32 0, i32* %retval
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
-  store i32 10000, i32* %n, align 4
-  store i32 100, i32* %tsteps, align 4
+  store i32 2048, i32* %n, align 4
+  store i32 5, i32* %tsteps, align 4
   %0 = load i32, i32* %n, align 4
   %conv = sext i32 %0 to i64
   %mul = mul i64 %conv, 4

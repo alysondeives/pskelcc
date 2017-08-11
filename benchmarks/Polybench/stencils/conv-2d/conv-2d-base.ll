@@ -406,7 +406,7 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.13, %entry
   %0 = load i32, i32* %i, align 4
-  %cmp = icmp slt i32 %0, 4095
+  %cmp = icmp slt i32 %0, 2047
   br i1 %cmp, label %for.body, label %for.end.15
 
 for.body:                                         ; preds = %for.cond
@@ -415,12 +415,12 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc, %for.body
   %1 = load i32, i32* %j, align 4
-  %cmp2 = icmp slt i32 %1, 4095
+  %cmp2 = icmp slt i32 %1, 2047
   br i1 %cmp2, label %for.body.3, label %for.end
 
 for.body.3:                                       ; preds = %for.cond.1
   %2 = load i32, i32* %i, align 4
-  %mul = mul nsw i32 %2, 4096
+  %mul = mul nsw i32 %2, 2048
   %3 = load i32, i32* %j, align 4
   %add = add nsw i32 %mul, %3
   %idxprom = sext i32 %add to i64
@@ -429,7 +429,7 @@ for.body.3:                                       ; preds = %for.cond.1
   %5 = load float, float* %arrayidx, align 4
   %conv = fpext float %5 to double
   %6 = load i32, i32* %i, align 4
-  %mul4 = mul nsw i32 %6, 4096
+  %mul4 = mul nsw i32 %6, 2048
   %7 = load i32, i32* %j, align 4
   %add5 = add nsw i32 %mul4, %7
   %idxprom6 = sext i32 %add5 to i64
@@ -487,8 +487,8 @@ entry:
   store i32 0, i32* %retval
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
-  store i32 4096, i32* %ni, align 4
-  store i32 4096, i32* %nj, align 4
+  store i32 2048, i32* %ni, align 4
+  store i32 2048, i32* %nj, align 4
   %0 = load i32, i32* %ni, align 4
   %1 = load i32, i32* %nj, align 4
   %mul = mul nsw i32 %0, %1
