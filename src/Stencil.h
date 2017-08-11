@@ -52,6 +52,7 @@ class Stencil : public FunctionPass {
 	  PHINode* phinode_y;
 	  PHINode* phinode_z;
 	  
+	  int dimension;
 	  int offset_x;
 	  int offset_y;
 	  int offset_z;
@@ -67,6 +68,7 @@ class Stencil : public FunctionPass {
 		offset_x = 0;
 		offset_y = 0;
 		offset_z = 0;
+		dimension = 1;
 		//SCEVAccess = nullptr;
 	  }
 	  

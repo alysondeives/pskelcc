@@ -235,13 +235,14 @@ bool Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor &N){
             N.SCEVLoops.push_back(L);
             N.SCEVSteps.push_back(Step);
 
-            //errs()<<"SCEV Step: "<<*Step<<"\n";
+            errs()<<"SCEV Step: "<<*Step<<"\n";
             //errs()<<"SCEV Loop: "<<*L<<"\n";
             
             //Loops.insert(std::pair<const Loop*,const SCEV*>(L,Step));
             S1 = (dyn_cast<SCEVAddRecExpr>(S1))->getStart();
         }
         
+        errs()<<"SCEVLoops Size: "<<N.SCEVLoops.size()<<"\n";
         switch (N.SCEVLoops.size()){
             case 1:
                 errs()<<"ERROR! Unexpected 1D SCEV: "<<*S1<<"\n";
@@ -313,7 +314,7 @@ bool Stencil::parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *ElementSize, Neig
     N.BasePtr = BasePtr->getValue();
     N.phinode_x = Inner;
     N.offset_x = offsetInner;
-    
+    N.dimension = 1;
     return true;
 }
 
@@ -332,8 +333,8 @@ bool Stencil::parse2DSCEV(const SCEV *S, Neighbor &N){
     int innerVal = InnerValue->getSExtValue();
     int outerVal = OuterValue->getSExtValue();
 
-    errs()<<"innerVal: "<<innerVal<<"\n";
-    errs()<<"outerVal: "<<outerVal<<"\n";
+    //errs()<<"innerVal: "<<innerVal<<"\n";
+    //errs()<<"outerVal: "<<outerVal<<"\n";
 
     int offsetOuter = 0;
     int offsetInner = 0;
@@ -399,6 +400,7 @@ bool Stencil::parse2DSCEV(const SCEV *S, Neighbor &N){
     N.phinode_y = Outer;
     N.offset_x = offsetInner;
     N.offset_y = offsetOuter;
+     N.dimension = 2;
     
     return true;
 }
@@ -421,9 +423,9 @@ bool Stencil::parse3DSCEV(const SCEV *S, Neighbor &N){
     int midVal = MidValue->getSExtValue();
     int outerVal = OuterValue->getSExtValue();
     
-    errs()<<"innerVal: "<<innerVal<<"\n";
-    errs()<<"midVal: "<<midVal<<"\n";
-    errs()<<"outerVal: "<<outerVal<<"\n";
+    //errs()<<"innerVal: "<<innerVal<<"\n";
+    //errs()<<"midVal: "<<midVal<<"\n";
+    //errs()<<"outerVal: "<<outerVal<<"\n";
 
     int offsetOuter = 0; // J
     int offsetInner = 0; // K
@@ -602,6 +604,7 @@ bool Stencil::parse3DSCEV(const SCEV *S, Neighbor &N){
     N.offset_x = offsetMid;
     N.offset_y = offsetOuter;
     N.offset_z = offsetInner;
+    N.dimension = 3;
     
     return true;
 }
@@ -1052,6 +1055,9 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
             return false;
         }
     }
+    else if((Unknown = dyn_cast<SCEVUnknown>(backedge))){
+		bound = Unknown->getValue();
+	}
     else{
         errs()<<"ERROR! Loop has unexpected SCEV backedge type: "<<*backedge<<"\n";
         return false;
@@ -1084,7 +1090,6 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 	return true;
 }
 
-//TODO Match Store SCEV Dimension with number of Computation Loops
 //TODO Verify if the only computation neighbor is the same store base pointer
 
 bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
@@ -1093,8 +1098,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	//Instruction *Ins;
 	GetElementPtrInst *GEP;
 	LoadInst *LD;
-	Neighbor store_neighbor;
-	ArrayAccess arrayAcc;
+	
 	
 	std::vector<Instruction*> StrIns;
 	
@@ -1110,7 +1114,15 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 		return false;
 	}
 	
+	//TODO Analyze more than one store
+	if(StrIns.size()> 1){
+		errs()<<"ERROR! Inner computation loop has more than 1 store instruction\n";
+		return false;
+	}
+	
 	for(auto Ins : StrIns){
+		ArrayAccess arrayAcc;
+		Neighbor store_neighbor;
 		errs()<<"Store: "<<*Ins<<"\n";	
         //errs() << "Store Instruction: "<< *Ins << "\n";
         
@@ -1128,9 +1140,6 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
                 PtrOp = GEP->getPointerOperand();
             //errs()<<"Passou "<<"\n";
         }
-        
-        //errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
-        Stencil->output = PtrOp;
         
         //errs() << "GEP: "<<*GEP<<"\n";
         
@@ -1153,6 +1162,13 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
             return false;
         }
         
+        /* The Store Pointer must have the same dimension as the number of loops */
+        if(store_neighbor.dimension != Stencil->dimension){
+			errs()<<"ERROR! Store Pointer has dimension "<< store_neighbor.dimension  <<" expected "<<Stencil->dimension <<"\n";
+			return false;
+		}
+        
+        
         errs()<<"-----------------------------------------------------------\n";
         errs()<<"Str SCEV Access: "<<*StrSCEV<<"\n";
 
@@ -1160,6 +1176,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 
         
         errs()<<"ArrayAccess Size: "<<arrayAcc.size()<<"\n";
+        /* Get all Neighbors */
         for(auto i : arrayAcc){
             Neighbor N;
             LoadInst *LD = dyn_cast<LoadInst>(i.first);
@@ -1192,10 +1209,34 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
                 Value *Val = N.BasePtr;
                 Stencil->arguments.push_back(Val);
 			}
-        }			
+        }
+        
+        
+        //TODO For at least one Argument Pointer, we need to find at least two references with different offsets
+        bool neighborhood = false;
+        for(auto arg: Stencil->arguments){
+			int count = 0;
+			for(auto neighbor : Stencil->neighbors){
+				if(neighbor.BasePtr == arg){
+					count++;
+				}
+			}
+			
+			if(count > 1){
+				neighborhood = true;
+			}
+		}
+		
+		if(!neighborhood){
+			errs()<<"ERROR! Computation does not have stencil neighborhood\n";
+			return false;
+		}
+        
+        //errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
+        Stencil->output = PtrOp;
 	}
 	errs()<<"Stencil Output: "<<*Stencil->output<<"\n";
-    printNeighbors(Stencil);		
+    //printNeighbors(Stencil);		
 	return true;
 }
 
@@ -1223,8 +1264,8 @@ bool Stencil::matchStencilNeighborhood(Neighbor &Str, Neighbor &N){
 	}
 	else {
 		for (unsigned int i=0; i<Str.SCEVLoops.size(); i++){
-            const SCEV *StrSCEV = Str.SCEVSteps[i];
-            const SCEV *NSCEV = N.SCEVSteps[i];
+            //const SCEV *StrSCEV = Str.SCEVSteps[i];
+            //const SCEV *NSCEV = N.SCEVSteps[i];
 
             /*if(StrSCEV != NSCEV){
                 errs()<<"ERROR! Store and Neighbor SCEV Steps differs\n";
@@ -1574,6 +1615,7 @@ bool Stencil::verifyStencil() {
 		
 		if(subLoops.size() == 1) { //!verifyIterationLoop(it_loop)
 			/* Considers it is a single iteration stencil */
+			errs()<<"-----------------------------------------------------------\n";
 			errs()<<"Considering a single iteration stencil\n";
 			
 			if(!verifyComputationLoops(it_loop,1, &Stencil)){
@@ -1590,6 +1632,8 @@ bool Stencil::verifyStencil() {
 			Stencil.iteration_value = dyn_cast<Value>(i64_val);
 		}
 		else {
+			errs()<<"-----------------------------------------------------------\n";
+			errs()<<"Considering a iterative stencil\n";
 			// iteration loop
 			if(!verifyIterationLoop(it_loop, &Stencil)){
                 if(loopCount == 1)

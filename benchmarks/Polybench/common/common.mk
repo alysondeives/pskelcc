@@ -20,6 +20,10 @@ ir: $(SRC)
 # Run stencil pass
 pass: ${OBJS}.ll
 	opt -load ${PRA} -load ${STENCIL} -stencil -stats ${OBJS}.ll -S -disable-output
-	
+
+# print dot cfg
+dot: ${OBJS}.ll
+	opt -dot-cfg ${OBJS}.ll -S -disable-output 
+	dot -Tpdf cfg.${OBJS}.dot -o cfg.${OBJS}.pdf
 clean:
 	rm ${OBJS}.ll ${OBJS}-base.ll
