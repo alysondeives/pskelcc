@@ -1058,6 +1058,38 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
     else if((Unknown = dyn_cast<SCEVUnknown>(backedge))){
 		bound = Unknown->getValue();
 	}
+    else if((AddExpr = dyn_cast<SCEVAddExpr>(backedge))){
+        if((SMax = dyn_cast<SCEVSMaxExpr>(AddExpr->getOperand(1)))){
+            if(!(isa<SCEVConstant>(SMax->getOperand(0)))){
+                errs()<<"ERROR! Expected SCEVConstant for Operand 0 of SMaxExprSCEV: "<<*SMax<<"\n";
+                return false;
+            }
+            
+            if((Unknown = dyn_cast<SCEVUnknown>(SMax->getOperand(1)))){
+                bound = Unknown->getValue();
+            }
+            else if((AddExpr = dyn_cast<SCEVAddExpr>(SMax->getOperand(1)))){
+                if((Unknown = dyn_cast<SCEVUnknown>(AddExpr->getOperand(1)))){
+                    bound = Unknown->getValue();
+                }
+                else{
+                    errs()<<"ERROR! Expected Unknow SCEV in AddExpr SCEV: "<<*AddExpr<<"\n";
+                    return false;
+                }
+            }
+            else{
+                errs()<<"ERROR! Expected Unknown or AddExpr SCEV for Operand 1 of SMaxExpr SCEV: "<<*SMax<<"\n";
+                return false;
+            }
+        }
+        else if((Unknown = dyn_cast<SCEVUnknown>(AddExpr->getOperand(1)))){
+            bound = Unknown->getValue();
+        }
+        else{
+            errs()<<"ERROR! Expected SMaxExpr SCEV for Operand 1 of AddExpr SCEV: "<<*AddExpr<<"\n";
+            return false;
+        }
+    }
     else{
         errs()<<"ERROR! Loop has unexpected SCEV backedge type: "<<*backedge<<"\n";
         return false;
@@ -1216,15 +1248,26 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         bool neighborhood = false;
         for(auto arg: Stencil->arguments){
 			int count = 0;
+            std::vector<Neighbor> NeighborSet;
 			for(auto neighbor : Stencil->neighbors){
 				if(neighbor.BasePtr == arg){
 					count++;
+                    NeighborSet.push_back(neighbor);
 				}
 			}
-			
-			if(count > 1){
-				neighborhood = true;
-			}
+
+            if(count == 1){
+                continue;
+            }
+
+            Neighbor neighbor = NeighborSet[0];
+            for(unsigned int i=1; i < NeighborSet.size(); i++){
+                if(neighbor.offset_x != NeighborSet[i].offset_x ||
+                   neighbor.offset_y != NeighborSet[i].offset_y ||
+                   neighbor.offset_z != NeighborSet[i].offset_z){
+                    neighborhood = true;
+                }
+            }
 		}
 		
 		if(!neighborhood){

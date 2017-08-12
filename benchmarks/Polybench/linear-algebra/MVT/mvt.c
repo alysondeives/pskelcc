@@ -49,7 +49,7 @@ void init_array(DATA_TYPE* A, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_
     }
 }
 
-void runMvt(int n, DATA_TYPE* a, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_TYPE* y2)
+void mvt(int n, DATA_TYPE* a, DATA_TYPE* x1, DATA_TYPE* x2, DATA_TYPE* y1, DATA_TYPE* y2)
 {
   int i, j;
 	
@@ -119,7 +119,7 @@ int main()
   
   t_start = rtclock();
   //run the algorithm on the CPU
-  runMvt(n, a, x1, x2, y_1, y_2);
+  mvt(n, a, x1, x2, y_1, y_2);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
   
