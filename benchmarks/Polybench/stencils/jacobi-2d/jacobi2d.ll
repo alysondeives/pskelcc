@@ -1,4 +1,4 @@
-; ModuleID = 'jacobi-2d-base.ll'
+; ModuleID = 'jacobi2d-base.ll'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -170,7 +170,7 @@ entry:
   %tmp1 = bitcast i8* %call5 to float*
   call void @init_array(i32 2048, float* %tmp, float* %tmp1)
   %call6 = call double @rtclock()
-  call void @kernel_jacobi_2d(i32 5, i32 2048, float* %tmp, float* %tmp1)
+  call void @jacobi2d(i32 5, i32 2048, float* %tmp, float* %tmp1)
   %call7 = call double @rtclock()
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call7, %call6
@@ -186,7 +186,7 @@ entry:
 declare noalias i8* @malloc(i64) #1
 
 ; Function Attrs: nounwind uwtable
-define internal void @kernel_jacobi_2d(i32 %tsteps, i32 %n, float* %A, float* %B) #0 {
+define internal void @jacobi2d(i32 %tsteps, i32 %n, float* %A, float* %B) #0 {
 entry:
   br label %for.cond
 

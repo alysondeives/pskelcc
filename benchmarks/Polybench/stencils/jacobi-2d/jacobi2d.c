@@ -25,8 +25,8 @@
 #include "../../common/polybenchUtilFuncts.h"
 
 /* Include benchmark-specific header. */
-/* Default data type is double, default size is 20x1000. */
-#include "jacobi-2d.h"
+/* Doefault data type is double, default size is 20x1000. */
+//#include "jacobi2d.h"
 
 
 /* Array initialization. */
@@ -64,7 +64,7 @@ void print_array(int n,
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
 static
-void kernel_jacobi_2d(int tsteps,
+void jacobi2d(int tsteps,
 			    int n,
 			    DATA_TYPE *A,
 			    DATA_TYPE *B)
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
   t_start = rtclock();
 
   /* Run kernel. */
-  kernel_jacobi_2d (tsteps, n, A, B);
+  jacobi2d(tsteps, n, A, B);
 
   /* Stop and print timer. */
   t_end = rtclock();
