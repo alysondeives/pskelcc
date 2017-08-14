@@ -1018,8 +1018,9 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
     Value *bound;
 
     Stencil->dimension++;
-	Stencil->dimension_value.push_back(bound);
+    
 	PHINode* phi = getPHINode(loop);
+	Stencil->dimension_phinode.push_back(phi);
     errs()<<"Computation Loop "<<Stencil->dimension<<" Phinode: "<<*phi<<"\n";
 
     const SCEV* backedge = SE->getBackedgeTakenCount(loop);
@@ -1103,6 +1104,7 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 		bound = dyn_cast<Value>(scev_const->getValue());
 	}
     */
+	Stencil->dimension_value.push_back(bound);
 	errs()<<"Computation Loop "<<Stencil->dimension<<" Bound: "<<*bound<<"\n";
 	 
 	vector<Loop*> subLoops = loop->getSubLoops();
@@ -1217,6 +1219,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
             
             const SCEV* SCEVExpr = SE->getSCEVAtScope(LD->getPointerOperand(), L);
             const SCEV *ElementSize = SE->getElementSize(LD);
+            N.LoadAccess = LD;
             errs()<<"-----------------------------------------------------------\n";
    
             if(!delinearize(SCEVExpr, ElementSize, N)){
@@ -1277,6 +1280,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         
         //errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
         Stencil->output = PtrOp;
+        Stencil->outputStr = Str;
 	}
 	errs()<<"Stencil Output: "<<*Stencil->output<<"\n";
     //printNeighbors(Stencil);		
@@ -1670,9 +1674,15 @@ bool Stencil::verifyStencil() {
                     continue;
 			}
 			
+			// Set the number of iteration to 1
 			llvm::Type *i64_type = llvm::IntegerType::getInt64Ty(llvm::getGlobalContext());
 			llvm::Constant *i64_val = llvm::ConstantInt::get(i64_type, 1, false);
 			Stencil.iteration_value = dyn_cast<Value>(i64_val);
+			
+			//Set the input
+			//TODO In case of many arguments, define with one is the input (largest number of references?)
+			Stencil.input = Stencil.arguments.back();
+			Stencil.arguments.pop_back();
 		}
 		else {
 			errs()<<"-----------------------------------------------------------\n";
@@ -2237,6 +2247,6 @@ void Stencil::traverseArrayExpression(ArrayExpression *exp, Value *Val){
 //}
 
 char Stencil::ID = 0;
-static RegisterPass<Stencil> Z("stencil", "Detect stencil computation");
+static RegisterPass<Stencil> Z("stencil", "Detect stencil computation", false, true);
 
 //===----------------------- Stencil.cpp ------------------------===//

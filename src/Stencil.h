@@ -24,7 +24,7 @@ using namespace lge;
 
 class Stencil : public FunctionPass {
 
-  private:
+  public:
 
   //===---------------------------------------------------------------------===
   //                              Data Structs
@@ -108,6 +108,7 @@ class Stencil : public FunctionPass {
 	int 		num_neighbors;
 	Value*		input;
 	Value*		output;
+	StoreInst*	outputStr;
 	std::vector<Neighbor> neighbors;
 	std::vector<Value*> arguments;
 	
@@ -122,8 +123,7 @@ class Stencil : public FunctionPass {
   Function *CurrentFn;
   
   
-  std::multimap<Function*, StencilInfo> StencilData;
-
+  
 
   Value* getPointerOperand (Instruction *Ins);
   void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
@@ -207,6 +207,9 @@ class Stencil : public FunctionPass {
   //The key value is the pointer Operand of a GEP ( GEP->getOperandPointer() )
   //The 
   //typedef std::multimap<Value*,arrayExpression> arrayAccess;
+  
+  std::multimap<Function*, StencilInfo> StencilData;
+
 
   //===---------------------------------------------------------------------===
 
