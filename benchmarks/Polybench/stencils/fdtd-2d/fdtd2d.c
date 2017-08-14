@@ -93,36 +93,29 @@ void runFdtd(DATA_TYPE* _fict_, DATA_TYPE* ex, DATA_TYPE* ey, DATA_TYPE* hz)
 {
   int t, i, j;
 	
-  for (t=0; t < TMAX; t++)  
-    {
-      for (j=0; j < NY; j++)
-	{
-	  ey[0*NY + j] = _fict_[t];
-	}
+    for (t=0; t < TMAX; t++){
+        for (j=0; j < NY; j++){
+            ey[0*NY + j] = _fict_[t];
+        }
       
-      for (i = 1; i < NX; i++)
-	{
-	  for (j = 0; j < NY; j++)
-	    {
-	      ey[i*NY + j] = ey[i*NY + j] - 0.5*(hz[i*NY + j] - hz[(i-1)*NY + j]);
-	    }
-	}
+        for (i = 1; i < NX; i++){
+            for (j = 0; j < NY; j++){
+                ey[i*NY + j] = ey[i*NY + j] - 0.5*(hz[i*NY + j] - hz[(i-1)*NY + j]);
+            }
+        }
 
-      for (i = 0; i < NX; i++)
-	{
-	  for (j = 1; j < NY; j++)
-	    {
-	      ex[i*(NY+1) + j] = ex[i*(NY+1) + j] - 0.5*(hz[i*NY + j] - hz[i*NY + (j-1)]);
-	    }
-	}
 
-      for (i = 0; i < NX; i++)
-	{
-	  for (j = 0; j < NY; j++)
-	    {
-	      hz[i*NY + j] = hz[i*NY + j] - 0.7*(ex[i*(NY+1) + (j+1)] - ex[i*(NY+1) + j] + ey[(i+1)*NY + j] - ey[i*NY + j]);
-	    }
-	}
+        for (i = 0; i < NX; i++){
+            for (j = 1; j < NY; j++){
+                ex[i*(NY+1) + j] = ex[i*(NY+1) + j] - 0.5*(hz[i*NY + j] - hz[i*NY + (j-1)]);
+            }
+        }
+
+        for (i = 0; i < NX; i++){
+            for (j = 0; j < NY; j++){
+                hz[i*NY + j] = hz[i*NY + j] - 0.7*(ex[i*(NY+1) + (j+1)] - ex[i*(NY+1) + j] + ey[(i+1)*NY + j] - ey[i*NY + j]);
+            }
+        }
     }
 }
 
