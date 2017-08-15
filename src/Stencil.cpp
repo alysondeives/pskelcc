@@ -1723,6 +1723,12 @@ bool Stencil::verifyStencil() {
                         continue;
 				}
 			}
+			
+			//Set the input
+			//TODO In case of many arguments, define wich one is the input (largest number of references?)
+			Stencil.input = Stencil.arguments.back();
+			Stencil.arguments.pop_back();
+			
 		}
         errs()<<"INSERTING!\n";
         StencilData.insert(std::pair<Function*, StencilInfo>(CurrentFn,Stencil));

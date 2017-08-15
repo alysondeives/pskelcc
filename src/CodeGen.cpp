@@ -313,6 +313,9 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << "; i++) {\n";
     OS << "if (i%2) {\n";
     OS << "kernel_baseline <<< dimGrid,dimBlock >>> (";
+    if(!(isa<ConstantInt>(Stencil.iteration_value))){
+		OS << Stencil.iteration_value->getName() << ", ";
+	}
     OS << Stencil.output->getName() << "_GPU, ";
     OS << Stencil.input->getName() << "_GPU";
 
@@ -327,6 +330,9 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 	OS << ");\n";
     OS <<"}\nelse{\n";
     OS << "kernel_baseline <<< dimGrid,dimBlock >>> (";
+     if(!(isa<ConstantInt>(Stencil.iteration_value))){
+		OS << Stencil.iteration_value->getName() << ", ";
+	}
     OS << Stencil.input->getName() << "_GPU, ";
     OS << Stencil.output->getName() << "_GPU";
 
