@@ -315,7 +315,7 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << "if (i%2) {\n";
     OS << CurrentFn->getName() << "_kernel_baseline <<< dimGrid,dimBlock >>> (";
     if(!(isa<ConstantInt>(Stencil.iteration_value))){
-		OS << Stencil.iteration_value->getName() << ", ";
+		OS << Stencil.iteration_value->getName();
 	}
     
     for(auto i : Stencil.dimension_value){
@@ -333,7 +333,7 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS <<"}\nelse{\n";
     OS << CurrentFn->getName() << "_kernel_baseline <<< dimGrid,dimBlock >>> (";
     if(!(isa<ConstantInt>(Stencil.iteration_value))){
-		OS << Stencil.iteration_value->getName() << ", ";
+		OS << Stencil.iteration_value->getName();
 	}
 	
 	for(auto i : Stencil.dimension_value){
