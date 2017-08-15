@@ -14,7 +14,7 @@ private:
 
 	std::string idx_x, idx_y, idx_z; //Data element dimension indexes
 	std::string dim_x, dim_y, dim_z; //Data dimensions
-	
+	void writeHeader(raw_fd_ostream &OS);
 	void writeType(llvm::Type *T, raw_fd_ostream &OS);
 	void writeKernelBaseline(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
     void writeKernelCall(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);

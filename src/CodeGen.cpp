@@ -58,11 +58,28 @@ bool CodeGen::runOnFunction(Function &F) {
         
 		Out = llvm::make_unique<llvm::tool_output_file>(Filename, EC, sys::fs::F_None);
 
+		writeHeader(Out->os());
 		writeKernelBaseline(Out->os(),Stencil);
 			
 		Out->keep();
 	}
 	return false;
+}
+
+void CodeGen::writeHeader(raw_fd_ostream &OS){
+	OS << "#define BLOCK_DIMX " << this->block_dim_x << "\n";
+    OS << "#define BLOCK_DIMY " << this->block_dim_y << "\n";
+    OS << "#define BLOCK_DIMZ " << this->block_dim_z << "\n\n";
+    
+    OS << "// Error checking function\n";
+	OS << "#define wbCheck(stmt) do {                                                    \\"<<"\n";
+    OS << "cudaError_t err = stmt;                                               \\"<<"\n";
+    OS << "if (err != cudaSuccess) {                                             \\"<<"\n";
+    OS << "        printf(""ERROR: Failed to run stmt %s\\n"", #stmt);                       \\"<<"\n";
+    OS << "        printf(""ERROR: Got CUDA error ...  %s\\n"", cudaGetErrorString(err));    \\"<<"\n";
+    OS << "        return -1;                                                        \\"<<"\n";
+    OS << "    }                                                                     \\"<<"\n";
+    OS << "} while(0)\n\n";
 }
 
 void CodeGen::writeType(Type *T, raw_fd_ostream &OS){
@@ -241,7 +258,6 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     }
 	
 	for(auto i : Stencil.dimension_value){
-		errs()<<"Dimension: "<<*i<<"\n";
 		writeType(i->getType(), OS);
 		OS <<  " " << i->getName() << ", ";
 	}
@@ -254,7 +270,6 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 
 	for(auto i : Stencil.arguments){
 		OS << ", ";
-		errs()<<"Argument: "<<*i<<"\n";
 		writeType(i->getType(), OS);
 		OS <<  " " << i->getName();
 	}
@@ -283,14 +298,14 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << ");\n";
 
     //CUDA Malloc
-    OS << "cudaMalloc((void**) &" << Stencil.input->getName() << "_GPU" << ", input_size);\n";
-    OS << "cudaMalloc((void**) &" << Stencil.output->getName() << "_GPU" << ", input_size);\n";
+    OS << "wbCheck( cudaMalloc((void**) &" << Stencil.input->getName() << "_GPU" << ", input_size) );\n";
+    OS << "wbCheck( cudaMalloc((void**) &" << Stencil.output->getName() << "_GPU" << ", input_size) );\n";
 
     //TODO Arguments Malloc
 
     //CUDA MemCopy
-    OS << "cudaMemcpy(" << Stencil.input->getName() << "_GPU," << Stencil.input->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
-    OS << "cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.input->getName() << "_GPU," << Stencil.input->getName() << ", input_size, cudaMemcpyHostToDevice) );\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice) );\n";
 
     //DimBlock
     OS << "dim3 dimBlock;\n";
@@ -349,17 +364,18 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 	
 	OS << ");\n";
     OS << "}\n";
+    OS << "wbCheck(cudaGetLastError())\n;";
     OS << "}\n";
 
     //CUDA MemCopy
-    OS << "cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost);\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
 
     //CUDA Free
-    OS << "cudaFree(" << Stencil.input->getName() << "_GPU);";
-    OS << "cudaFree(" << Stencil.output->getName() << "_GPU);";
+    OS << "wbCheck( cudaFree(" << Stencil.input->getName() << "_GPU) );";
+    OS << "wbCheck( cudaFree(" << Stencil.output->getName() << "_GPU) );";
 
     for(auto i : Stencil.arguments){
-		OS <<  "cudaFree(" << i->getName()<<"_GPU);\n";
+		OS <<  "wbCheck( cudaFree(" << i->getName()<<"_GPU) );\n";
 	}
     
     OS << "}\n";
@@ -367,10 +383,6 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 
 void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
     // Write Kernel
-    OS << "#define BLOCK_DIMX " << this->block_dim_x << "\n";
-    OS << "#define BLOCK_DIMY " << this->block_dim_y << "\n";
-    OS << "#define BLOCK_DIMZ " << this->block_dim_z << "\n\n";
-    
     writeGlobalKernelParams(OS, Stencil);
     OS << "{\n";
 	writeThreadIndex(OS, Stencil);
