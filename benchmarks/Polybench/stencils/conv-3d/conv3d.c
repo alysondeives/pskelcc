@@ -23,7 +23,7 @@
 
 /* Include benchmark-specific header. */
 /* Default data type is float, default size is 256x256x256. */
-#include "conv-3d.h"
+//#include "conv3d.h"
 
 //define the error threshold for the results "not matching"
 #define ERROR_THRESHOLD 0.5
@@ -38,12 +38,12 @@
 /* Can switch DATA_TYPE between float and double */
 //typedef float DATA_TYPE;
 
-void conv3D(int ni, int nj, int nk, DATA_TYPE* A, DATA_TYPE* B)
+void conv3d(int ni, int nj, int nk, DATA_TYPE* A, DATA_TYPE* B)
 {
   int i, j, k;
   DATA_TYPE c11, c12, c13, c21, c22, c23, c31, c32, c33;
 
-  c11 = +2;  c21 = +5;  c31 = -8;
+  c11 = +2.12345;  c21 = +5;  c31 = -8;
   c12 = -3;  c22 = +6;  c32 = -9;
   c13 = +4;  c23 = +7;  c33 = +10;
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
   init(A);
 
   t_start = rtclock();
-  conv3D(ni, nj, nk, A, B);
+  conv3d(ni, nj, nk, A, B);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 	

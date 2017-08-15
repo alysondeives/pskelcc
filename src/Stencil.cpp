@@ -1429,7 +1429,7 @@ bool Stencil::verifySwap(Loop *L, StencilInfo *Stencil){
 
                 const SCEV* SCEVStrPointer = SE->getSCEVAtScope(GEP, L);
                 const SCEV* SCEVStrValue = SE->getSCEVAtScope(LD->getPointerOperand(), L);
-                const SCEV* SCEVMinus = SE->getMinusSCEV(SCEVStrValue,SCEVStrPointer);
+                const SCEV* SCEVMinus = SE->getMinusSCEV(SCEVStrPointer,SCEVStrValue);
                 
                 //errs()<<"SCEV StrPointer: "<<*SCEVStrPointer<<"\n";
                 //errs()<<"SCEV StrValue: "<<*SCEVStrValue<<"\n";
@@ -1457,12 +1457,14 @@ bool Stencil::verifySwap(Loop *L, StencilInfo *Stencil){
                     errs()<<"ERROR! Output Pointer Values does not match";
                     errs()<<"\tSwap Loop Output: "<<*Output<<"\n";
                     errs()<<"\tComputation Loop Output: "<<*Stencil->output<<"\n";
+                    return false;
                 }
 
                 /* Match Input Value and remove it from arguments list */
                 for(unsigned int i = 0; i < Stencil->arguments.size(); ++i){
                     //errs()<<"Swap: "<<&(*it)<<"\n";
                     if(Stencil->arguments[i] == Input){
+                        errs()<<"Stencil Input: "<<*Input<<"\n";
                         Stencil->input = Input;
                         Stencil->arguments.erase(Stencil->arguments.begin() + i);
                     }
@@ -1680,7 +1682,7 @@ bool Stencil::verifyStencil() {
 			Stencil.iteration_value = dyn_cast<Value>(i64_val);
 			
 			//Set the input
-			//TODO In case of many arguments, define with one is the input (largest number of references?)
+			//TODO In case of many arguments, define wich one is the input (largest number of references?)
 			Stencil.input = Stencil.arguments.back();
 			Stencil.arguments.pop_back();
 		}

@@ -1,4 +1,4 @@
-; ModuleID = 'conv-3d.c'
+; ModuleID = 'conv3d.c'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -122,7 +122,7 @@ return:                                           ; preds = %if.else, %if.then
 }
 
 ; Function Attrs: nounwind uwtable
-define void @conv3D(i32 %ni, i32 %nj, i32 %nk, float* %A, float* %B) #0 {
+define void @conv3d(i32 %ni, i32 %nj, i32 %nk, float* %A, float* %B) #0 {
 entry:
   %ni.addr = alloca i32, align 4
   %nj.addr = alloca i32, align 4
@@ -146,7 +146,7 @@ entry:
   store i32 %nk, i32* %nk.addr, align 4
   store float* %A, float** %A.addr, align 8
   store float* %B, float** %B.addr, align 8
-  store float 2.000000e+00, float* %c11, align 4
+  store float 0x4000FCD360000000, float* %c11, align 4
   store float 5.000000e+00, float* %c21, align 4
   store float -8.000000e+00, float* %c31, align 4
   store float -3.000000e+00, float* %c12, align 4
@@ -785,7 +785,7 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.18, %entry
   %0 = load i32, i32* %i, align 4
-  %cmp = icmp slt i32 %0, 256
+  %cmp = icmp slt i32 %0, 2048
   br i1 %cmp, label %for.body, label %for.end.20
 
 for.body:                                         ; preds = %for.cond
@@ -794,7 +794,7 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc.15, %for.body
   %1 = load i32, i32* %j, align 4
-  %cmp2 = icmp slt i32 %1, 256
+  %cmp2 = icmp slt i32 %1, 2048
   br i1 %cmp2, label %for.body.3, label %for.end.17
 
 for.body.3:                                       ; preds = %for.cond.1
@@ -803,7 +803,7 @@ for.body.3:                                       ; preds = %for.cond.1
 
 for.cond.4:                                       ; preds = %for.inc, %for.body.3
   %2 = load i32, i32* %k, align 4
-  %cmp5 = icmp slt i32 %2, 256
+  %cmp5 = icmp slt i32 %2, 2048
   br i1 %cmp5, label %for.body.6, label %for.end
 
 for.body.6:                                       ; preds = %for.cond.4
@@ -819,9 +819,9 @@ for.body.6:                                       ; preds = %for.cond.4
   %add10 = add nsw i32 %add, %mul9
   %conv = sitofp i32 %add10 to float
   %6 = load i32, i32* %i, align 4
-  %mul11 = mul nsw i32 %6, 65536
+  %mul11 = mul nsw i32 %6, 4194304
   %7 = load i32, i32* %j, align 4
-  %mul12 = mul nsw i32 %7, 256
+  %mul12 = mul nsw i32 %7, 2048
   %add13 = add nsw i32 %mul11, %mul12
   %8 = load i32, i32* %k, align 4
   %add14 = add nsw i32 %add13, %8
@@ -876,7 +876,7 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.23, %entry
   %0 = load i32, i32* %i, align 4
-  %cmp = icmp slt i32 %0, 255
+  %cmp = icmp slt i32 %0, 2047
   br i1 %cmp, label %for.body, label %for.end.25
 
 for.body:                                         ; preds = %for.cond
@@ -885,7 +885,7 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc.20, %for.body
   %1 = load i32, i32* %j, align 4
-  %cmp2 = icmp slt i32 %1, 255
+  %cmp2 = icmp slt i32 %1, 2047
   br i1 %cmp2, label %for.body.3, label %for.end.22
 
 for.body.3:                                       ; preds = %for.cond.1
@@ -894,14 +894,14 @@ for.body.3:                                       ; preds = %for.cond.1
 
 for.cond.4:                                       ; preds = %for.inc, %for.body.3
   %2 = load i32, i32* %k, align 4
-  %cmp5 = icmp slt i32 %2, 255
+  %cmp5 = icmp slt i32 %2, 2047
   br i1 %cmp5, label %for.body.6, label %for.end
 
 for.body.6:                                       ; preds = %for.cond.4
   %3 = load i32, i32* %i, align 4
-  %mul = mul nsw i32 %3, 65536
+  %mul = mul nsw i32 %3, 4194304
   %4 = load i32, i32* %j, align 4
-  %mul7 = mul nsw i32 %4, 256
+  %mul7 = mul nsw i32 %4, 2048
   %add = add nsw i32 %mul, %mul7
   %5 = load i32, i32* %k, align 4
   %add8 = add nsw i32 %add, %5
@@ -911,9 +911,9 @@ for.body.6:                                       ; preds = %for.cond.4
   %7 = load float, float* %arrayidx, align 4
   %conv = fpext float %7 to double
   %8 = load i32, i32* %i, align 4
-  %mul9 = mul nsw i32 %8, 65536
+  %mul9 = mul nsw i32 %8, 4194304
   %9 = load i32, i32* %j, align 4
-  %mul10 = mul nsw i32 %9, 256
+  %mul10 = mul nsw i32 %9, 2048
   %add11 = add nsw i32 %mul9, %mul10
   %10 = load i32, i32* %k, align 4
   %add12 = add nsw i32 %add11, %10
@@ -982,13 +982,13 @@ entry:
   store i32 0, i32* %retval
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
-  store i32 256, i32* %ni, align 4
-  store i32 256, i32* %nj, align 4
-  store i32 256, i32* %nk, align 4
-  %call = call noalias i8* @malloc(i64 67108864) #3
+  store i32 2048, i32* %ni, align 4
+  store i32 2048, i32* %nj, align 4
+  store i32 2048, i32* %nk, align 4
+  %call = call noalias i8* @malloc(i64 0) #3
   %0 = bitcast i8* %call to float*
   store float* %0, float** %A, align 8
-  %call1 = call noalias i8* @malloc(i64 67108864) #3
+  %call1 = call noalias i8* @malloc(i64 0) #3
   %1 = bitcast i8* %call1 to float*
   store float* %1, float** %B, align 8
   %2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
@@ -1002,7 +1002,7 @@ entry:
   %6 = load i32, i32* %nk, align 4
   %7 = load float*, float** %A, align 8
   %8 = load float*, float** %B, align 8
-  call void @conv3D(i32 %4, i32 %5, i32 %6, float* %7, float* %8)
+  call void @conv3d(i32 %4, i32 %5, i32 %6, float* %7, float* %8)
   %call4 = call double @rtclock()
   store double %call4, double* %t_end, align 8
   %9 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8

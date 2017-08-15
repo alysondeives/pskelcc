@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "llvm/ADT/SmallVector.h"
+
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/Value.h"
 
@@ -50,13 +52,14 @@ bool CodeGen::runOnFunction(Function &F) {
 	
 		std::error_code EC;
 		std::unique_ptr<llvm::tool_output_file> Out;
-	
-		Out = llvm::make_unique<llvm::tool_output_file>(F.getName(), EC, sys::fs::F_None);
-	
-		
+
+        std::string Filename = F.getName();
+        Filename.append(".cuh");
+        
+		Out = llvm::make_unique<llvm::tool_output_file>(Filename, EC, sys::fs::F_None);
+
 		writeKernel(Out->os(),Stencil);
-		
-	
+			
 		Out->keep();
 	}
 	return false;
@@ -141,17 +144,27 @@ void CodeGen::writeMemAccess(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 	//OS << "[k * ni * nj + j * dimx + i;
 }
 
-void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){
-	
+void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){	
 	if((isa<LoadInst>(Val))){
 		LoadInst *LD = dyn_cast<LoadInst>(Val);
 		OS << LD->getName();
 	}
 	else if(isa<ConstantInt>(Val)){
-		OS << "CONSTANTINT";
+        errs() << "CONSTANTINT";
+        OS << (dyn_cast<ConstantInt>(Val))->getSExtValue();
+        errs()<<"\n";
 	}
 	else if(isa<ConstantFP>(Val)){
-		OS << "CONSTANTFP";
+		errs() << "CONSTANTFP";
+        const APFloat FP = (dyn_cast<ConstantFP>(Val))->getValueAPF();
+        SmallVector<char,256> Str;
+        FP.toString(Str);
+        errs()<<"FP: ";
+        for(auto c : Str){
+            errs()<<c;
+            OS << c;
+        }
+        errs()<<"\n";
 	}
 	else if((isa<Instruction>(Val))){
 		Instruction *Ins = dyn_cast<Instruction>(Val);
@@ -179,8 +192,8 @@ void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){
 
 void CodeGen::writeComputation(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 	OS << Stencil.output->getName() << "[ ";
-	OS << "(" << idx_z << " * "<< dim_x <<" * " << dim_y << " + ";
-	OS << "(" << idx_y << " * "<< dim_x <<" + ";
+	OS << "(" << idx_z << " * "<< dim_x <<" * " << dim_y << ") + ";
+	OS << "(" << idx_y << " * "<< dim_x <<") + ";
 	OS << "(" << idx_x << ") ] = ( ";
 	
 	writeExpression(OS, Stencil.outputStr->getValueOperand());
@@ -188,11 +201,51 @@ void CodeGen::writeComputation(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil
 	OS <<" );\n";
 }
 
-void CodeGen::writeKernel(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-	OS << "__global__\n";
-	OS << "void kernel (";
+void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+    OS << "__global__\n";
+	OS << "void kernel_baseline (";
 	
-	errs()<<"Input: "<<Stencil.input->getName()<<"\n";
+    if(!(isa<ConstantInt>(Stencil.iteration_value))){
+        writeType(Stencil.iteration_value->getType(), OS);
+        OS << " " << Stencil.iteration_value->getName() << ", ";
+    }
+	
+	for(auto i : Stencil.dimension_value){
+		errs()<<"Dimension: "<<*i<<"\n";
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName() << ", ";
+	}
+
+	writeType(Stencil.input->getType(), OS);
+	OS <<  " " << Stencil.input->getName() <<", ";
+	
+	writeType(Stencil.output->getType(), OS);
+	OS <<  " " << Stencil.output->getName();
+
+	for(auto i : Stencil.arguments){
+		OS << ", ";
+		errs()<<"Argument: "<<*i<<"\n";
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName();
+	}
+    
+	OS << ")";
+}
+
+void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+	OS << "void run_baseline (";
+	
+	if(!(isa<ConstantInt>(Stencil.iteration_value))){
+        writeType(Stencil.iteration_value->getType(), OS);
+        OS << " " << Stencil.iteration_value->getName() << ", ";
+    }
+	
+	for(auto i : Stencil.dimension_value){
+		errs()<<"Dimension: "<<*i<<"\n";
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName() << ", ";
+	}
+
 	writeType(Stencil.input->getType(), OS);
 	OS <<  " " << Stencil.input->getName() <<", ";
 	
@@ -206,22 +259,118 @@ void CodeGen::writeKernel(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 		OS <<  " " << i->getName();
 	}
 	
-	for(auto i : Stencil.dimension_value){
-		errs()<<"Dimension: "<<*i<<"\n";
-		OS << ", ";
+	OS << "){";
+
+    //GPU Array Declaration
+    writeType(Stencil.input->getType(), OS);
+	OS <<  " " << Stencil.input->getName() <<"_GPU;\n";
+
+    writeType(Stencil.output->getType(), OS);
+	OS <<  " " << Stencil.output->getName()<<"_GPU;\n";
+
+    for(auto i : Stencil.arguments){
 		writeType(i->getType(), OS);
-		OS <<  " " << i->getName();
+		OS <<  " " << i->getName()<<"_GPU;\n";
+	}
+
+    //Input Size
+    OS << "size_t input_size = ";
+    for(auto i : Stencil.dimension_value){
+		OS << i->getName() << "*";
+	}
+    OS << "size_of(";
+    writeType(Stencil.outputStr->getType(), OS);
+    OS << ");\n";
+
+    //CUDA Malloc
+    OS << "cudaMalloc((void**) &" << Stencil.input->getName() << "_GPU" << ", input_size);\n";
+    OS << "cudaMalloc((void**) &" << Stencil.output->getName() << "_GPU" << ", input_size);\n";
+
+    //TODO Arguments Malloc
+
+    //CUDA MemCopy
+    OS << "cudaMemcpy(" << Stencil.input->getName() << "_GPU," << Stencil.input->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
+    OS << "cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
+
+    //DimBlock
+    
+    OS << "dimBlock.x = BLOCK_DIMX;\n";
+    OS << "dimBlock.y = BLOCK_DIMY;\n";
+    OS << "dimBlock.z = BLOCK_DIMZ;\n";
+    OS << "dimGrid.x = (int)ceil(dimx/BLOCK_DIMX);\n";
+    OS << "dimGrid.y = (int)ceil(dimy/BLOCK_DIMY);\n";
+    OS << "dimGrid.z = (int)ceil(dimz/BLOCK_DIMZ);\n";
+
+
+    //TODO Iteration Value for single stencil
+    OS << "for (int i = 0; i < ";
+    if(isa<ConstantInt>(Stencil.iteration_value)){
+        OS << dyn_cast<ConstantInt>(Stencil.iteration_value)->getSExtValue();
+    }
+    else {
+        OS << Stencil.iteration_value->getName();
+    }
+    OS << "; i++) {\n";
+    OS << "if (i%2) {\n";
+    OS << "kernel_baseline <<< dimGrid,dimBlock >>> (";
+    OS << Stencil.output->getName() << "_GPU, ";
+    OS << Stencil.input->getName() << "_GPU";
+
+    for(auto i : Stencil.arguments){
+		OS << ", "<< i->getName();
 	}
 	
-	OS << ") {\n";
+	for(auto i : Stencil.dimension_value){
+		OS << ", " << i->getName();
+	}
 	
+	OS << ");\n";
+    OS <<"}\nelse{\n";
+    OS << "kernel_baseline <<< dimGrid,dimBlock >>> (";
+    OS << Stencil.input->getName() << "_GPU, ";
+    OS << Stencil.output->getName() << "_GPU";
+
+    for(auto i : Stencil.arguments){
+		OS << ", "<< i->getName();
+	}
+	
+	for(auto i : Stencil.dimension_value){
+		OS << ", " << i->getName();
+	}
+	
+	OS << ");\n";
+    OS << "}\n";
+    OS << "}\n";
+
+    //CUDA MemCopy
+    OS << "cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost);\n";
+
+    //CUDA Free
+    OS << "cudaFree(" << Stencil.input->getName() << "_GPU);";
+    OS << "cudaFree(" << Stencil.output->getName() << "_GPU);";
+
+    for(auto i : Stencil.arguments){
+		OS <<  "cudaFree(" << i->getName()<<"_GPU);\n";
+	}
+    
+    OS << "}\n";
+}
+
+void CodeGen::writeKernel(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+    // Write Kernel
+    OS << "#define BLOCK_DIMX " << this->block_dim_x << "\n";
+    OS << "#define BLOCK_DIMY " << this->block_dim_y << "\n";
+    OS << "#define BLOCK_DIMZ " << this->block_dim_z << "\n\n";
+    
+    writeGlobalKernelParams(OS, Stencil);
+    OS << "{\n";
 	writeThreadIndex(OS, Stencil);
-	
 	writeMemAccess(OS, Stencil);
-	
 	writeComputation(OS, Stencil);
-	
 	OS << "}\n";
+
+    //Write Kernel Function Call
+    writeKernelCall(OS, Stencil);
 }
 
 char CodeGen::ID = 0;
