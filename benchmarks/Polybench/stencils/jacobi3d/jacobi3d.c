@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
     fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
     
     t_start = rtclock();
-    jacobi3D_GPU_baseline(tsteps, ni, nj, nk, A, B);
+    jacobi3d_GPU_baseline(tsteps, ni, nj, nk, A, B);
     t_end = rtclock();
     fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
 
