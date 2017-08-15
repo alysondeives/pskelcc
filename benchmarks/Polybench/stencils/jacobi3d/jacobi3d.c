@@ -130,16 +130,20 @@ int main(int argc, char *argv[]) {
 
     init(A);
 
+	#ifndef __NVCC__
     t_start = rtclock();
     jacobi3d(tsteps, ni, nj, nk, A, B);
     t_end = rtclock();
     fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
+    #endif
     
+    #ifdef __NVCC__
     t_start = rtclock();
     jacobi3D_GPU_baseline(tsteps, ni, nj, nk, A, B);
     t_end = rtclock();
     fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
-
+	#endif 
+	
     free(A);
     free(B);
 
