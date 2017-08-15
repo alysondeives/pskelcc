@@ -250,7 +250,7 @@ void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &
 }
 
 void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-	OS << "\nvoid " << CurrentFn->getName() <<"_GPU_baseline (";
+	OS << "\nint " << CurrentFn->getName() <<"_GPU_baseline (";
 	
 	if(!(isa<ConstantInt>(Stencil.iteration_value))){
         writeType(Stencil.iteration_value->getType(), OS);
