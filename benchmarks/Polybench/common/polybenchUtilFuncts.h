@@ -20,6 +20,9 @@
 
 // Defines used per benchmark:
 //
+// H		[conv3d, jacobi3d]
+// W		[conv3d, jacobi3d]
+// D		[conv3d, jacobi3d]
 // N        [adi, cholesky, correlation, covariance, floyd-warshall, jacobi-2d-imper, lu, ludcmp, seidel-2d]
 // M        [correlation, covariance]
 // NI       [2mm, 3mm, fdtd-2d, gemm, symm, syrk, syr2k, trmm]
@@ -44,6 +47,9 @@
 
 // Determine the sizes of the 5 possible datasets
 #ifdef MINI_DATASET
+	#define X 64
+	#define Y 64 
+	#define Z 64
 	#define N 32
 	#define M 32
 	#define NI 32
@@ -66,6 +72,9 @@
 	#define MAXGRID 2
 #endif
 #ifdef SMALL_DATASET
+	#define X 128
+	#define Y 128
+	#define Z 128
 	#define N 256
 	#define M 256
 	#define NI 128
@@ -88,6 +97,9 @@
 	#define MAXGRID 8
 #endif
 #ifdef STANDARD_DATASET
+	#define X 192
+	#define Y 192 
+	#define Z 192
 	#define N 1024
 	#define M 1024
 	#define NI 1024
@@ -110,6 +122,9 @@
 	#define MAXGRID 32
 #endif
 #ifdef LARGE_DATASET
+	#define X 256
+	#define Y 246
+	#define Z 256
 	#define N 2048
 	#define M 2048
 	#define NI 2048
@@ -132,6 +147,9 @@
 	#define MAXGRID 128
 #endif
 #ifdef EXTRALARGE_DATASET
+	#define X 384
+	#define Y 384
+	#define Z 384
 	#define N 4000
 	#define M 4000
 	#define NI 4000
@@ -154,6 +172,9 @@
 	#define MAXGRID 512
 #endif
 
+# define _PB_X POLYBENCH_LOOP_BOUND(X,x)
+# define _PB_Y POLYBENCH_LOOP_BOUND(Y,y)
+# define _PB_Z POLYBENCH_LOOP_BOUND(Z,z)
 # define _PB_M POLYBENCH_LOOP_BOUND(M,m)
 # define _PB_N POLYBENCH_LOOP_BOUND(N,n)
 # define _PB_NI POLYBENCH_LOOP_BOUND(NI,ni)
