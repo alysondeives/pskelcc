@@ -75,8 +75,8 @@ void CodeGen::writeHeader(raw_fd_ostream &OS){
 	OS << "#define wbCheck(stmt) do {                                                    \\"<<"\n";
     OS << "cudaError_t err = stmt;                                               \\"<<"\n";
     OS << "if (err != cudaSuccess) {                                             \\"<<"\n";
-    OS << "        printf(""ERROR: Failed to run stmt %s\\n"", #stmt);                       \\"<<"\n";
-    OS << "        printf(""ERROR: Got CUDA error ...  %s\\n"", cudaGetErrorString(err));    \\"<<"\n";
+    OS << "        printf(\"ERROR: Failed to run stmt %s\\n\", #stmt);                       \\"<<"\n";
+    OS << "        printf(\"ERROR: Got CUDA error ...  %s\\n\", cudaGetErrorString(err));    \\"<<"\n";
     OS << "        return -1;                                                        \\"<<"\n";
     OS << "    }                                                                     \\"<<"\n";
     OS << "} while(0)\n\n";
