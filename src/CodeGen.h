@@ -16,7 +16,7 @@ private:
 	std::string dim_x, dim_y, dim_z; //Data dimensions
 	
 	void writeType(llvm::Type *T, raw_fd_ostream &OS);
-	void writeKernel(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	void writeKernelBaseline(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
     void writeKernelCall(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeGlobalKernelParams(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeExpression(raw_fd_ostream &OS, Value *Val);

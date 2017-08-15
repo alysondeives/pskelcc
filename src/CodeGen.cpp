@@ -58,7 +58,7 @@ bool CodeGen::runOnFunction(Function &F) {
         
 		Out = llvm::make_unique<llvm::tool_output_file>(Filename, EC, sys::fs::F_None);
 
-		writeKernel(Out->os(),Stencil);
+		writeKernelBaseline(Out->os(),Stencil);
 			
 		Out->keep();
 	}
@@ -233,7 +233,7 @@ void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &
 }
 
 void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-	OS << "void " << CurrentFn->getName() <<"_GPU_baseline (";
+	OS << "\nvoid " << CurrentFn->getName() <<"_GPU_baseline (";
 	
 	if(!(isa<ConstantInt>(Stencil.iteration_value))){
         writeType(Stencil.iteration_value->getType(), OS);
@@ -365,7 +365,7 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << "}\n";
 }
 
-void CodeGen::writeKernel(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
     // Write Kernel
     OS << "#define BLOCK_DIMX " << this->block_dim_x << "\n";
     OS << "#define BLOCK_DIMY " << this->block_dim_y << "\n";
