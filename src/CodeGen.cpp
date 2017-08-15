@@ -258,7 +258,6 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     }
 	
 	for(auto i : Stencil.dimension_value){
-		errs()<<"Dimension: "<<*i<<"\n";
 		writeType(i->getType(), OS);
 		OS <<  " " << i->getName() << ", ";
 	}
@@ -271,7 +270,6 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 
 	for(auto i : Stencil.arguments){
 		OS << ", ";
-		errs()<<"Argument: "<<*i<<"\n";
 		writeType(i->getType(), OS);
 		OS <<  " " << i->getName();
 	}
@@ -300,14 +298,14 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << ");\n";
 
     //CUDA Malloc
-    OS << "cudaMalloc((void**) &" << Stencil.input->getName() << "_GPU" << ", input_size);\n";
-    OS << "cudaMalloc((void**) &" << Stencil.output->getName() << "_GPU" << ", input_size);\n";
+    OS << "wbCheck( cudaMalloc((void**) &" << Stencil.input->getName() << "_GPU" << ", input_size) );\n";
+    OS << "wbCheck( cudaMalloc((void**) &" << Stencil.output->getName() << "_GPU" << ", input_size) );\n";
 
     //TODO Arguments Malloc
 
     //CUDA MemCopy
-    OS << "cudaMemcpy(" << Stencil.input->getName() << "_GPU," << Stencil.input->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
-    OS << "cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.input->getName() << "_GPU," << Stencil.input->getName() << ", input_size, cudaMemcpyHostToDevice) );\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice) );\n";
 
     //DimBlock
     OS << "dim3 dimBlock;\n";
@@ -366,17 +364,18 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 	
 	OS << ");\n";
     OS << "}\n";
+    OS << "wbCheck(cudaGetLastError())\n;";
     OS << "}\n";
 
     //CUDA MemCopy
-    OS << "cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost);\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
 
     //CUDA Free
-    OS << "cudaFree(" << Stencil.input->getName() << "_GPU);";
-    OS << "cudaFree(" << Stencil.output->getName() << "_GPU);";
+    OS << "wbCheck( cudaFree(" << Stencil.input->getName() << "_GPU) );";
+    OS << "wbCheck( cudaFree(" << Stencil.output->getName() << "_GPU) );";
 
     for(auto i : Stencil.arguments){
-		OS <<  "cudaFree(" << i->getName()<<"_GPU);\n";
+		OS <<  "wbCheck( cudaFree(" << i->getName()<<"_GPU) );\n";
 	}
     
     OS << "}\n";
