@@ -8,7 +8,8 @@ using namespace lge;
 class CodeGen : public FunctionPass {
 private:
 	Stencil *SA;
-
+	Function *CurrentFn;
+	
     int block_dim_x, block_dim_y, block_dim_z;
 
 	std::string idx_x, idx_y, idx_z; //Data element dimension indexes

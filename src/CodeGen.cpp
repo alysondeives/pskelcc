@@ -48,7 +48,7 @@ bool CodeGen::runOnFunction(Function &F) {
 	auto it = SA->StencilData.find(&F);
 	if(it != SA->StencilData.end()){
 		Stencil::StencilInfo Stencil = it->second;
-	
+		CurrentFn = &F;
 	
 		std::error_code EC;
 		std::unique_ptr<llvm::tool_output_file> Out;
@@ -113,15 +113,15 @@ void CodeGen::writeThreadIndex(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil
 	
 	lastindex = Stencil.dimension_phinode[0]->getName().str().find_last_of(".");
 	idx_z = Stencil.dimension_phinode[0]->getName().str().substr(0,lastindex);
-	OS <<"int "<<idx_z<<" = BlockIdx.z * BlockDim.z + threadIdx.z;\n";
+	OS <<"int "<<idx_z<<" = blockIdx.z * blockDim.z + threadIdx.z;\n";
 	
 	lastindex = Stencil.dimension_phinode[1]->getName().str().find_last_of(".");
 	idx_x = Stencil.dimension_phinode[1]->getName().str().substr(0,lastindex);
-	OS <<"int "<<idx_x<<" = BlockIdx.x * BlockDim.x + threadIdx.x;\n";
+	OS <<"int "<<idx_x<<" = blockIdx.x * blockDim.x + threadIdx.x;\n";
 	
 	lastindex = Stencil.dimension_phinode[2]->getName().str().find_last_of(".");
 	idx_y  = Stencil.dimension_phinode[2]->getName().str().substr(0,lastindex);
-	OS <<"int "<<idx_y<<" = BlockIdx.y * BlockDim.y + threadIdx.y;\n";
+	OS <<"int "<<idx_y<<" = blockIdx.y * blockDim.y + threadIdx.y;\n";
 	
 	dim_z = Stencil.dimension_value[0]->getName();
 	dim_x = Stencil.dimension_value[1]->getName();
@@ -203,7 +203,7 @@ void CodeGen::writeComputation(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil
 
 void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
     OS << "__global__\n";
-	OS << "void kernel_baseline (";
+	OS << "void " << CurrentFn->getName() <<"_kernel_baseline (";
 	
     if(!(isa<ConstantInt>(Stencil.iteration_value))){
         writeType(Stencil.iteration_value->getType(), OS);
@@ -233,7 +233,7 @@ void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &
 }
 
 void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-	OS << "void run_baseline (";
+	OS << "void " << CurrentFn->getName() <<"_GPU_baseline (";
 	
 	if(!(isa<ConstantInt>(Stencil.iteration_value))){
         writeType(Stencil.iteration_value->getType(), OS);
@@ -278,8 +278,8 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     for(auto i : Stencil.dimension_value){
 		OS << i->getName() << "*";
 	}
-    OS << "size_of(";
-    writeType(Stencil.outputStr->getType(), OS);
+    OS << "sizeof(";
+    writeType(Stencil.outputStr->getValueOperand()->getType(), OS);
     OS << ");\n";
 
     //CUDA Malloc
@@ -293,13 +293,14 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << "cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice);\n";
 
     //DimBlock
-    
+    OS << "dim3 dimBlock;\n";
+    OS << "dim3 dimGrid;\n";
     OS << "dimBlock.x = BLOCK_DIMX;\n";
     OS << "dimBlock.y = BLOCK_DIMY;\n";
     OS << "dimBlock.z = BLOCK_DIMZ;\n";
-    OS << "dimGrid.x = (int)ceil(dimx/BLOCK_DIMX);\n";
-    OS << "dimGrid.y = (int)ceil(dimy/BLOCK_DIMY);\n";
-    OS << "dimGrid.z = (int)ceil(dimz/BLOCK_DIMZ);\n";
+    OS << "dimGrid.x = (int)ceil("<< dim_x << "/BLOCK_DIMX);\n";
+    OS << "dimGrid.y = (int)ceil("<< dim_y << "/BLOCK_DIMY);\n";
+    OS << "dimGrid.z = (int)ceil("<< dim_z << "/BLOCK_DIMZ);\n";
 
 
     //TODO Iteration Value for single stencil
@@ -312,36 +313,38 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     }
     OS << "; i++) {\n";
     OS << "if (i%2) {\n";
-    OS << "kernel_baseline <<< dimGrid,dimBlock >>> (";
+    OS << CurrentFn->getName() << "_kernel_baseline <<< dimGrid,dimBlock >>> (";
     if(!(isa<ConstantInt>(Stencil.iteration_value))){
 		OS << Stencil.iteration_value->getName() << ", ";
 	}
-    OS << Stencil.output->getName() << "_GPU, ";
+    
+    for(auto i : Stencil.dimension_value){
+		OS << ", " << i->getName();
+	}
+	
+	OS << ", " << Stencil.output->getName() << "_GPU, ";
     OS << Stencil.input->getName() << "_GPU";
 
     for(auto i : Stencil.arguments){
 		OS << ", "<< i->getName();
 	}
 	
-	for(auto i : Stencil.dimension_value){
-		OS << ", " << i->getName();
-	}
-	
 	OS << ");\n";
     OS <<"}\nelse{\n";
-    OS << "kernel_baseline <<< dimGrid,dimBlock >>> (";
-     if(!(isa<ConstantInt>(Stencil.iteration_value))){
+    OS << CurrentFn->getName() << "_kernel_baseline <<< dimGrid,dimBlock >>> (";
+    if(!(isa<ConstantInt>(Stencil.iteration_value))){
 		OS << Stencil.iteration_value->getName() << ", ";
-	}
-    OS << Stencil.input->getName() << "_GPU, ";
-    OS << Stencil.output->getName() << "_GPU";
-
-    for(auto i : Stencil.arguments){
-		OS << ", "<< i->getName();
 	}
 	
 	for(auto i : Stencil.dimension_value){
 		OS << ", " << i->getName();
+	}
+	
+	OS << ", " << Stencil.input->getName() << "_GPU, ";
+    OS << Stencil.output->getName() << "_GPU";
+	
+	for(auto i : Stencil.arguments){
+		OS << ", "<< i->getName();
 	}
 	
 	OS << ");\n";
