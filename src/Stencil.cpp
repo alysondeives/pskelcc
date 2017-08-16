@@ -44,6 +44,38 @@ using namespace llvm;
 using namespace std;
 using namespace lge;
 
+bool Stencil::setRadius(StencilInfo *Stencil){
+	if(Stencil->neighbors.empty())
+		return false;
+	
+	int max_x, max_y, max_z;
+	int range = 0;
+	int value = 0;
+	
+	max_x = abs(Stencil->neighbors[0].offset_x);
+	max_y = abs(Stencil->neighbors[0].offset_y);
+	max_z = abs(Stencil->neighbors[0].offset_z);
+	
+	range = ((max_y > max_x) ? max_y : max_x );
+	range = ((range > max_z) ? range : max_z );
+	
+	for(unsigned int i = 1; i < Stencil->neighbors.size(); i++){
+		max_x = abs(Stencil->neighbors[i].offset_x);
+		max_y = abs(Stencil->neighbors[i].offset_y);
+		max_z = abs(Stencil->neighbors[i].offset_z);
+		
+		value = ((max_y > max_x) ? max_y : max_x );
+		value = ((value > max_z) ? value : max_z );
+	
+		if(value > range){
+			range = value;
+		}
+	}
+	
+	Stencil->radius = range;
+	return true;
+}
+
 Value* Stencil::getPointerOperand(Instruction *Inst) {
   if (LoadInst *Load = dyn_cast<LoadInst>(Inst))
     return Load->getPointerOperand();
@@ -1276,6 +1308,11 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 		if(!neighborhood){
 			errs()<<"ERROR! Computation does not have stencil neighborhood\n";
 			return false;
+		}
+		
+		//Set Neighborhood radius
+		if(!setRadius(Stencil)){
+			errs()<<"ERROR! Could not set stencil radius!\n";
 		}
         
         //errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
