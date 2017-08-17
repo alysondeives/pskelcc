@@ -131,17 +131,16 @@ void CodeGen::writeThreadIndexOptimized(raw_fd_ostream &OS, Stencil::StencilInfo
 	//OS <<"int "<<idx_z<<" = blockIdx.z * blockDim.z + threadIdx.z;\n";
 	
 	lastindex = Stencil.dimension_phinode[1]->getName().str().find_last_of(".");
-	idx_x = Stencil.dimension_phinode[1]->getName().str().substr(0,lastindex);
-	OS <<"int "<<idx_x<<" = blockIdx.x * (blockDim.x-2*RADIUS) + threadIdx.x + RADIUS;\n";
-	
-	lastindex = Stencil.dimension_phinode[2]->getName().str().find_last_of(".");
-	idx_y  = Stencil.dimension_phinode[2]->getName().str().substr(0,lastindex);
+	idx_y  = Stencil.dimension_phinode[1]->getName().str().substr(0,lastindex);
 	OS <<"int "<<idx_y<<" = blockIdx.y * (blockDim.y-2*RADIUS) + threadIdx.y + RADIUS;\n";
 	
-	dim_z = Stencil.dimension_value[0]->getName();
-	dim_x = Stencil.dimension_value[1]->getName();
-	dim_y = Stencil.dimension_value[2]->getName();
+	lastindex = Stencil.dimension_phinode[2]->getName().str().find_last_of(".");
+	idx_x = Stencil.dimension_phinode[2]->getName().str().substr(0,lastindex);
+	OS <<"int "<<idx_x<<" = blockIdx.x * (blockDim.x-2*RADIUS) + threadIdx.x + RADIUS;\n";
 	
+	dim_z = Stencil.dimension_value[0]->getName();
+	dim_y = Stencil.dimension_value[1]->getName();
+	dim_x = Stencil.dimension_value[2]->getName();
 	
 	OS << "int in_index = " << idx_y << " * " << dim_x << " + " << idx_x << ";\n";
 	OS << "int out_index = 0;\n";
@@ -151,26 +150,6 @@ void CodeGen::writeThreadIndexOptimized(raw_fd_ostream &OS, Stencil::StencilInfo
 }
     
 void CodeGen::writeThreadIndex(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-	//Thread Idx
-	/*OS <<"int tx = threadIdx.x;\n";
-	OS <<"int ty = threadIdx.y;\n";
-	OS <<"int tz = threadIdx.z;\n";
-	
-	//Block idx
-	OS <<"int bx = BlockIdx.x;\n";
-	OS <<"int by = BlockIdx.y;\n";
-	OS <<"int bz = BlockIdx.z;\n";
-	
-	//Grid Dim
-	OS <<"int GridDim_x = GridDim.x;\n";
-	OS <<"int GridDim_y = GridDim.y;\n";
-	OS <<"int GridDim_z = GridDim.z;\n";
-	
-	//Block Dim
-	OS <<"int BlockDim_x = BlockDim.x;\n";
-	OS <<"int BlockDim_y = BlockDim.y;\n";
-	OS <<"int BlockDim_z = BlockDim.z;\n";
-	*/
 	//Offsets
 	size_t lastindex;
 	
@@ -179,16 +158,16 @@ void CodeGen::writeThreadIndex(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil
 	OS <<"int "<<idx_z<<" = blockIdx.z * blockDim.z + threadIdx.z;\n";
 	
 	lastindex = Stencil.dimension_phinode[1]->getName().str().find_last_of(".");
-	idx_x = Stencil.dimension_phinode[1]->getName().str().substr(0,lastindex);
-	OS <<"int "<<idx_x<<" = blockIdx.x * blockDim.x + threadIdx.x;\n";
-	
-	lastindex = Stencil.dimension_phinode[2]->getName().str().find_last_of(".");
-	idx_y  = Stencil.dimension_phinode[2]->getName().str().substr(0,lastindex);
+	idx_y  = Stencil.dimension_phinode[1]->getName().str().substr(0,lastindex);
 	OS <<"int "<<idx_y<<" = blockIdx.y * blockDim.y + threadIdx.y;\n";
 	
+	lastindex = Stencil.dimension_phinode[2]->getName().str().find_last_of(".");
+	idx_x = Stencil.dimension_phinode[2]->getName().str().substr(0,lastindex);
+	OS <<"int "<<idx_x<<" = blockIdx.x * blockDim.x + threadIdx.x;\n";
+	
 	dim_z = Stencil.dimension_value[0]->getName();
-	dim_x = Stencil.dimension_value[1]->getName();
-	dim_y = Stencil.dimension_value[2]->getName();
+	dim_y = Stencil.dimension_value[1]->getName();
+	dim_x = Stencil.dimension_value[2]->getName();
 }
 
 void CodeGen::writeLoadHaloOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
@@ -218,7 +197,7 @@ void CodeGen::writeLoadHaloOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &S
 	if(Stencil.radius == 1)
 		OS << "next_index = in_index;\n";
 	
-	OS << "t0_current = __ldg(&a[in_index]);\n";
+	OS << "t0_current = __ldg(&" << Stencil.input->getName() <<"[in_index]);\n";
 	OS << "in_index += stride;\n";
 	if(Stencil.radius > 1)
 		OS << "next_index = in_index;\n";

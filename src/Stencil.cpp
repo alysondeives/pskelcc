@@ -815,6 +815,7 @@ Value* Stencil::visit(const SCEV *S) {
       //S->dump();
       //return nullptr;
     default:
+	  errs() << *S << "\n";
       llvm_unreachable("Unknown SCEV type!");
     }
     //S->dump();
@@ -1408,6 +1409,7 @@ bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension, StencilInfo *S
 	Value* bound;
 	PHINode* phi = getPHINode(loop);
 	
+	errs()<<"Swap Look Backedge: " << *backedge << "\n";
 	if(!(backedge->getSCEVType() == scConstant)) {
 		bound = visit(backedge);
 	}
