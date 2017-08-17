@@ -19,7 +19,7 @@ private:
 	void writeKernelBaseline(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
     void writeKernelCall(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeGlobalKernelParams(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
-	void writeExpression(raw_fd_ostream &OS, Value *Val);
+	void writeExpression(raw_fd_ostream &OS, Value *Val, Stencil::StencilInfo &Stencil);
 	void writeComputation(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeMemAccess(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeThreadIndex(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);

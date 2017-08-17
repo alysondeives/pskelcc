@@ -86,6 +86,7 @@ void CodeGen::writeHeader(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
     OS << "#define RADIUS " << Stencil.radius << "\n\n";
     
     OS << "// Error checking function\n";
+	/*
 	OS << "#define wbCheck(stmt) do {                                                    \\"<<"\n";
     OS << "cudaError_t err = stmt;                                               \\"<<"\n";
     OS << "if (err != cudaSuccess) {                                             \\"<<"\n";
@@ -94,6 +95,14 @@ void CodeGen::writeHeader(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
     OS << "        return -1;                                                        \\"<<"\n";
     OS << "    }                                                                     \\"<<"\n";
     OS << "} while(0)\n\n";
+    */
+    OS << "#define wbCheck(ans) { gpuAssert(((cudaError_t)ans), __FILE__, __LINE__,false); }\n";
+	OS << "inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=false){\n";
+	OS << "if(code!=cudaSuccess){\n";
+	OS << "fprintf(stderr,(const char*)\"GPUassert: %s %s %d\\n\", cudaGetErrorString(code), file, line);\n";
+    OS << "if(abort) exit(code);";
+	OS << "}\n}\n";
+    
 }
 
 void CodeGen::writeType(Type *T, raw_fd_ostream &OS){
@@ -414,10 +423,22 @@ void CodeGen::writeMemAccess(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 	//OS << "[k * ni * nj + j * dimx + i;
 }
 
-void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){	
+void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val, Stencil::StencilInfo &Stencil){	
 	if((isa<LoadInst>(Val))){
 		LoadInst *LD = dyn_cast<LoadInst>(Val);
-		OS << LD->getName();
+		errs() << "Current: "<<*LD<<"\n";
+		//Value *Ptr = getPointerOperand(Val);
+		//get the neighbor with this LD
+		Stencil::Neighbor N;
+		for(auto i : Stencil.neighbors){
+			errs() << "Checking: "<<*(i.LoadAccess)<<"\n";
+			if (i.LoadAccess == LD){
+				N = i;
+				errs()<<*LD<<"\n";
+				break;
+			}
+		}
+		OS << N.BasePtr->getName() << "[index + ("<< N.offset_x << ") + (" << dim_y << " * ("<< N.offset_y <<"))]";
 	}
 	else if(isa<ConstantInt>(Val)){
         errs() << "CONSTANTINT";
@@ -439,7 +460,7 @@ void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){
 	else if((isa<Instruction>(Val))){
 		Instruction *Ins = dyn_cast<Instruction>(Val);
 		OS << "(";
-		writeExpression(OS, Ins->getOperand(0));
+		writeExpression(OS, Ins->getOperand(0),Stencil);
 		switch (Ins->getOpcode()){
 			case Instruction::Add: 
 			case Instruction::FAdd: OS << " + "; break;
@@ -452,7 +473,7 @@ void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){
 			case Instruction::SDiv: OS << " / "; break;
 			default: OS << "Opcode:"<<Ins->getOpcodeName(); break;
 		}
-		writeExpression(OS, Ins->getOperand(1));
+		writeExpression(OS, Ins->getOperand(1),Stencil);
 		OS << ")";
 	}
 	else{
@@ -461,12 +482,13 @@ void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val){
 }
 
 void CodeGen::writeComputation(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-	OS << Stencil.output->getName() << "[ ";
+	/*OS << Stencil.output->getName() << "[ ";
 	OS << "(" << idx_z << " * "<< dim_x <<" * " << dim_y << ") + ";
 	OS << "(" << idx_y << " * "<< dim_x <<") + ";
 	OS << "(" << idx_x << ") ] = ( ";
-	
-	writeExpression(OS, Stencil.outputStr->getValueOperand());
+	*/
+	OS << Stencil.output->getName() << "[index] = (";
+	writeExpression(OS, Stencil.outputStr->getValueOperand(), Stencil);
 	
 	OS <<" );\n";
 }
@@ -641,6 +663,11 @@ void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Sten
 	OS << ")";
     OS << "{\n";
 	writeThreadIndex(OS, Stencil);
+	OS << "int index = ";
+	OS << "(" << idx_z << "+RADIUS) * "	<< dim_x << "*" << dim_y << "+"; 
+	OS << "(" << idx_y << "+RADIUS) * " << dim_x << "+";
+	OS << "(" << idx_x << "+RADIUS);\n";
+	/*
 	OS << "if( ";
 	OS << "(" << idx_x << " > " << Stencil.radius <<") && ";
 	OS << "(" << idx_y << " > " << Stencil.radius <<") && ";
@@ -649,9 +676,10 @@ void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Sten
 	OS << "(" << idx_y << " < " << "(" << dim_y << " - " << Stencil.radius <<")) && ";
 	OS << "(" << idx_z << " < " << "(" << dim_z << " - " << Stencil.radius <<")) ";
 	OS << "){\n";
-	writeMemAccess(OS, Stencil);
+	*/
+	//writeMemAccess(OS, Stencil);
 	writeComputation(OS, Stencil);
-	OS << "}\n";
+	//OS << "}\n";
 	OS << "}\n";
 
     //Write Kernel Function Call

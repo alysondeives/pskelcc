@@ -25,6 +25,7 @@ pass: ${OBJS}.ll
 cuda: ${OBJS}.ll
 	opt -load ${PRA} -load ${STENCIL} -cuda -stats ${OBJS}.ll -S -disable-output
 	clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4}" -i ${OBJS}.cuh
+	nvcc -arch=sm_35 -x cu ${OBJS}.c
 
 # print dot cfg
 dot: ${OBJS}.ll
