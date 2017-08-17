@@ -45,13 +45,13 @@ void jacobi3d(int tsteps, int x, int y, int z, DATA_TYPE *A, DATA_TYPE *B) {
     int t, i, j, k;
     DATA_TYPE c0, c1, c2, c3, c4, c5, c6;
 
-    c0 = +2;
-    c1 = +5;
-    c2 = -8;
-    c3 = -3;
-    c4 = +6;
-    c5 = -9;
-    c6 = +4;
+    c0 = +.2;
+    c1 = +.5;
+    c2 = -.8;
+    c3 = -.3;
+    c4 = +.6;
+    c5 = -.9;
+    c6 = +.4;
 
     for (t = 0; t < _PB_TSTEPS; t++) {
         for (i = 1+RADIUS; i < _PB_Z - 1-RADIUS; ++i) {
@@ -82,13 +82,31 @@ void init(DATA_TYPE *A) {
         for (j = 0; j < Y; ++j) {
             for (k = 0; k < X; ++k) {
 				if (i<2*RADIUS || j<2*RADIUS || i>=Z-2*RADIUS || j>=Y-2*RADIUS || k<2*RADIUS || k>=X-2*RADIUS)
-					A[i * (X * Y) + j * X + k] = 0;
+					A[i * (X * Y) + j * X + k] = (DATA_TYPE) 0;
 				else
-					A[i * (X * Y) + j * X + k] = i % 12 + 2 * (j % 7) + 3 * (k % 13);
+					A[i * (X * Y) + j * X + k] = (DATA_TYPE) 1; //i % 12 + 2 * (j % 7) + 3 * (k % 13);
 				
             }
         }
     }
+}
+
+
+int checkResult(float *a, float *ref, int dimx, int dimy, int dimz) {
+
+  for (int i = 0; i < dimz; i++) {
+    for (int j = 0; j < dimy; j++) {
+      for (int k = 0; k < dimx; k++) {
+    if (a[i*dimx*dimy + j*dimx + k] != ref[i*dimx*dimy + j*dimx + k]) {
+      printf("Expected: %f, received: %f at position [%d,%d,%d]\n",ref[i*dimx*dimy+j*dimx+k],a[i*dimx*dimy+j*dimx+k],i,j,k);
+      return 0;
+    }
+      }
+    }
+  }    
+
+  return 1;
+
 }
 
 void compareResults(DATA_TYPE *B, DATA_TYPE *B_GPU) {
@@ -153,7 +171,8 @@ int main(int argc, char *argv[]) {
     jacobi3d_GPU_baseline(tsteps, z, y, x, A, B_GPU);
     t_end = rtclock();
     fprintf(stdout, "GPU Baseline Runtime: %0.6lfs\n", t_end - t_start);
-	compareResults(B, B_GPU);
+	checkResult(B_GPU,B,X, Y, Z);
+    compareResults(B, B_GPU);
 	#endif 
 	
 	#ifdef __NVCC__
@@ -161,7 +180,8 @@ int main(int argc, char *argv[]) {
     jacobi3d_GPU_opt(tsteps, z, y, x, A, B_GPU_OPT);
     t_end = rtclock();
     fprintf(stdout, "GPU Opt Runtime: %0.6lfs\n", t_end - t_start);
-    compareResults(B, B_GPU);
+    checkResult(B_GPU_OPT,B,X,Y,Z);
+    compareResults(B, B_GPU_OPT);
 	#endif 
 	
     free(A);
