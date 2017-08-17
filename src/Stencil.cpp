@@ -441,7 +441,7 @@ bool Stencil::parse3DSCEV(const SCEV *S, Neighbor &N){
     errs()<<"3D SCEV: "<<*S<<"\n";
 
     PHINode *Outer = getPHINode(N.SCEVLoops[2]);   //for j
-    PHINode *Mid =  getPHINode(N.SCEVLoops[1]);    //for i
+    PHINode *Mid   = getPHINode(N.SCEVLoops[1]);   //for i
     PHINode *Inner = getPHINode(N.SCEVLoops[0]);   //for k
 
     //errs()<<"PHINode Inner: "<<*Inner<<"\n";
@@ -629,13 +629,13 @@ bool Stencil::parse3DSCEV(const SCEV *S, Neighbor &N){
     errs()<<"Offset Outer: "<<offsetOuter<<"\n";
     errs()<<"Offset Inner: "<<offsetInner<<"\n";
     
-    N.phinode_x = Mid;
-    N.phinode_y = Outer;
-    N.phinode_z = Inner;
+    N.phinode_x = Inner; //Mid
+    N.phinode_y = Mid; //Outer
+    N.phinode_z = Outer; //Inner
     
-    N.offset_x = offsetMid;
-    N.offset_y = offsetOuter;
-    N.offset_z = offsetInner;
+    N.offset_x = offsetInner; //offsetMid
+    N.offset_y = offsetMid; //offsetOuter
+    N.offset_z = offsetOuter; //offsetInner
     N.dimension = 3;
     
     return true;
