@@ -31,6 +31,7 @@
 #define ERROR_THRESHOLD 0.5
 
 #define GPU_DEVICE 1
+#define RADIUS 1
 
 /* Problem size */
 //#define X 512
@@ -53,35 +54,38 @@ void jacobi3d(int tsteps, int x, int y, int z, DATA_TYPE *A, DATA_TYPE *B) {
     c6 = +4;
 
     for (t = 0; t < _PB_TSTEPS; t++) {
-        for (j = 1; j < _PB_Y - 1; ++j) {
-            for (i = 1; i < _PB_X - 1; ++i) {
-                for (k = 1; k < _PB_Z - 1; ++k) {
-                    B[i*(_PB_Z * _PB_Y) + j*_PB_Z + k] = c0 * A[(i  )*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k-1)]  +
-														 c1 * A[(i  )*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k  )]  +
-														 c2 * A[(i  )*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k+1)]  +
-														 c3 * A[(i-1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k  )]  +
-														 c4 * A[(i+1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k  )]  +
-														 c5 * A[(i  )*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k  )]  +
-														 c6 * A[(i  )*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k  )];
+        for (i = 1+RADIUS; i < _PB_Z - 1-RADIUS; ++i) {
+            for (j = 1+RADIUS; j < _PB_Y - 1-RADIUS; ++j) {
+                for (k = 1+RADIUS; k < _PB_X - 1-RADIUS; ++k) {
+                    B[i*(_PB_X * _PB_Y) + j*_PB_X + k] = c0 * A[(i  )*(_PB_X * _PB_Y) + (j  )*_PB_X + (k-1)]  +
+														 c1 * A[(i  )*(_PB_X * _PB_Y) + (j  )*_PB_X + (k  )]  +
+														 c2 * A[(i  )*(_PB_X * _PB_Y) + (j  )*_PB_X + (k+1)]  +
+														 c3 * A[(i-1)*(_PB_X * _PB_Y) + (j  )*_PB_X + (k  )]  +
+														 c4 * A[(i+1)*(_PB_X * _PB_Y) + (j  )*_PB_X + (k  )]  +
+														 c5 * A[(i  )*(_PB_X * _PB_Y) + (j-1)*_PB_X + (k  )]  +
+														 c6 * A[(i  )*(_PB_X * _PB_Y) + (j+1)*_PB_X + (k  )];
                 }
             }
         }
         
-         for (j = 1; j < _PB_Y - 1; ++j)
-            for (i = 1; i < _PB_X - 1; ++i)
-                for (k = 1; k < _PB_Z - 1; ++k)
-                    A[i*(_PB_Z * _PB_Y) + j*_PB_Z + k] = B[i*(_PB_Z * _PB_Y) + j*_PB_Z + k];
+         for (i = 1+RADIUS; i < _PB_Z - 1-RADIUS; ++i)
+            for (j = 1+RADIUS; j < _PB_Y - 1-RADIUS; ++j)
+                for (k = 1+RADIUS; k < _PB_X - 1-RADIUS; ++k)
+                    A[i*(_PB_X * _PB_Y) + j*_PB_Z + k] = B[i*(_PB_X * _PB_Y) + j*_PB_X + k];
     }
 }
 
 void init(DATA_TYPE *A) {
     int i, j, k;
 
-    for (i = 0; i < X; ++i) {
+    for (i = 0; i < Z; ++i) {
         for (j = 0; j < Y; ++j) {
-            for (k = 0; k < Z; ++k) {
-                A[i * (Z * Y) + j * Z + k] =
-                    i % 12 + 2 * (j % 7) + 3 * (k % 13);
+            for (k = 0; k < X; ++k) {
+				if (i<2*RADIUS || j<2*RADIUS || i>=Z-2*RADIUS || j>=Y-2*RADIUS || k<2*RADIUS || k>=X-2*RADIUS)
+					A[i * (X * Y) + j * X + k] = 0;
+				else
+					A[i * (X * Y) + j * X + k] = i % 12 + 2 * (j % 7) + 3 * (k % 13);
+				
             }
         }
     }
@@ -92,11 +96,11 @@ void compareResults(DATA_TYPE *B, DATA_TYPE *B_GPU) {
     fail = 0;
 
     // Compare result from cpu and gpu...
-    for (i = 1; i < X - 1; ++i) {
-        for (j = 1; j < Y - 1; ++j) {
-            for (k = 1; k < Z - 1; ++k) {
-                if (percentDiff(B[i * (Z * Y) + j * Z + k],
-                                B_GPU[i * (Z * Y) + j * Z + k]) >
+    for (i = 0; i < Z; ++i) {
+        for (j = 0; j < Y; ++j) {
+            for (k = 0; k < X; ++k) {
+                if (percentDiff(B[i * (X * Y) + j * X + k],
+                                B_GPU[i * (X * Y) + j * X + k]) >
                     ERROR_THRESHOLD) {
                     fail++;
                 }
@@ -122,26 +126,42 @@ int main(int argc, char *argv[]) {
     /* Variable declaration/allocation. */
     DATA_TYPE *A;
     DATA_TYPE *B;
+    #ifdef __NVCC__
+    DATA_TYPE *B_GPU;
+    DATA_TYPE *B_GPU_OPT;
+	#endif
+	
+    A = (DATA_TYPE *)malloc((X+4*RADIUS) * (Y+4*RADIUS) * (Z+4*RADIUS) * sizeof(DATA_TYPE));
+    B = (DATA_TYPE *)calloc((X+4*RADIUS) * (Y+4*RADIUS) * (Z+4*RADIUS), sizeof(DATA_TYPE));
+    
+    #ifdef __NVCC__
+    B_GPU = (DATA_TYPE *)calloc((X+4*RADIUS) * (Y+4*RADIUS) * (Z+4*RADIUS), sizeof(DATA_TYPE));
+    B_GPU_OPT = (DATA_TYPE *)calloc((X+4*RADIUS) * (Y+4*RADIUS) * (Z+4*RADIUS), sizeof(DATA_TYPE));
+    #endif
 
-    A = (DATA_TYPE *)malloc(X * Y * Z * sizeof(DATA_TYPE));
-    B = (DATA_TYPE *)malloc(X * Y * Z * sizeof(DATA_TYPE));
-
-    fprintf(stdout, ">> Three dimensional (3D) convolution <<\n");
+    fprintf(stdout, ">> 3D 7PT Jacobi Stencil <<\n");
 
     init(A);
-    init(B);
-	//#ifndef __NVCC__
+
     t_start = rtclock();
     jacobi3d(tsteps, x, y, z, A, B);
     t_end = rtclock();
     fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-    //#endif
     
     #ifdef __NVCC__
     t_start = rtclock();
-    jacobi3d_GPU_baseline(tsteps, x, y, z, A, B);
+    jacobi3d_GPU_baseline(tsteps, z, y, x, A, B_GPU);
     t_end = rtclock();
-    fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
+    fprintf(stdout, "GPU Baseline Runtime: %0.6lfs\n", t_end - t_start);
+	compareResults(B, B_GPU);
+	#endif 
+	
+	#ifdef __NVCC__
+    t_start = rtclock();
+    jacobi3d_GPU_opt(tsteps, z, y, x, A, B_GPU_OPT);
+    t_end = rtclock();
+    fprintf(stdout, "GPU Opt Runtime: %0.6lfs\n", t_end - t_start);
+    compareResults(B, B_GPU);
 	#endif 
 	
     free(A);

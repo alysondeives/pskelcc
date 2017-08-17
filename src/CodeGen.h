@@ -14,7 +14,7 @@ private:
 
 	std::string idx_x, idx_y, idx_z; //Data element dimension indexes
 	std::string dim_x, dim_y, dim_z; //Data dimensions
-	void writeHeader(raw_fd_ostream &OS);
+	void writeHeader(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeType(llvm::Type *T, raw_fd_ostream &OS);
 	void writeKernelBaseline(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
     void writeKernelCall(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
@@ -23,6 +23,15 @@ private:
 	void writeComputation(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeMemAccess(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeThreadIndex(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	
+	void writeKernelOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	void writeKernelCallOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	void writeThreadIndexOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	void writeLoadHaloOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	void writeExpressionOptimized(llvm::raw_fd_ostream &OS, Value *Val, Stencil::StencilInfo &Stencil, int timestep);
+	void writeComputeOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	
+	Value *getPointerOperand(Value *V);
 	
 public:
 	
@@ -36,5 +45,3 @@ public:
 	  AU.setPreservesAll();
 	}  
 };
-
-

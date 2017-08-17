@@ -44,6 +44,38 @@ using namespace llvm;
 using namespace std;
 using namespace lge;
 
+bool Stencil::setRadius(StencilInfo *Stencil){
+	if(Stencil->neighbors.empty())
+		return false;
+	
+	int max_x, max_y, max_z;
+	int range = 0;
+	int value = 0;
+	
+	max_x = abs(Stencil->neighbors[0].offset_x);
+	max_y = abs(Stencil->neighbors[0].offset_y);
+	max_z = abs(Stencil->neighbors[0].offset_z);
+	
+	range = ((max_y > max_x) ? max_y : max_x );
+	range = ((range > max_z) ? range : max_z );
+	
+	for(unsigned int i = 1; i < Stencil->neighbors.size(); i++){
+		max_x = abs(Stencil->neighbors[i].offset_x);
+		max_y = abs(Stencil->neighbors[i].offset_y);
+		max_z = abs(Stencil->neighbors[i].offset_z);
+		
+		value = ((max_y > max_x) ? max_y : max_x );
+		value = ((value > max_z) ? value : max_z );
+	
+		if(value > range){
+			range = value;
+		}
+	}
+	
+	Stencil->radius = range;
+	return true;
+}
+
 Value* Stencil::getPointerOperand(Instruction *Inst) {
   if (LoadInst *Load = dyn_cast<LoadInst>(Inst))
     return Load->getPointerOperand();
@@ -409,7 +441,7 @@ bool Stencil::parse3DSCEV(const SCEV *S, Neighbor &N){
     errs()<<"3D SCEV: "<<*S<<"\n";
 
     PHINode *Outer = getPHINode(N.SCEVLoops[2]);   //for j
-    PHINode *Mid =  getPHINode(N.SCEVLoops[1]);    //for i
+    PHINode *Mid   = getPHINode(N.SCEVLoops[1]);   //for i
     PHINode *Inner = getPHINode(N.SCEVLoops[0]);   //for k
 
     //errs()<<"PHINode Inner: "<<*Inner<<"\n";
@@ -597,13 +629,13 @@ bool Stencil::parse3DSCEV(const SCEV *S, Neighbor &N){
     errs()<<"Offset Outer: "<<offsetOuter<<"\n";
     errs()<<"Offset Inner: "<<offsetInner<<"\n";
     
-    N.phinode_x = Mid;
-    N.phinode_y = Outer;
-    N.phinode_z = Inner;
+    N.phinode_x = Inner; //Mid
+    N.phinode_y = Mid; //Outer
+    N.phinode_z = Outer; //Inner
     
-    N.offset_x = offsetMid;
-    N.offset_y = offsetOuter;
-    N.offset_z = offsetInner;
+    N.offset_x = offsetInner; //offsetMid
+    N.offset_y = offsetMid; //offsetOuter
+    N.offset_z = offsetOuter; //offsetInner
     N.dimension = 3;
     
     return true;
@@ -783,6 +815,7 @@ Value* Stencil::visit(const SCEV *S) {
       //S->dump();
       //return nullptr;
     default:
+	  errs() << *S << "\n";
       llvm_unreachable("Unknown SCEV type!");
     }
     //S->dump();
@@ -1277,6 +1310,11 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 			errs()<<"ERROR! Computation does not have stencil neighborhood\n";
 			return false;
 		}
+		
+		//Set Neighborhood radius
+		if(!setRadius(Stencil)){
+			errs()<<"ERROR! Could not set stencil radius!\n";
+		}
         
         //errs() << "Store Base pointer: "<<*PtrOp << "\n"; 
         Stencil->output = PtrOp;
@@ -1371,6 +1409,7 @@ bool Stencil::verifySwapLoops(Loop *loop, unsigned int dimension, StencilInfo *S
 	Value* bound;
 	PHINode* phi = getPHINode(loop);
 	
+	errs()<<"Swap Look Backedge: " << *backedge << "\n";
 	if(!(backedge->getSCEVType() == scConstant)) {
 		bound = visit(backedge);
 	}

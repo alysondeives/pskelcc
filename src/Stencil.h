@@ -96,6 +96,7 @@ class Stencil : public FunctionPass {
   
   struct StencilInfo {
 	int 		dimension;
+	int			radius;
     std::tuple<Loop*, PHINode*, Value*> dimensions;
     std::tuple<Loop*, PHINode*, Value*> iteration;
 	Value* 		iteration_value;
@@ -115,6 +116,7 @@ class Stencil : public FunctionPass {
 	StencilInfo() {
 		dimension = 0;
 		num_neighbors = 0;
+		radius = 0;
 	}
   };
   //===---------------------------------------------------------------------===
@@ -159,6 +161,8 @@ class Stencil : public FunctionPass {
   bool verifySwap (Loop* loop, StencilInfo *Stencil);
   PHINode* getPHINode (const Loop *loop);
   bool matchStencilNeighborhood(Neighbor &Str, Neighbor &N);
+  
+  bool setRadius(StencilInfo *Stencil);
   
   Value* visit(const SCEV *S);
   Value* visitAddExpr(const SCEVAddExpr *S);
