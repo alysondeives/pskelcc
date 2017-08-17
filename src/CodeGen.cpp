@@ -214,9 +214,14 @@ void CodeGen::writeLoadHaloOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &S
 	}
 	
 	OS << "out_index = in_index;\n";
+	//TODO Why this condition exist?
+	if(Stencil.radius == 1)
+		OS << "next_index = in_index;\n";
+	
 	OS << "t0_current = __ldg(&a[in_index]);\n";
 	OS << "in_index += stride;\n";
-	OS << "next_index = in_index;\n";
+	if(Stencil.radius > 1)
+		OS << "next_index = in_index;\n";
 	
 	for(int i = 1; i <= Stencil.radius; i++){
 		OS << "t0_infront" << i << " = __ldg(&" << Stencil.input->getName() << "[in_index]);\n";
@@ -278,8 +283,6 @@ void CodeGen::writeComputeOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &St
 		OS << "} else {\n";
 		OS << "t1_infront" << i <<" = t0_current;\n";
 		OS << "}\n\n";
-		
-		
 	}
 	
 	//Iterate over Z
@@ -289,6 +292,7 @@ void CodeGen::writeComputeOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &St
 		OS << "t0_behind" << i <<" = t0_behind" << i-1 <<";\n";
 	}
 	OS << "t0_behind1 = t0_current;\n";
+	OS << "t0_current = t0_infront1\n;";
 	for (int i = 1; i < Stencil.radius; i++){
 		OS << "t0_infront" << i <<" = t0_infront" << i+1 <<";\n";
 	}
@@ -302,7 +306,7 @@ void CodeGen::writeComputeOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &St
 	OS << "(" << idx_y << " < (" << dim_y << "-2*RADIUS)) && ";
 	OS << "(" << idx_x << " >= 2*RADIUS) && ";
 	OS << "(" << idx_x << " < (" << dim_x << "-2*RADIUS)) && ";
-	OS << "(i < "<< dim_z << "-5*RADIUS)";
+	OS << "(i < ("<< dim_z << "-5*RADIUS))";
 	OS << ") {\n";
 	OS << "t1_infront" << Stencil.radius <<" = (";
 	writeExpressionOptimized(OS,Stencil.outputStr->getValueOperand(), Stencil, 0); 
@@ -350,16 +354,21 @@ void CodeGen::writeExpressionOptimized(raw_fd_ostream &OS, Value *Val, Stencil::
 			}
 		}
 		if (N.offset_z == 0){
-			if(timestep == 0){
-				OS << "__ldg(&" << N.BasePtr->getName();
-				OS << "[out_index + ("<< N.offset_x << ") + (" << dim_y << " * ("<< N.offset_y <<"))])";
+			if(N.offset_x == 0 && N.offset_y == 0){
+				OS << "t" << timestep <<"_current";
 			}
-			else if(timestep == 1){
-				OS << "ds_a[threadIdx.y+(" << N.offset_y << ")][threadIdx.x+(" << N.offset_x << ")]";
-			}
-			else {
-				OS << "ERROR";
-				errs() <<"ERROR! Unexpected timestep value: "<< timestep <<"\n";
+			else{
+				if(timestep == 0){
+					OS << "__ldg(&" << N.BasePtr->getName();
+					OS << "[out_index + ("<< N.offset_x << ") + (" << dim_y << " * ("<< N.offset_y <<"))])";
+				}
+				else if(timestep == 1){
+					OS << "ds_a[threadIdx.y+(" << N.offset_y << ")][threadIdx.x+(" << N.offset_x << ")]";
+				}
+				else {
+					OS << "ERROR";
+					errs() <<"ERROR! Unexpected timestep value: "<< timestep <<"\n";
+				}
 			}
 		}
 		else if (N.offset_z < 0){
@@ -484,9 +493,6 @@ void CodeGen::writeComputation(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil
 }
 
 void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
-    OS << "__global__\n";
-	OS << "void " << CurrentFn->getName() <<"_kernel_baseline (";
-	
     if(!(isa<ConstantInt>(Stencil.iteration_value))){
         writeType(Stencil.iteration_value->getType(), OS);
         OS << " " << Stencil.iteration_value->getName() << ", ";
@@ -510,8 +516,6 @@ void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &
 		writeType(i->getType(), OS);
 		OS <<  " " << i->getName();
 	}
-    
-	OS << ")";
 }
 
 void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
@@ -648,7 +652,10 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 
 void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
     // Write Kernel
-    writeGlobalKernelParams(OS, Stencil);
+    OS << "__global__\n";
+	OS << "void " << CurrentFn->getName() <<"_kernel_baseline (";
+	writeGlobalKernelParams(OS, Stencil);
+	OS << ")";
     OS << "{\n";
 	writeThreadIndex(OS, Stencil);
 	OS << "if( ";
@@ -669,9 +676,12 @@ void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Sten
 }
 
 void CodeGen::writeKernelOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+	 OS << "__global__\n";
+	OS << "void " << CurrentFn->getName() <<"_kernel_opt (";
 	writeGlobalKernelParams(OS, Stencil);
+	OS << ")";
     OS << "{\n";
-	writeThreadIndex(OS, Stencil);
+	writeThreadIndexOptimized(OS, Stencil);
 	writeLoadHaloOptimized(OS, Stencil);
 	writeComputeOptimized(OS, Stencil);
 	OS << "}\n";
@@ -680,7 +690,136 @@ void CodeGen::writeKernelOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &Ste
 }
 
 void CodeGen::writeKernelCallOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+	OS << "\nint " << CurrentFn->getName() <<"_GPU_opt (";
 	
+	if(!(isa<ConstantInt>(Stencil.iteration_value))){
+        writeType(Stencil.iteration_value->getType(), OS);
+        OS << " " << Stencil.iteration_value->getName() << ", ";
+    }
+	
+	for(auto i : Stencil.dimension_value){
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName() << ", ";
+	}
+
+	writeType(Stencil.input->getType(), OS);
+	OS <<  " " << Stencil.input->getName() <<", ";
+	
+	writeType(Stencil.output->getType(), OS);
+	OS <<  " " << Stencil.output->getName();
+
+	for(auto i : Stencil.arguments){
+		OS << ", ";
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName();
+	}
+	
+	OS << "){";
+
+    //GPU Array Declaration
+    writeType(Stencil.input->getType(), OS);
+	OS <<  " " << Stencil.input->getName() <<"_GPU;\n";
+
+    writeType(Stencil.output->getType(), OS);
+	OS <<  " " << Stencil.output->getName()<<"_GPU;\n";
+
+    for(auto i : Stencil.arguments){
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName()<<"_GPU;\n";
+	}
+
+    //Input Size
+    OS << "size_t input_size = ";
+    for(auto i : Stencil.dimension_value){
+		OS << "(" << i->getName() << "+4*RADIUS)  *";
+	}
+    OS << "sizeof(";
+    writeType(Stencil.outputStr->getValueOperand()->getType(), OS);
+    OS << ");\n";
+
+    //CUDA Malloc
+    OS << "wbCheck( cudaMalloc((void**) &" << Stencil.input->getName() << "_GPU" << ", input_size) );\n";
+    OS << "wbCheck( cudaMalloc((void**) &" << Stencil.output->getName() << "_GPU" << ", input_size) );\n";
+
+    //TODO Arguments Malloc
+
+	//TODO Input has no stride, how to deal with it?
+    //CUDA MemCopy
+    OS << "wbCheck( cudaMemcpy(" << Stencil.input->getName() << "_GPU," << Stencil.input->getName() << ", input_size, cudaMemcpyHostToDevice) );\n";
+    OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "_GPU," << Stencil.output->getName() << ", input_size, cudaMemcpyHostToDevice) );\n";
+
+    //DimBlock
+    OS << "dim3 dimBlock;\n";
+    OS << "dim3 dimGrid;\n";
+    OS << "dimBlock.x = BLOCK_DIMX;\n";
+    OS << "dimBlock.y = BLOCK_DIMY;\n";
+    OS << "dimBlock.z = 1;\n";
+    OS << "dimGrid.x = (int)ceil("<< dim_x << "/(BLOCK_DIMX-2*RADIUS));\n";
+    OS << "dimGrid.y = (int)ceil("<< dim_y << "/(BLOCK_DIMY-2*RADIUS));\n";
+    OS << "dimGrid.z = 1;\n";
+
+
+    //TODO Iteration Value for single stencil
+    OS << "for (int i = 0; i < (";
+    if(isa<ConstantInt>(Stencil.iteration_value)){
+        OS << dyn_cast<ConstantInt>(Stencil.iteration_value)->getSExtValue();
+    }
+    else {
+        OS << Stencil.iteration_value->getName();
+    }
+    OS << "/2); i++) {\n";
+    OS << "if (i%2) {\n";
+    OS << CurrentFn->getName() << "_kernel_opt <<< dimGrid,dimBlock >>> (";
+    if(!(isa<ConstantInt>(Stencil.iteration_value))){
+		OS << Stencil.iteration_value->getName();
+	}
+    
+    for(auto i : Stencil.dimension_value){
+		OS << ", " << i->getName() << "+ 4*RADIUS";
+	}
+	
+	OS << ", " << Stencil.output->getName() << "_GPU, ";
+    OS << Stencil.input->getName() << "_GPU";
+
+    for(auto i : Stencil.arguments){
+		OS << ", "<< i->getName() << "+ 4*RADIUS";
+	}
+	
+	OS << ");\n";
+    OS <<"}\nelse{\n";
+    OS << CurrentFn->getName() << "_kernel_opt <<< dimGrid,dimBlock >>> (";
+    if(!(isa<ConstantInt>(Stencil.iteration_value))){
+		OS << Stencil.iteration_value->getName();
+	}
+	
+	for(auto i : Stencil.dimension_value){
+		OS << ", " << i->getName() << "+ 4*RADIUS";
+	}
+	
+	OS << ", " << Stencil.input->getName() << "_GPU, ";
+    OS << Stencil.output->getName() << "_GPU";
+	
+	for(auto i : Stencil.arguments){
+		OS << ", "<< i->getName();
+	}
+	
+	OS << ");\n";
+    OS << "}\n";
+    OS << "wbCheck(cudaGetLastError())\n;";
+    OS << "}\n";
+
+    //CUDA MemCopy
+    OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
+
+    //CUDA Free
+    OS << "wbCheck( cudaFree(" << Stencil.input->getName() << "_GPU) );";
+    OS << "wbCheck( cudaFree(" << Stencil.output->getName() << "_GPU) );";
+
+    for(auto i : Stencil.arguments){
+		OS <<  "wbCheck( cudaFree(" << i->getName()<<"_GPU) );\n";
+	}
+    
+    OS << "return 0;\n}\n";
 }
 
 char CodeGen::ID = 0;
