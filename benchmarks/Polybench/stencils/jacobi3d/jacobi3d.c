@@ -129,13 +129,13 @@ int main(int argc, char *argv[]) {
     fprintf(stdout, ">> Three dimensional (3D) convolution <<\n");
 
     init(A);
-
-	#ifndef __NVCC__
+    init(B);
+	//#ifndef __NVCC__
     t_start = rtclock();
     jacobi3d(tsteps, x, y, z, A, B);
     t_end = rtclock();
     fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-    #endif
+    //#endif
     
     #ifdef __NVCC__
     t_start = rtclock();
