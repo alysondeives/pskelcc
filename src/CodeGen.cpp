@@ -616,7 +616,7 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     OS << "}\n";
 
     //CUDA MemCopy
-    OS << "if ((" << Stencil.iteration_value->getName() << ")%2) {\n"
+    OS << "if ((" << Stencil.iteration_value->getName() << ")%2) {\n";
     OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
     OS << "} else {\n";
     OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.input->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
@@ -792,7 +792,7 @@ void CodeGen::writeKernelCallOptimized(raw_fd_ostream &OS, Stencil::StencilInfo 
     OS << "}\n";
 
     //CUDA MemCopy
-    OS << "if ((" << Stencil.iteration_value->getName() << "/2)%2) {\n"
+    OS << "if ((" << Stencil.iteration_value->getName() << "/2)%2) {\n";
     OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.output->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
     OS << "} else {\n";
     OS << "wbCheck( cudaMemcpy(" << Stencil.output->getName() << "," << Stencil.input->getName() << "_GPU, input_size, cudaMemcpyDeviceToHost) );\n";
