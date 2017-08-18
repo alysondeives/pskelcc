@@ -375,12 +375,18 @@ void CodeGen::writeExpressionOptimized(raw_fd_ostream &OS, Value *Val, Stencil::
 		errs() << "CONSTANTFP";
         const APFloat FP = (dyn_cast<ConstantFP>(Val))->getValueAPF();
         SmallVector<char,256> Str;
-        FP.toString(Str);
+        FP.toString(Str,2);
+        bool point = false;
         errs()<<"FP: ";
         for(auto c : Str){
             errs()<<c;
             OS << c;
+            if(c == '.')
+                point = true;
         }
+        if(!point)
+            OS << ".";
+        OS << "f";
         errs()<<"\n";
 	}
 	else if((isa<Instruction>(Val))){
@@ -449,12 +455,18 @@ void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val, Stencil::StencilIn
 		errs() << "CONSTANTFP";
         const APFloat FP = (dyn_cast<ConstantFP>(Val))->getValueAPF();
         SmallVector<char,256> Str;
-        FP.toString(Str);
+        FP.toString(Str,2);
         errs()<<"FP: ";
+        bool point = false;
         for(auto c : Str){
-            errs()<<c;
             OS << c;
+            errs() << c;
+            if(c == '.')
+                point = true;
         }
+        if(!point)
+            OS <<".";
+        OS << "f";
         errs()<<"\n";
 	}
 	else if((isa<Instruction>(Val))){
