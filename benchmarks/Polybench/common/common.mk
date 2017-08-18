@@ -5,8 +5,9 @@ PRA = ${DAWNCC}/PtrRangeAnalysis/libLLVMPtrRangeAnalysis.so
 
 # PSkelCC library
 STENCIL = "${PSKELCC}/build/src/libMyPass.so"
-
-all: pskelcc cuda
+BIN="${PSKELCC}/benchmarks/Polybench/stencils/bin"
+DATASET=STANDARD_DATASET
+all: pskelcc ir cuda
 
 # Build PSkelCC
 pskelcc: ${PSKELCC}/src/Stencil.cpp 
@@ -25,7 +26,7 @@ pass: ${OBJS}.ll
 cuda: ${OBJS}.ll
 	opt -load ${PRA} -load ${STENCIL} -cuda -stats ${OBJS}.ll -S -disable-output
 	clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4}" -i ${OBJS}.cuh
-	nvcc -arch=sm_35 -x cu ${OBJS}.c
+	nvcc -O3 -arch=sm_35 -x cu -D${DATASET} ${OBJS}.c -o ${BIN}/${OBJS}
 
 # print dot cfg
 dot: ${OBJS}.ll

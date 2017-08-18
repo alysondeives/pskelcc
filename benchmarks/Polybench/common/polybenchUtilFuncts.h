@@ -14,7 +14,7 @@
 # endif
 
 /* Default to LARGE_DATASET. */
-# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET) && !defined(CUSTOM_DATASET)
+# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(STANDARD_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET) && !defined(CUSTOM_DATASET)
 #  define STANDARD_DATASET
 # endif
 
@@ -47,9 +47,9 @@
 
 // Determine the sizes of the 5 possible datasets
 #ifdef MINI_DATASET
-	#define X 64
-	#define Y 64 
-	#define Z 64
+	#define X 32
+	#define Y 32
+	#define Z 32
 	#define N 32
 	#define M 32
 	#define NI 32
@@ -72,9 +72,9 @@
 	#define MAXGRID 2
 #endif
 #ifdef SMALL_DATASET
-	#define X 128
-	#define Y 128
-	#define Z 128
+	#define X 64
+	#define Y 64
+	#define Z 64
 	#define N 256
 	#define M 256
 	#define NI 128
@@ -92,14 +92,14 @@
 	#define CXM 64
 	#define LARGE_N 1000
 	#define LENGTH 50
-	#define TSTEPS 2
-	#define ITER 2
+	#define TSTEPS 10
+	#define ITER 10
 	#define MAXGRID 8
 #endif
 #ifdef STANDARD_DATASET
-	#define X 192
-	#define Y 192 
-	#define Z 192
+	#define X 128
+	#define Y 128  
+	#define Z 128
 	#define N 1024
 	#define M 1024
 	#define NI 1024
@@ -123,7 +123,7 @@
 #endif
 #ifdef LARGE_DATASET
 	#define X 256
-	#define Y 246
+	#define Y 256
 	#define Z 256
 	#define N 2048
 	#define M 2048
@@ -142,14 +142,14 @@
 	#define CXM 512
 	#define LARGE_N 2048*2048
 	#define LENGTH 500
-	#define TSTEPS 5
+	#define TSTEPS 10
 	#define ITER 100
 	#define MAXGRID 128
 #endif
 #ifdef EXTRALARGE_DATASET
-	#define X 384
-	#define Y 384
-	#define Z 384
+	#define X 512
+	#define Y 512
+	#define Z 512
 	#define N 4000
 	#define M 4000
 	#define NI 4000
