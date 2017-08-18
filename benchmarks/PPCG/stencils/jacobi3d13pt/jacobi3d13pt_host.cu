@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <stdio.h>
+#include "jacobi3d13pt_kernel.hu"
 /**
  * This version is stamped on May 10, 2016
  *
@@ -68,30 +71,51 @@ void kernel_heat_3d(int tsteps,
 {
   int t, i, j, k;
 
-#pragma scop
-    for (t = 1; t <= _PB_TSTEPS; t++) {
-        for (i = 1; i < _PB_N-1; i++) {
-            for (j = 1; j < _PB_N-1; j++) {
-                for (k = 1; k < _PB_N-1; k++) {
-                    B[i][j][k] =   SCALAR_VAL(0.125) * (A[i+1][j][k] + SCALAR_VAL(2.0) * A[i][j][k] + A[i-1][j][k])
-                                 + SCALAR_VAL(0.125) * (A[i][j+1][k] + SCALAR_VAL(2.0) * A[i][j][k] + A[i][j-1][k])
-                                 + SCALAR_VAL(0.125) * (A[i][j][k+1] + SCALAR_VAL(2.0) * A[i][j][k] + A[i][j][k-1])
-                                 + SCALAR_VAL(0.125) *  A[i][j][k];
-                }
-            }
+    #define ppcg_min(x,y)    ({ __typeof__(x) _x = (x); __typeof__(y) _y = (y); _x < _y ? _x : _y; })
+    if (n >= 5 && tsteps >= 1) {
+#define cudaCheckReturn(ret) \
+  do { \
+    cudaError_t cudaCheckReturn_e = (ret); \
+    if (cudaCheckReturn_e != cudaSuccess) { \
+      fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(cudaCheckReturn_e)); \
+      fflush(stderr); \
+    } \
+    assert(cudaCheckReturn_e == cudaSuccess); \
+  } while(0)
+#define cudaCheckKernel() \
+  do { \
+    cudaCheckReturn(cudaGetLastError()); \
+  } while(0)
+
+      float *dev_A;
+      float *dev_B;
+      
+      cudaCheckReturn(cudaMalloc((void **) &dev_A, (n) * (n) * (n) * sizeof(float)));
+      cudaCheckReturn(cudaMalloc((void **) &dev_B, (n) * (n) * (n) * sizeof(float)));
+      
+      cudaCheckReturn(cudaMemcpy(dev_A, A, (n) * (n) * (n) * sizeof(float), cudaMemcpyHostToDevice));
+      cudaCheckReturn(cudaMemcpy(dev_B, B, (n) * (n) * (n) * sizeof(float), cudaMemcpyHostToDevice));
+      for (int c0 = 1; c0 <= tsteps; c0 += 1) {
+        {
+          dim3 k0_dimBlock(4, 4, 32);
+          dim3 k0_dimGrid(ppcg_min(256, (n + 29) / 32), ppcg_min(256, (n + 29) / 32));
+          kernel0 <<<k0_dimGrid, k0_dimBlock>>> (dev_A, dev_B, n, tsteps, c0);
+          cudaCheckKernel();
         }
-        for (i = 1; i < _PB_N-1; i++) {
-           for (j = 1; j < _PB_N-1; j++) {
-               for (k = 1; k < _PB_N-1; k++) {
-                   A[i][j][k] =   SCALAR_VAL(0.125) * (B[i+1][j][k] - SCALAR_VAL(2.0) * B[i][j][k] + B[i-1][j][k])
-                                + SCALAR_VAL(0.125) * (B[i][j+1][k] - SCALAR_VAL(2.0) * B[i][j][k] + B[i][j-1][k])
-                                + SCALAR_VAL(0.125) * (B[i][j][k+1] - SCALAR_VAL(2.0) * B[i][j][k] + B[i][j][k-1])
-                                + SCALAR_VAL(0.125) *  B[i][j][k];
-               }
-           }
-       }
+        
+        {
+          dim3 k1_dimBlock(4, 4, 32);
+          dim3 k1_dimGrid(ppcg_min(256, (n + 29) / 32), ppcg_min(256, (n + 29) / 32));
+          kernel1 <<<k1_dimGrid, k1_dimBlock>>> (dev_A, dev_B, n, tsteps, c0);
+          cudaCheckKernel();
+        }
+        
+      }
+      cudaCheckReturn(cudaMemcpy(A, dev_A, (n) * (n) * (n) * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheckReturn(cudaMemcpy(B, dev_B, (n) * (n) * (n) * sizeof(float), cudaMemcpyDeviceToHost));
+      cudaCheckReturn(cudaFree(dev_A));
+      cudaCheckReturn(cudaFree(dev_B));
     }
-#pragma endscop
 
 }
 
