@@ -1,0 +1,2115 @@
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSMALL_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DSTANDARD_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg-opt
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d7pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d7pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d7pt_host.cu jacobi3d7pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d7pt-ppcg
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d7pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d7pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg-opt
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d13pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d13pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d13pt_host.cu jacobi3d13pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d13pt-ppcg
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d13pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d13pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg-opt
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d19pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d19pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d19pt_host.cu jacobi3d19pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d19pt-ppcg
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d19pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d19pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg-opt
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d25pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d25pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d25pt_host.cu jacobi3d25pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d25pt-ppcg
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d25pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d25pt'
+make: Entering directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'
+nvcc -O3 -arch=sm_35 -x c++ -c /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.c -o /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ --sizes="{kernel[i] -> block[1,16,32]; kernel[i] -> tile[1,32,32]}" jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg-opt
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(5): warning: variable "t0" was declared but never referenced
+
+jacobi3d31pt_kernel.cu(19): warning: variable "t0" was declared but never referenced
+
+ppcg -DPOLYBENCH_USE_C99_PROTO -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ jacobi3d31pt.c
+nvcc -O3 -arch=sm_35  -DLARGE_DATASET -I /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/ /home/alyson/git/pskelcc/benchmarks/PPCG/utilities/polybench.o  jacobi3d31pt_host.cu jacobi3d31pt_kernel.cu -o /home/alyson/git/pskelcc/benchmarks/PPCG/bin/jacobi3d31pt-ppcg
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "t" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "i" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "j" was declared but never referenced
+
+jacobi3d31pt_host.cu(72): warning: variable "k" was declared but never referenced
+
+make: Leaving directory '/home/alyson/git/pskelcc/benchmarks/PPCG/stencils/jacobi3d31pt'

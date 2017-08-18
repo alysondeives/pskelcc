@@ -1,0 +1,23 @@
+==34380== NVPROF is profiling process 34380, command: ../../bin/jacobi3d7pt-ppcg-opt
+==34380== Profiling application: ../../bin/jacobi3d7pt-ppcg-opt
+==34380== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 38.56%  20.493ms         2  10.246ms  10.156ms  10.337ms  [CUDA memcpy DtoH]
+ 33.88%  18.004ms         2  9.0018ms  8.8875ms  9.1161ms  [CUDA memcpy HtoD]
+ 13.79%  7.3284ms         5  1.4657ms  1.4646ms  1.4668ms  kernel1(float*, float*, int, int, int)
+ 13.77%  7.3199ms         5  1.4640ms  1.4591ms  1.4662ms  kernel0(float*, float*, int, int, int)
+
+==34380== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 87.55%  393.14ms         2  196.57ms  545.63us  392.59ms  cudaMalloc
+ 11.98%  53.790ms         4  13.448ms  9.0252ms  24.985ms  cudaMemcpy
+  0.19%  853.43us        91  9.3780us     328ns  482.86us  cuDeviceGetAttribute
+  0.17%  746.15us         1  746.15us  746.15us  746.15us  cuDeviceTotalMem
+  0.08%  343.05us         2  171.53us  113.77us  229.29us  cudaFree
+  0.03%  119.32us        10  11.931us  5.7650us  54.063us  cudaLaunch
+  0.01%  39.929us         1  39.929us  39.929us  39.929us  cuDeviceGetName
+  0.00%  17.800us        50     356ns     189ns  7.1050us  cudaSetupArgument
+  0.00%  4.8640us        10     486ns     210ns  2.7450us  cudaConfigureCall
+  0.00%  4.4130us         3  1.4710us     398ns  2.9350us  cuDeviceGetCount
+  0.00%  2.4340us        10     243ns     192ns     475ns  cudaGetLastError
+  0.00%  2.1520us         3     717ns     397ns  1.1460us  cuDeviceGet
