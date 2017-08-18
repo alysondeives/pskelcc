@@ -14,7 +14,7 @@
 # endif
 
 /* Default to LARGE_DATASET. */
-# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
+# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET) && !defined(CUSTOM_DATASET)
 #  define STANDARD_DATASET
 # endif
 
@@ -117,7 +117,7 @@
 	#define CXM 256
 	#define LARGE_N 10000
 	#define LENGTH 50
-	#define TSTEPS 2
+	#define TSTEPS 10
 	#define ITER 10
 	#define MAXGRID 32
 #endif
