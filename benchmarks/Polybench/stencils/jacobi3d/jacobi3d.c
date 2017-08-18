@@ -162,14 +162,14 @@ int main(int argc, char *argv[]) {
 
     fprintf(stdout, ">> 3D 7PT Jacobi Stencil <<\n");
 
-    init(A,X+2*RADIUS,Y+2*RADIUS,Z+2*RADIUS,RADIUS,RADIUS,RADIUS);
 
+    init(A,X+2*RADIUS,Y+2*RADIUS,Z+2*RADIUS,RADIUS,RADIUS,RADIUS);
+   
     t_start = rtclock();
     jacobi3d(tsteps, x+2*RADIUS, y+2*RADIUS, z+2*RADIUS, A, B);
     t_end = rtclock();
     fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
-   
- 
+
     #ifdef __NVCC__
     init(A,X+2*RADIUS,Y+2*RADIUS,Z+2*RADIUS,RADIUS,RADIUS,RADIUS);
     t_start = rtclock();
