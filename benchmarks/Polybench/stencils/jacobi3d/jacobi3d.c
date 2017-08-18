@@ -143,10 +143,12 @@ int main(int argc, char *argv[]) {
 
     init(A);
 	
+	#ifdef __NVCC__
     t_start = rtclock();
     jacobi3d(tsteps, x, y, z, A, B);
     t_end = rtclock();
     fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
+    #endif
     
     #ifdef __NVCC__
     t_start = rtclock();
