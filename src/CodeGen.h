@@ -25,6 +25,7 @@ private:
 	void writeThreadIndex(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	
 	void writeKernelOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
+	void writeGlobalKernelParamsOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeKernelCallOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeThreadIndexOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);
 	void writeLoadHaloOptimized(llvm::raw_fd_ostream &OS, Stencil::StencilInfo &Stencil);

@@ -262,7 +262,7 @@ void CodeGen::writeComputeOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &St
 		OS << "(" << idx_y << " < (" << dim_y << "-2*RADIUS)) && ";
 		OS << "(" << idx_x << " >= 2*RADIUS) && ";
 		OS << "(" << idx_x << " < (" << dim_x << "-2*RADIUS)) &&";
-		OS << "(" << dim_z << " > (4*RADIUS+1)) &&";
+		OS << "(" << dim_z << " > (4*RADIUS+1))";
 		OS << ") {\n";
 		OS << "t1_infront" << i << " = (";
 		writeExpressionOptimized(OS,Stencil.outputStr->getValueOperand(), Stencil, 0); 
@@ -531,6 +531,35 @@ void CodeGen::writeGlobalKernelParams(raw_fd_ostream &OS, Stencil::StencilInfo &
 	}
 }
 
+void CodeGen::writeGlobalKernelParamsOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
+    if(!(isa<ConstantInt>(Stencil.iteration_value))){
+        writeType(Stencil.iteration_value->getType(), OS);
+        OS << " " << Stencil.iteration_value->getName() << ", ";
+    }
+	
+	for(auto i : Stencil.dimension_value){
+		errs()<<"Dimension: "<<*i<<"\n";
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName() << ", ";
+	}
+
+	OS << "const ";
+    writeType(Stencil.input->getType(), OS);
+    OS  << "__restrict__ ";
+	OS <<  " " << Stencil.input->getName() << ", ";
+	
+	writeType(Stencil.output->getType(), OS);
+    OS  << "__restrict__ ";
+	OS <<  " " << Stencil.output->getName();
+
+	for(auto i : Stencil.arguments){
+		OS << ", ";
+		errs()<<"Argument: "<<*i<<"\n";
+		writeType(i->getType(), OS);
+		OS <<  " " << i->getName();
+	}
+}
+
 void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 	OS << "\nint " << CurrentFn->getName() <<"_GPU_baseline (";
 	
@@ -573,7 +602,7 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
     //Input Size
     OS << "size_t input_size = ";
     for(auto i : Stencil.dimension_value){
-		OS << i->getName() << "*";
+		OS << "(" << i->getName() << "+ 2 * RADIUS) *";
 	}
     OS << "sizeof(";
     writeType(Stencil.outputStr->getValueOperand()->getType(), OS);
@@ -634,7 +663,7 @@ void CodeGen::writeKernelCall(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil)
 	}
 	
 	for(auto i : Stencil.dimension_value){
-		OS << ", " << i->getName();
+		OS << ", " << "(" << i->getName() << "+ 2 * RADIUS) ";
 	}
 	
 	OS << ", " << Stencil.input->getName() << "_GPU, ";
@@ -701,7 +730,7 @@ void CodeGen::writeKernelBaseline(raw_fd_ostream &OS, Stencil::StencilInfo &Sten
 void CodeGen::writeKernelOptimized(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 	 OS << "__global__\n";
 	OS << "void " << CurrentFn->getName() <<"_kernel_opt (";
-	writeGlobalKernelParams(OS, Stencil);
+	writeGlobalKernelParamsOptimized(OS, Stencil);
 	OS << ")";
     OS << "{\n";
 	writeThreadIndexOptimized(OS, Stencil);
