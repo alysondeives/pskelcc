@@ -1,0 +1,9 @@
+Optimization level: o1_o2_o4_o7
+Expected: 41662521344.000000, received: 41662517248.000000 at position [6,6,218]
+Wrong results!!!!!!
+GPU Clock: 745 MHz
+DIM = 256x256x256; T_END = 10; BLOCK_WIDTH = 32x16x1
+init=83.483871, host_comp=2016.749023, host2gpu=10.175040, gpu_comp=24.810047, gpu2host=7.609568, tot=2142.827637 
+Stencil Throughput: 6.762267 Gpts/s
+gFlops = 250.203873 GFLOPs
+

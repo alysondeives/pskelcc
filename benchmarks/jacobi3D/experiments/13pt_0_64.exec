@@ -1,0 +1,8 @@
+Optimization level: o0
+Correct results!
+GPU Clock: 745 MHz
+DIM = 64x64x64; T_END = 10; BLOCK_WIDTH = 32x16x1
+init=5.296768, host_comp=45.481472, host2gpu=0.446688, gpu_comp=0.548512, gpu2host=0.405408, tot=52.178848 
+Stencil Throughput: 4.779185 Gpts/s
+gFlops = 119.479614 GFLOPs
+
