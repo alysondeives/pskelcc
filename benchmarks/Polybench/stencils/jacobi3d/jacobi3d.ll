@@ -10,7 +10,11 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str = private unnamed_addr constant [35 x i8] c"Error return from gettimeofday: %d\00", align 1
 @.str.1 = private unnamed_addr constant [74 x i8] c"Non-Matching CPU-GPU Outputs Beyond Error Threshold of %4.2f Percent: %d\0A\00", align 1
 @stdout = external global %struct._IO_FILE*, align 8
+<<<<<<< HEAD
 @.str.2 = private unnamed_addr constant [29 x i8] c">> 3D 7PT Jacobi Stencil <<\0A\00", align 1
+=======
+@.str.2 = private unnamed_addr constant [37 x i8] c">> Three dimensional (3D) jacobi <<\0A\00", align 1
+>>>>>>> conflict
 @.str.3 = private unnamed_addr constant [22 x i8] c"CPU Runtime: %0.6lfs\0A\00", align 1
 
 ; Function Attrs: nounwind uwtable
@@ -98,6 +102,7 @@ return:                                           ; preds = %if.else, %if.then
 }
 
 ; Function Attrs: nounwind uwtable
+<<<<<<< HEAD
 define void @jacobi3d(i32 %tsteps, i32 %x, i32 %y, i32 %z, float* %A, float* %B) #0 {
 entry:
   br label %for.cond
@@ -106,10 +111,21 @@ for.cond:                                         ; preds = %for.inc.130, %entry
   %t.0 = phi i32 [ 0, %entry ], [ %inc131, %for.inc.130 ]
   %cmp = icmp slt i32 %t.0, %tsteps
   br i1 %cmp, label %for.body, label %for.end.132
+=======
+define void @jacobi3d(i32 %tsteps, i32 %ni, i32 %nj, i32 %nk, float* %A, float* %B) #0 {
+entry:
+  br label %for.cond
+
+for.cond:                                         ; preds = %for.inc.128, %entry
+  %t.0 = phi i32 [ 0, %entry ], [ %inc129, %for.inc.128 ]
+  %cmp = icmp slt i32 %t.0, %tsteps
+  br i1 %cmp, label %for.body, label %for.end.130
+>>>>>>> conflict
 
 for.body:                                         ; preds = %for.cond
   br label %for.cond.1
 
+<<<<<<< HEAD
 for.cond.1:                                       ; preds = %for.inc.89, %for.body
   %i.0 = phi i32 [ 2, %for.body ], [ %inc90, %for.inc.89 ]
   %sub = sub nsw i32 %z, 1
@@ -195,12 +211,100 @@ for.body.14:                                      ; preds = %for.cond.10
   %mul60 = mul nsw i32 %i.0, %mul59
   %sub61 = sub nsw i32 %j.0, 1
   %mul62 = mul nsw i32 %sub61, %x
+=======
+for.cond.1:                                       ; preds = %for.inc.90, %for.body
+  %j.0 = phi i32 [ 1, %for.body ], [ %inc91, %for.inc.90 ]
+  %sub = sub nsw i32 %nj, 1
+  %cmp2 = icmp slt i32 %j.0, %sub
+  br i1 %cmp2, label %for.body.3, label %for.end.92
+
+for.body.3:                                       ; preds = %for.cond.1
+  br label %for.cond.4
+
+for.cond.4:                                       ; preds = %for.inc.87, %for.body.3
+  %i.0 = phi i32 [ 1, %for.body.3 ], [ %inc88, %for.inc.87 ]
+  %sub5 = sub nsw i32 %ni, 1
+  %cmp6 = icmp slt i32 %i.0, %sub5
+  br i1 %cmp6, label %for.body.7, label %for.end.89
+
+for.body.7:                                       ; preds = %for.cond.4
+  br label %for.cond.8
+
+for.cond.8:                                       ; preds = %for.inc, %for.body.7
+  %k.0 = phi i32 [ 1, %for.body.7 ], [ %inc, %for.inc ]
+  %sub9 = sub nsw i32 %nk, 1
+  %cmp10 = icmp slt i32 %k.0, %sub9
+  br i1 %cmp10, label %for.body.11, label %for.end
+
+for.body.11:                                      ; preds = %for.cond.8
+  %mul = mul nsw i32 %nk, %nj
+  %mul12 = mul nsw i32 %i.0, %mul
+  %mul13 = mul nsw i32 %j.0, %nk
+  %add = add nsw i32 %mul12, %mul13
+  %sub14 = sub nsw i32 %k.0, 1
+  %add15 = add nsw i32 %add, %sub14
+  %idxprom = sext i32 %add15 to i64
+  %arrayidx = getelementptr inbounds float, float* %A, i64 %idxprom
+  %tmp = load float, float* %arrayidx, align 4
+  %mul16 = fmul float 2.000000e+00, %tmp
+  %mul17 = mul nsw i32 %nk, %nj
+  %mul18 = mul nsw i32 %i.0, %mul17
+  %mul19 = mul nsw i32 %j.0, %nk
+  %add20 = add nsw i32 %mul18, %mul19
+  %add21 = add nsw i32 %add20, %k.0
+  %idxprom22 = sext i32 %add21 to i64
+  %arrayidx23 = getelementptr inbounds float, float* %A, i64 %idxprom22
+  %tmp1 = load float, float* %arrayidx23, align 4
+  %mul24 = fmul float 5.000000e+00, %tmp1
+  %add25 = fadd float %mul16, %mul24
+  %mul26 = mul nsw i32 %nk, %nj
+  %mul27 = mul nsw i32 %i.0, %mul26
+  %mul28 = mul nsw i32 %j.0, %nk
+  %add29 = add nsw i32 %mul27, %mul28
+  %add30 = add nsw i32 %k.0, 1
+  %add31 = add nsw i32 %add29, %add30
+  %idxprom32 = sext i32 %add31 to i64
+  %arrayidx33 = getelementptr inbounds float, float* %A, i64 %idxprom32
+  %tmp2 = load float, float* %arrayidx33, align 4
+  %mul34 = fmul float -8.000000e+00, %tmp2
+  %add35 = fadd float %add25, %mul34
+  %sub36 = sub nsw i32 %i.0, 1
+  %mul37 = mul nsw i32 %nk, %nj
+  %mul38 = mul nsw i32 %sub36, %mul37
+  %sub39 = sub nsw i32 %j.0, 1
+  %mul40 = mul nsw i32 %sub39, %nk
+  %add41 = add nsw i32 %mul38, %mul40
+  %add42 = add nsw i32 %add41, %k.0
+  %idxprom43 = sext i32 %add42 to i64
+  %arrayidx44 = getelementptr inbounds float, float* %A, i64 %idxprom43
+  %tmp3 = load float, float* %arrayidx44, align 4
+  %mul45 = fmul float -3.000000e+00, %tmp3
+  %add46 = fadd float %add35, %mul45
+  %sub47 = sub nsw i32 %i.0, 1
+  %mul48 = mul nsw i32 %nk, %nj
+  %mul49 = mul nsw i32 %sub47, %mul48
+  %add50 = add nsw i32 %j.0, 1
+  %mul51 = mul nsw i32 %add50, %nk
+  %add52 = add nsw i32 %mul49, %mul51
+  %add53 = add nsw i32 %add52, %k.0
+  %idxprom54 = sext i32 %add53 to i64
+  %arrayidx55 = getelementptr inbounds float, float* %A, i64 %idxprom54
+  %tmp4 = load float, float* %arrayidx55, align 4
+  %mul56 = fmul float 6.000000e+00, %tmp4
+  %add57 = fadd float %add46, %mul56
+  %add58 = add nsw i32 %i.0, 1
+  %mul59 = mul nsw i32 %nk, %nj
+  %mul60 = mul nsw i32 %add58, %mul59
+  %sub61 = sub nsw i32 %j.0, 1
+  %mul62 = mul nsw i32 %sub61, %nk
+>>>>>>> conflict
   %add63 = add nsw i32 %mul60, %mul62
   %add64 = add nsw i32 %add63, %k.0
   %idxprom65 = sext i32 %add64 to i64
   %arrayidx66 = getelementptr inbounds float, float* %A, i64 %idxprom65
   %tmp5 = load float, float* %arrayidx66, align 4
   %mul67 = fmul float -9.000000e+00, %tmp5
+<<<<<<< HEAD
   %add68 = fadd float %add58, %mul67
   %mul69 = mul nsw i32 %x, %y
   %mul70 = mul nsw i32 %i.0, %mul69
@@ -316,6 +420,121 @@ for.inc.130:                                      ; preds = %for.end.129
   br label %for.cond
 
 for.end.132:                                      ; preds = %for.cond
+=======
+  %add68 = fadd float %add57, %mul67
+  %add69 = add nsw i32 %i.0, 1
+  %mul70 = mul nsw i32 %nk, %nj
+  %mul71 = mul nsw i32 %add69, %mul70
+  %add72 = add nsw i32 %j.0, 1
+  %mul73 = mul nsw i32 %add72, %nk
+  %add74 = add nsw i32 %mul71, %mul73
+  %add75 = add nsw i32 %add74, %k.0
+  %idxprom76 = sext i32 %add75 to i64
+  %arrayidx77 = getelementptr inbounds float, float* %A, i64 %idxprom76
+  %tmp6 = load float, float* %arrayidx77, align 4
+  %mul78 = fmul float 4.000000e+00, %tmp6
+  %add79 = fadd float %add68, %mul78
+  %mul80 = mul nsw i32 %nk, %nj
+  %mul81 = mul nsw i32 %i.0, %mul80
+  %mul82 = mul nsw i32 %j.0, %nk
+  %add83 = add nsw i32 %mul81, %mul82
+  %add84 = add nsw i32 %add83, %k.0
+  %idxprom85 = sext i32 %add84 to i64
+  %arrayidx86 = getelementptr inbounds float, float* %B, i64 %idxprom85
+  store float %add79, float* %arrayidx86, align 4
+  br label %for.inc
+
+for.inc:                                          ; preds = %for.body.11
+  %inc = add nsw i32 %k.0, 1
+  br label %for.cond.8
+
+for.end:                                          ; preds = %for.cond.8
+  br label %for.inc.87
+
+for.inc.87:                                       ; preds = %for.end
+  %inc88 = add nsw i32 %i.0, 1
+  br label %for.cond.4
+
+for.end.89:                                       ; preds = %for.cond.4
+  br label %for.inc.90
+
+for.inc.90:                                       ; preds = %for.end.89
+  %inc91 = add nsw i32 %j.0, 1
+  br label %for.cond.1
+
+for.end.92:                                       ; preds = %for.cond.1
+  br label %for.cond.93
+
+for.cond.93:                                      ; preds = %for.inc.125, %for.end.92
+  %j.1 = phi i32 [ 1, %for.end.92 ], [ %inc126, %for.inc.125 ]
+  %sub94 = sub nsw i32 %nj, 1
+  %cmp95 = icmp slt i32 %j.1, %sub94
+  br i1 %cmp95, label %for.body.96, label %for.end.127
+
+for.body.96:                                      ; preds = %for.cond.93
+  br label %for.cond.97
+
+for.cond.97:                                      ; preds = %for.inc.122, %for.body.96
+  %i.1 = phi i32 [ 1, %for.body.96 ], [ %inc123, %for.inc.122 ]
+  %sub98 = sub nsw i32 %ni, 1
+  %cmp99 = icmp slt i32 %i.1, %sub98
+  br i1 %cmp99, label %for.body.100, label %for.end.124
+
+for.body.100:                                     ; preds = %for.cond.97
+  br label %for.cond.101
+
+for.cond.101:                                     ; preds = %for.inc.119, %for.body.100
+  %k.1 = phi i32 [ 1, %for.body.100 ], [ %inc120, %for.inc.119 ]
+  %sub102 = sub nsw i32 %nk, 1
+  %cmp103 = icmp slt i32 %k.1, %sub102
+  br i1 %cmp103, label %for.body.104, label %for.end.121
+
+for.body.104:                                     ; preds = %for.cond.101
+  %mul105 = mul nsw i32 %nk, %nj
+  %mul106 = mul nsw i32 %i.1, %mul105
+  %mul107 = mul nsw i32 %j.1, %nk
+  %add108 = add nsw i32 %mul106, %mul107
+  %add109 = add nsw i32 %add108, %k.1
+  %idxprom110 = sext i32 %add109 to i64
+  %arrayidx111 = getelementptr inbounds float, float* %A, i64 %idxprom110
+  %tmp7 = load float, float* %arrayidx111, align 4
+  %mul112 = mul nsw i32 %nk, %nj
+  %mul113 = mul nsw i32 %i.1, %mul112
+  %mul114 = mul nsw i32 %j.1, %nk
+  %add115 = add nsw i32 %mul113, %mul114
+  %add116 = add nsw i32 %add115, %k.1
+  %idxprom117 = sext i32 %add116 to i64
+  %arrayidx118 = getelementptr inbounds float, float* %B, i64 %idxprom117
+  store float %tmp7, float* %arrayidx118, align 4
+  br label %for.inc.119
+
+for.inc.119:                                      ; preds = %for.body.104
+  %inc120 = add nsw i32 %k.1, 1
+  br label %for.cond.101
+
+for.end.121:                                      ; preds = %for.cond.101
+  br label %for.inc.122
+
+for.inc.122:                                      ; preds = %for.end.121
+  %inc123 = add nsw i32 %i.1, 1
+  br label %for.cond.97
+
+for.end.124:                                      ; preds = %for.cond.97
+  br label %for.inc.125
+
+for.inc.125:                                      ; preds = %for.end.124
+  %inc126 = add nsw i32 %j.1, 1
+  br label %for.cond.93
+
+for.end.127:                                      ; preds = %for.cond.93
+  br label %for.inc.128
+
+for.inc.128:                                      ; preds = %for.end.127
+  %inc129 = add nsw i32 %t.0, 1
+  br label %for.cond
+
+for.end.130:                                      ; preds = %for.cond
+>>>>>>> conflict
   ret void
 }
 
@@ -324,24 +543,39 @@ define void @init(float* %A) #0 {
 entry:
   br label %for.cond
 
+<<<<<<< HEAD
 for.cond:                                         ; preds = %for.inc.34, %entry
   %i.0 = phi i32 [ 0, %entry ], [ %inc35, %for.inc.34 ]
   %cmp = icmp slt i32 %i.0, 192
   br i1 %cmp, label %for.body, label %for.end.36
+=======
+for.cond:                                         ; preds = %for.inc.18, %entry
+  %i.0 = phi i32 [ 0, %entry ], [ %inc19, %for.inc.18 ]
+  %cmp = icmp slt i32 %i.0, 2048
+  br i1 %cmp, label %for.body, label %for.end.20
+>>>>>>> conflict
 
 for.body:                                         ; preds = %for.cond
   br label %for.cond.1
 
+<<<<<<< HEAD
 for.cond.1:                                       ; preds = %for.inc.31, %for.body
   %j.0 = phi i32 [ 0, %for.body ], [ %inc32, %for.inc.31 ]
   %cmp2 = icmp slt i32 %j.0, 192
   br i1 %cmp2, label %for.body.3, label %for.end.33
+=======
+for.cond.1:                                       ; preds = %for.inc.15, %for.body
+  %j.0 = phi i32 [ 0, %for.body ], [ %inc16, %for.inc.15 ]
+  %cmp2 = icmp slt i32 %j.0, 2048
+  br i1 %cmp2, label %for.body.3, label %for.end.17
+>>>>>>> conflict
 
 for.body.3:                                       ; preds = %for.cond.1
   br label %for.cond.4
 
 for.cond.4:                                       ; preds = %for.inc, %for.body.3
   %k.0 = phi i32 [ 0, %for.body.3 ], [ %inc, %for.inc ]
+<<<<<<< HEAD
   %cmp5 = icmp slt i32 %k.0, 192
   br i1 %cmp5, label %for.body.6, label %for.end
 
@@ -401,10 +635,35 @@ if.end:                                           ; preds = %if.else, %if.then
   br label %for.inc
 
 for.inc:                                          ; preds = %if.end
+=======
+  %cmp5 = icmp slt i32 %k.0, 2048
+  br i1 %cmp5, label %for.body.6, label %for.end
+
+for.body.6:                                       ; preds = %for.cond.4
+  %rem = srem i32 %i.0, 12
+  %rem7 = srem i32 %j.0, 7
+  %mul = mul nsw i32 2, %rem7
+  %add = add nsw i32 %rem, %mul
+  %rem8 = srem i32 %k.0, 13
+  %mul9 = mul nsw i32 3, %rem8
+  %add10 = add nsw i32 %add, %mul9
+  %conv = sitofp i32 %add10 to float
+  %mul11 = mul nsw i32 %i.0, 4194304
+  %mul12 = mul nsw i32 %j.0, 2048
+  %add13 = add nsw i32 %mul11, %mul12
+  %add14 = add nsw i32 %add13, %k.0
+  %idxprom = sext i32 %add14 to i64
+  %arrayidx = getelementptr inbounds float, float* %A, i64 %idxprom
+  store float %conv, float* %arrayidx, align 4
+  br label %for.inc
+
+for.inc:                                          ; preds = %for.body.6
+>>>>>>> conflict
   %inc = add nsw i32 %k.0, 1
   br label %for.cond.4
 
 for.end:                                          ; preds = %for.cond.4
+<<<<<<< HEAD
   br label %for.inc.31
 
 for.inc.31:                                       ; preds = %for.end
@@ -419,6 +678,22 @@ for.inc.34:                                       ; preds = %for.end.33
   br label %for.cond
 
 for.end.36:                                       ; preds = %for.cond
+=======
+  br label %for.inc.15
+
+for.inc.15:                                       ; preds = %for.end
+  %inc16 = add nsw i32 %j.0, 1
+  br label %for.cond.1
+
+for.end.17:                                       ; preds = %for.cond.1
+  br label %for.inc.18
+
+for.inc.18:                                       ; preds = %for.end.17
+  %inc19 = add nsw i32 %i.0, 1
+  br label %for.cond
+
+for.end.20:                                       ; preds = %for.cond
+>>>>>>> conflict
   ret void
 }
 
@@ -428,24 +703,37 @@ entry:
   br label %for.cond
 
 for.cond:                                         ; preds = %for.inc.23, %entry
+<<<<<<< HEAD
   %i.0 = phi i32 [ 0, %entry ], [ %inc24, %for.inc.23 ]
   %fail.0 = phi i32 [ 0, %entry ], [ %fail.1, %for.inc.23 ]
   %cmp = icmp slt i32 %i.0, 192
+=======
+  %i.0 = phi i32 [ 1, %entry ], [ %inc24, %for.inc.23 ]
+  %fail.0 = phi i32 [ 0, %entry ], [ %fail.1, %for.inc.23 ]
+  %cmp = icmp slt i32 %i.0, 2047
+>>>>>>> conflict
   br i1 %cmp, label %for.body, label %for.end.25
 
 for.body:                                         ; preds = %for.cond
   br label %for.cond.1
 
 for.cond.1:                                       ; preds = %for.inc.20, %for.body
+<<<<<<< HEAD
   %j.0 = phi i32 [ 0, %for.body ], [ %inc21, %for.inc.20 ]
   %fail.1 = phi i32 [ %fail.0, %for.body ], [ %fail.2, %for.inc.20 ]
   %cmp2 = icmp slt i32 %j.0, 192
+=======
+  %j.0 = phi i32 [ 1, %for.body ], [ %inc21, %for.inc.20 ]
+  %fail.1 = phi i32 [ %fail.0, %for.body ], [ %fail.2, %for.inc.20 ]
+  %cmp2 = icmp slt i32 %j.0, 2047
+>>>>>>> conflict
   br i1 %cmp2, label %for.body.3, label %for.end.22
 
 for.body.3:                                       ; preds = %for.cond.1
   br label %for.cond.4
 
 for.cond.4:                                       ; preds = %for.inc, %for.body.3
+<<<<<<< HEAD
   %k.0 = phi i32 [ 0, %for.body.3 ], [ %inc19, %for.inc ]
   %fail.2 = phi i32 [ %fail.1, %for.body.3 ], [ %fail.3, %for.inc ]
   %cmp5 = icmp slt i32 %k.0, 192
@@ -454,14 +742,29 @@ for.cond.4:                                       ; preds = %for.inc, %for.body.
 for.body.6:                                       ; preds = %for.cond.4
   %mul = mul nsw i32 %i.0, 36864
   %mul7 = mul nsw i32 %j.0, 192
+=======
+  %k.0 = phi i32 [ 1, %for.body.3 ], [ %inc19, %for.inc ]
+  %fail.2 = phi i32 [ %fail.1, %for.body.3 ], [ %fail.3, %for.inc ]
+  %cmp5 = icmp slt i32 %k.0, 2047
+  br i1 %cmp5, label %for.body.6, label %for.end
+
+for.body.6:                                       ; preds = %for.cond.4
+  %mul = mul nsw i32 %i.0, 4194304
+  %mul7 = mul nsw i32 %j.0, 2048
+>>>>>>> conflict
   %add = add nsw i32 %mul, %mul7
   %add8 = add nsw i32 %add, %k.0
   %idxprom = sext i32 %add8 to i64
   %arrayidx = getelementptr inbounds float, float* %B, i64 %idxprom
   %tmp = load float, float* %arrayidx, align 4
   %conv = fpext float %tmp to double
+<<<<<<< HEAD
   %mul9 = mul nsw i32 %i.0, 36864
   %mul10 = mul nsw i32 %j.0, 192
+=======
+  %mul9 = mul nsw i32 %i.0, 4194304
+  %mul10 = mul nsw i32 %j.0, 2048
+>>>>>>> conflict
   %add11 = add nsw i32 %mul9, %mul10
   %add12 = add nsw i32 %add11, %k.0
   %idxprom13 = sext i32 %add12 to i64
@@ -507,6 +810,7 @@ for.end.25:                                       ; preds = %for.cond
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
+<<<<<<< HEAD
   %call = call noalias i8* @malloc(i64 30118144) #3
   %tmp = bitcast i8* %call to float*
   %call1 = call noalias i8* @calloc(i64 7529536, i64 4) #3
@@ -528,15 +832,37 @@ entry:
   call void @free(i8* %tmp6) #3
   %tmp7 = bitcast float* %tmp1 to i8*
   call void @free(i8* %tmp7) #3
+=======
+  %call = call noalias i8* @malloc(i64 0) #3
+  %tmp = bitcast i8* %call to float*
+  %call1 = call noalias i8* @malloc(i64 0) #3
+  %tmp1 = bitcast i8* %call1 to float*
+  %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
+  %call2 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp2, i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.2, i32 0, i32 0))
+  call void @init(float* %tmp)
+  %call3 = call double @rtclock()
+  call void @jacobi3d(i32 5, i32 2048, i32 2048, i32 2048, float* %tmp, float* %tmp1)
+  %call4 = call double @rtclock()
+  %tmp3 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
+  %sub = fsub double %call4, %call3
+  %call5 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp3, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.3, i32 0, i32 0), double %sub)
+  %tmp4 = bitcast float* %tmp to i8*
+  call void @free(i8* %tmp4) #3
+  %tmp5 = bitcast float* %tmp1 to i8*
+  call void @free(i8* %tmp5) #3
+>>>>>>> conflict
   ret i32 0
 }
 
 ; Function Attrs: nounwind
 declare noalias i8* @malloc(i64) #1
 
+<<<<<<< HEAD
 ; Function Attrs: nounwind
 declare noalias i8* @calloc(i64, i64) #1
 
+=======
+>>>>>>> conflict
 declare i32 @fprintf(%struct._IO_FILE*, i8*, ...) #2
 
 ; Function Attrs: nounwind

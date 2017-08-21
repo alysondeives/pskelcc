@@ -9,11 +9,19 @@ __global__ void kernel_baseline(int tsteps, int nj, int ni, int nk, float *A,
     int k = BlockIdx.y * BlockDim.y + threadIdx.y;
     float tmp = A[(j + (-1)) * ni * nk + (k + (0)) * ni + (i + (0))];
     float tmp1 = A[(j + (0)) * ni * nk + (k + (0)) * ni + (i + (0))];
+<<<<<<< HEAD
     float tmp6 = A[(j + (0)) * ni * nk + (k + (1)) * ni + (i + (0))];
     float tmp2 = A[(j + (1)) * ni * nk + (k + (0)) * ni + (i + (0))];
     float tmp3 = A[(j + (0)) * ni * nk + (k + (0)) * ni + (i + (-1))];
     float tmp4 = A[(j + (0)) * ni * nk + (k + (0)) * ni + (i + (1))];
     float tmp5 = A[(j + (0)) * ni * nk + (k + (-1)) * ni + (i + (0))];
+=======
+    float tmp5 = A[(j + (0)) * ni * nk + (k + (-1)) * ni + (i + (1))];
+    float tmp2 = A[(j + (1)) * ni * nk + (k + (0)) * ni + (i + (0))];
+    float tmp3 = A[(j + (0)) * ni * nk + (k + (-1)) * ni + (i + (-1))];
+    float tmp4 = A[(j + (0)) * ni * nk + (k + (1)) * ni + (i + (-1))];
+    float tmp6 = A[(j + (0)) * ni * nk + (k + (1)) * ni + (i + (1))];
+>>>>>>> conflict
     B[(j * ni * nk) + (k * ni) + (i)] =
         ((((((((2 * tmp) + (5 * tmp1)) + (-8 * tmp2)) + (-3 * tmp3)) +
             (6 * tmp4)) +
@@ -36,11 +44,17 @@ void run_baseline(int tsteps, int nj, int ni, int nk, float *A, float *B) {
     dimGrid.z = (int)ceil(dimz / BLOCK_DIMZ);
     for (int i = 0; i < tsteps; i++) {
         if (i % 2) {
+<<<<<<< HEAD
             kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, B_GPU, A_GPU, nj, ni,
                                                    nk);
         } else {
             kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, A_GPU, B_GPU, nj, ni,
                                                    nk);
+=======
+            kernel_baseline<<<dimGrid, dimBlock>>>(B_GPU, A_GPU, nj, ni, nk);
+        } else {
+            kernel_baseline<<<dimGrid, dimBlock>>>(A_GPU, B_GPU, nj, ni, nk);
+>>>>>>> conflict
         }
     }
     cudaMemcpy(B, B_GPU, input_size, cudaMemcpyDeviceToHost);
