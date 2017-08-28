@@ -985,15 +985,15 @@ void Stencil::printLoopDetails(Loop *loop){
     errs() << "Exit count: ";
     SE->getExitCount(loop,loop->getUniqueExitBlock())->dump();
     
-    Value *bound;
-    if(!(backedge->getSCEVType() == scConstant)) {
-		bound = visit(backedge);
-	}
-	else{
-		const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
-		bound = dyn_cast<Value>(scev_const->getValue());
-	}
-	errs()<<"Bound: "<<*bound<<"\n";
+    //Value *bound;
+    //if(!(backedge->getSCEVType() == scConstant)) {
+	//	bound = visit(backedge);
+	//}
+	//else{
+	//	const SCEVConstant* scev_const = dyn_cast<SCEVConstant>(backedge);
+	//	bound = dyn_cast<Value>(scev_const->getValue());
+	//}
+	//errs()<<"Bound: "<<*bound<<"\n";
 	
 	
 	
@@ -1014,13 +1014,41 @@ void Stencil::printLoopDetails(Loop *loop){
     else errs() << "Could not find canonical ind-var\n";
 }
 
+bool Stencil::isLoopLatch(Loop *L, BasicBlock* BB){
+	SmallVector<BasicBlock*,1>  Latches;
+	L->getLoopLatches(Latches);
+	for(auto latch : Latches){
+		if(latch == BB)
+			return true;
+	}
+	return false;	
+}
+
+bool Stencil::hasCanonicalUses(PHINode *PHI){
+	bool use = true;
+	Loop *L = LI->getLoopFor(PHI->getParent());
+	for (Value::user_iterator UI = PHI->user_begin(), UE = PHI->user_end();
+                     UI != UE; ++UI) {
+		User *U = *UI;
+        errs() << "  - " << *U;
+        BasicBlock* BB = dyn_cast<Instruction>(U)->getParent();
+        if( !(LI->isLoopHeader(BB)) || !(isLoopLatch(L, BB))){
+			use = false;
+			break;
+		}
+    }
+	return use;
+}
+
 bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 	auto *phiNode = loop->getCanonicalInductionVariable();
 	const SCEV* backedge;
 	Value *bound;
 	    
     if(phiNode) {
+		//TODO Backedge SCEV parse
 		backedge = SE->getBackedgeTakenCount(loop);
+		errs() << "Iteration loop backedge: "<<*backedge<<"\n";
 		if(!(backedge->getSCEVType() == scConstant)) {
 			bound = visit(backedge);
 		}
@@ -1029,14 +1057,21 @@ bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 			bound = dyn_cast<Value>(scev_const->getValue());
 		}
 		
-		 Stencil->iteration_phinode = phiNode;
-		 Stencil->iteration_value = bound;
-		 Stencil->iteration_loop = loop;
+		if(!(hasCanonicalUses(phiNode))){
+			errs()<<"Iteration loop phinodes are used in loop body\n";
+			return false;
+		}
+		
+		Stencil->iteration_phinode = phiNode;
+		Stencil->iteration_value = bound;
+		Stencil->iteration_loop = loop;
 
         Stencil->iteration = std::make_tuple(loop,phiNode, bound);
 		 
         errs() << "Iteration loop PHINode: "<<*phiNode<<"\n";
+		
 		errs() << "Iteration loop Bound: "<<*Stencil->iteration_value<<"\n";
+		
 		return true;
 	}
     else {
@@ -1048,6 +1083,12 @@ bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 
 
 bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, StencilInfo *Stencil){
+    auto *phiNode = loop->getCanonicalInductionVariable();
+    if(phiNode)
+		errs()<< "Induction variable: "<<*phiNode<<"\n";
+	else
+		errs()<< "Computation Loop has no Induction Variable\n";
+	
     Value *bound;
 
     Stencil->dimension++;
@@ -1692,7 +1733,7 @@ bool Stencil::verifyStencil() {
     for (LoopInfo::iterator it = LI->begin(), e = LI->end(); it != e; ++it) {
         Loop *it_loop = *it;
         StencilInfo Stencil;
-
+		//printLoopDetails(it_loop);
 		//outermost loop
 		//Loop *it_loop = LI->begin()[0];
 		vector<Loop*> subLoops = it_loop->getSubLoops();

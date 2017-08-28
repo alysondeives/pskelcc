@@ -126,7 +126,8 @@ class Stencil : public FunctionPass {
   
   
   
-
+  bool isLoopLatch(Loop *L, BasicBlock* BB);
+  bool hasCanonicalUses(PHINode *PHI);
   Value* getPointerOperand (Instruction *Ins);
   void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
   bool populateArrayAccess (Value *Val, ArrayAccess *acc);
