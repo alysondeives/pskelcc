@@ -1714,6 +1714,19 @@ bool Stencil::runOnFunction(Function &F) {
 		}
 	}
 	*/
+    errs() << "Dumping SCEVs:\n";
+    LoadInst *LD;
+    StoreInst *Str;
+    for(inst_iterator i = inst_begin(F); i != inst_end(F);++i){
+        if((LD = dyn_cast<LoadInst>(&(*i)))){
+            const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
+            errs()<<"Load SCEV: " << *scev_exp << "\n";
+        }
+        if((Str = dyn_cast<StoreInst>(&(*i)))){
+            const SCEV* scev_exp = SE->getSCEV(Str->getPointerOperand());
+            errs()<<"Store SCEV: " << *scev_exp << "\n";
+        }
+    }
     
     if(verifyStencil()){
 		errs()<<"FUNCTION "<< F.getName()<<" CONTAINS STENCIL!\n";
