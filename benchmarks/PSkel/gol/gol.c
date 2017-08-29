@@ -21,10 +21,6 @@
 /* Include polybench common header. */
 #include "../common/common.h"
 
-/* Include benchmark-specific header. */
-/* Doefault data type is double, default size is 20x1000. */
-//#include "jacobi2d.h"
-
 
 /* Array initialization. */
 void init_array (int n, DATA_TYPE* A, DATA_TYPE* B)
@@ -62,17 +58,20 @@ static
 void gol(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B)
 {
 	int t, i, j;
-	DATA_TYPE neighbors;
+	DATA_TYPE neighbors = 1;
   
 	for (t = 0; t < _PB_TSTEPS; t++) {
-		for (i = 1; i < _PB_N-1; i++)
+		for (i = 1; i < _PB_N-1; i++){
 			for (j = 1; j < _PB_N-1; j++){
-				neighbors = A[(i-1)*_PB_N + (j-1)] + A[(i-1)*_PB_N + (j)] + A[(i-1)*_PB_N + (j+1)]
-						  + A[(i  )*_PB_N + (j-1)]                        + A[(i  )*_PB_N + (j+1)]
-						  + A[(i+1)*_PB_N + (j-1)] + A[(i+1)*_PB_N + (j)] + A[(i-1)*_PB_N + (j+1)];
+				
+				for(int y = -1; y<=1; y++)
+					for(int x = -1; x<=1; x++)
+							neighbors += (x!= 0 && y!=0) ? A[(i+y)*_PB_N + (j+x)] : 0;
+				
 				
                 B[i*_PB_N + j] = (neighbors == 3 || (neighbors == 2 && A[(i)*_PB_N + (j)]))? 1 : 0;
 			}
+		}
 			
 		for (i = 1; i < _PB_N-1; i++)
 			for (j = 1; j < _PB_N-1; j++)
