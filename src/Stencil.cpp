@@ -1091,6 +1091,11 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 	
     Value *bound;
 
+    auto phinode = loop->getCanonicalInductionVariable();
+    if(phinode) {
+        errs()<<"Computation Loop Canonical Ind-var: "<<*phinode<<"\n";
+    }
+    
     Stencil->dimension++;
     
 	PHINode* phi = getPHINode(loop);
