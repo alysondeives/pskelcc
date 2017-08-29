@@ -1,63 +1,181 @@
 #define BLOCK_DIMX 32
 #define BLOCK_DIMY 16
 #define BLOCK_DIMZ 1
+#define RADIUS 1
 
-__global__ void kernel_baseline(int tsteps, int nj, int ni, int nk, float *A,
-                                float *B) {
-    int j = BlockIdx.z * BlockDim.z + threadIdx.z;
-    int i = BlockIdx.x * BlockDim.x + threadIdx.x;
-    int k = BlockIdx.y * BlockDim.y + threadIdx.y;
-    float tmp = A[(j + (-1)) * ni * nk + (k + (0)) * ni + (i + (0))];
-    float tmp1 = A[(j + (0)) * ni * nk + (k + (0)) * ni + (i + (0))];
-<<<<<<< HEAD
-    float tmp6 = A[(j + (0)) * ni * nk + (k + (1)) * ni + (i + (0))];
-    float tmp2 = A[(j + (1)) * ni * nk + (k + (0)) * ni + (i + (0))];
-    float tmp3 = A[(j + (0)) * ni * nk + (k + (0)) * ni + (i + (-1))];
-    float tmp4 = A[(j + (0)) * ni * nk + (k + (0)) * ni + (i + (1))];
-    float tmp5 = A[(j + (0)) * ni * nk + (k + (-1)) * ni + (i + (0))];
-=======
-    float tmp5 = A[(j + (0)) * ni * nk + (k + (-1)) * ni + (i + (1))];
-    float tmp2 = A[(j + (1)) * ni * nk + (k + (0)) * ni + (i + (0))];
-    float tmp3 = A[(j + (0)) * ni * nk + (k + (-1)) * ni + (i + (-1))];
-    float tmp4 = A[(j + (0)) * ni * nk + (k + (1)) * ni + (i + (-1))];
-    float tmp6 = A[(j + (0)) * ni * nk + (k + (1)) * ni + (i + (1))];
->>>>>>> conflict
-    B[(j * ni * nk) + (k * ni) + (i)] =
-        ((((((((2 * tmp) + (5 * tmp1)) + (-8 * tmp2)) + (-3 * tmp3)) +
-            (6 * tmp4)) +
-           (-9 * tmp5)) +
-          (4 * tmp6)));
+// Error checking function
+#define wbCheck(ans)                                                           \
+    { gpuAssert(((cudaError_t)ans), __FILE__, __LINE__, false); }
+inline void gpuAssert(cudaError_t code, const char *file, int line,
+                      bool abort = false) {
+    if (code != cudaSuccess) {
+        fprintf(stderr, (const char *)"GPUassert: %s %s %d\n",
+                cudaGetErrorString(code), file, line);
+        if (abort)
+            exit(code);
+    }
 }
-void run_baseline(int tsteps, int nj, int ni, int nk, float *A, float *B) {
+__global__ void jacobi3d_kernel_baseline(int tsteps, int z, int y, int x,
+                                         float *A, float *B) {
+    int i = blockIdx.z * blockDim.z + threadIdx.z;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+    int k = blockIdx.x * blockDim.x + threadIdx.x;
+    int index = (i + RADIUS) * x * y + (j + RADIUS) * x + (k + RADIUS);
+    B[index] = ((((((((1.f * A[index + (-1) + (y * (0))]) +
+                      (1.f * A[index + (0) + (y * (0))])) +
+                     (1.f * A[index + (1) + (y * (0))])) +
+                    (1.f * A[index + (0) + (y * (-1))])) +
+                   (1.f * A[index + (0) + (y * (1))])) +
+                  (1.f * A[index + (0) + (y * (0))])) +
+                 (1.f * A[index + (0) + (y * (0))])));
+}
+
+int jacobi3d_GPU_baseline(int tsteps, int z, int y, int x, float *A, float *B) {
     float *A_GPU;
     float *B_GPU;
-    size_t input_size = nj * ni * nk * size_of(void);
-    cudaMalloc((void **)&A_GPU, input_size);
-    cudaMalloc((void **)&B_GPU, input_size);
-    cudaMemcpy(A_GPU, A, input_size, cudaMemcpyHostToDevice);
-    cudaMemcpy(B_GPU, B, input_size, cudaMemcpyHostToDevice);
+    size_t input_size =
+        (z + 2 * RADIUS) * (y + 2 * RADIUS) * (x + 2 * RADIUS) * sizeof(float);
+    wbCheck(cudaMalloc((void **)&A_GPU, input_size));
+    wbCheck(cudaMalloc((void **)&B_GPU, input_size));
+    wbCheck(cudaMemcpy(A_GPU, A, input_size, cudaMemcpyHostToDevice));
+    wbCheck(cudaMemcpy(B_GPU, B, input_size, cudaMemcpyHostToDevice));
+    dim3 dimBlock;
+    dim3 dimGrid;
     dimBlock.x = BLOCK_DIMX;
     dimBlock.y = BLOCK_DIMY;
     dimBlock.z = BLOCK_DIMZ;
-    dimGrid.x = (int)ceil(dimx / BLOCK_DIMX);
-    dimGrid.y = (int)ceil(dimy / BLOCK_DIMY);
-    dimGrid.z = (int)ceil(dimz / BLOCK_DIMZ);
+    dimGrid.x = (int)ceil(x / BLOCK_DIMX);
+    dimGrid.y = (int)ceil(y / BLOCK_DIMY);
+    dimGrid.z = (int)ceil(z / BLOCK_DIMZ);
     for (int i = 0; i < tsteps; i++) {
         if (i % 2) {
-<<<<<<< HEAD
-            kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, B_GPU, A_GPU, nj, ni,
-                                                   nk);
+            jacobi3d_kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, z, y, x,
+                                                            B_GPU, A_GPU);
         } else {
-            kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, A_GPU, B_GPU, nj, ni,
-                                                   nk);
-=======
-            kernel_baseline<<<dimGrid, dimBlock>>>(B_GPU, A_GPU, nj, ni, nk);
+            jacobi3d_kernel_baseline<<<dimGrid, dimBlock>>>(
+                tsteps, (z + 2 * RADIUS), (y + 2 * RADIUS), (x + 2 * RADIUS),
+                A_GPU, B_GPU);
+        }
+        wbCheck(cudaGetLastError());
+    }
+    if ((tsteps) % 2) {
+        wbCheck(cudaMemcpy(B, B_GPU, input_size, cudaMemcpyDeviceToHost));
+    } else {
+        wbCheck(cudaMemcpy(B, A_GPU, input_size, cudaMemcpyDeviceToHost));
+    }
+    wbCheck(cudaFree(A_GPU));
+    wbCheck(cudaFree(B_GPU));
+    return 0;
+}
+__global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x,
+                                    const float *__restrict__ A,
+                                    float *__restrict__ B) {
+    __shared__ float ds_a[BLOCK_DIMY][BLOCK_DIMX];
+    int j = blockIdx.y * (blockDim.y - 2 * RADIUS) + threadIdx.y + RADIUS;
+    int k = blockIdx.x * (blockDim.x - 2 * RADIUS) + threadIdx.x + RADIUS;
+    int in_index = j * x + k;
+    int out_index = 0;
+    int next_index = 0;
+    int stride = x * y;
+    register float t0_infront1;
+    register float t1_infront1;
+    register float t0_behind1;
+    register float t1_behind1;
+    register float t0_current;
+    register float t1_current;
+    in_index += RADIUS * stride;
+    t0_behind1 = __ldg(&A[in_index]);
+    in_index += stride;
+    out_index = in_index;
+    next_index = in_index;
+    t0_current = __ldg(&A[in_index]);
+    in_index += stride;
+    t0_infront1 = __ldg(&A[in_index]);
+    in_index += stride;
+    if ((j >= 2 * RADIUS) && (j < (y - 2 * RADIUS)) && (k >= 2 * RADIUS) &&
+        (k < (x - 2 * RADIUS))) {
+        t1_current = ((((((((1.f * __ldg(&A[out_index + (-1) + (y * (0))])) +
+                            (1.f * t0_current)) +
+                           (1.f * __ldg(&A[out_index + (1) + (y * (0))]))) +
+                          (1.f * __ldg(&A[out_index + (0) + (y * (-1))]))) +
+                         (1.f * __ldg(&A[out_index + (0) + (y * (1))]))) +
+                        (1.f * t0_behind1)) +
+                       (1.f * t0_infront1)));
+    } else {
+        t1_current = t0_current;
+    }
+    t1_behind1 = t0_behind1;
+    for (int i = 0; i < z - (4 * RADIUS); i++) {
+        t0_behind1 = t0_current;
+        t0_current = t0_infront1;
+        t0_infront1 = __ldg(&A[in_index]);
+        in_index += stride;
+        next_index += stride;
+        if ((j >= 2 * RADIUS) && (j < (y - 2 * RADIUS)) && (k >= 2 * RADIUS) &&
+            (k < (x - 2 * RADIUS)) && (i < (z - 5 * RADIUS))) {
+            t1_infront1 =
+                ((((((((1.f * __ldg(&A[out_index + (-1) + (y * (0))])) +
+                       (1.f * t0_current)) +
+                      (1.f * __ldg(&A[out_index + (1) + (y * (0))]))) +
+                     (1.f * __ldg(&A[out_index + (0) + (y * (-1))]))) +
+                    (1.f * __ldg(&A[out_index + (0) + (y * (1))]))) +
+                   (1.f * t0_behind1)) +
+                  (1.f * t0_infront1)));
         } else {
-            kernel_baseline<<<dimGrid, dimBlock>>>(A_GPU, B_GPU, nj, ni, nk);
->>>>>>> conflict
+            t1_infront1 = t0_current;
+        }
+        __syncthreads();
+        ds_a[threadIdx.y][threadIdx.x] = t1_current;
+        __syncthreads();
+        if ((threadIdx.y >= RADIUS) && (threadIdx.y < (BLOCK_DIMY - RADIUS)) &&
+            (threadIdx.x >= RADIUS) && (threadIdx.x < (BLOCK_DIMX - RADIUS))) {
+            B[out_index] =
+                ((((((((1.f * ds_a[threadIdx.y + (0)][threadIdx.x + (-1)]) +
+                       (1.f * t1_current)) +
+                      (1.f * ds_a[threadIdx.y + (0)][threadIdx.x + (1)])) +
+                     (1.f * ds_a[threadIdx.y + (-1)][threadIdx.x + (0)])) +
+                    (1.f * ds_a[threadIdx.y + (1)][threadIdx.x + (0)])) +
+                   (1.f * t1_behind1)) +
+                  (1.f * t1_infront1)));
         }
     }
-    cudaMemcpy(B, B_GPU, input_size, cudaMemcpyDeviceToHost);
-    cudaFree(A_GPU);
-    cudaFree(B_GPU);
+}
+
+int jacobi3d_GPU_opt(int tsteps, int z, int y, int x, float *A, float *B) {
+    float *A_GPU;
+    float *B_GPU;
+    size_t input_size =
+        (z + 4 * RADIUS) * (y + 4 * RADIUS) * (x + 4 * RADIUS) * sizeof(float);
+    wbCheck(cudaMalloc((void **)&A_GPU, input_size));
+    wbCheck(cudaMalloc((void **)&B_GPU, input_size));
+    wbCheck(cudaMemcpy(A_GPU, A, input_size, cudaMemcpyHostToDevice));
+    wbCheck(cudaMemcpy(B_GPU, B, input_size, cudaMemcpyHostToDevice));
+    dim3 dimBlock;
+    dim3 dimGrid;
+    dimBlock.x = BLOCK_DIMX;
+    dimBlock.y = BLOCK_DIMY;
+    dimBlock.z = 1;
+    dimGrid.x = (int)ceil(x / (BLOCK_DIMX - 2 * RADIUS));
+    dimGrid.y = (int)ceil(y / (BLOCK_DIMY - 2 * RADIUS));
+    dimGrid.z = 1;
+    for (int i = 0; i < (tsteps / 2); i++) {
+        if (i % 2) {
+            jacobi3d_kernel_opt<<<dimGrid, dimBlock>>>(
+                tsteps, z + 4 * RADIUS, y + 4 * RADIUS, x + 4 * RADIUS, B_GPU,
+                A_GPU);
+        } else {
+            jacobi3d_kernel_opt<<<dimGrid, dimBlock>>>(
+                tsteps, z + 4 * RADIUS, y + 4 * RADIUS, x + 4 * RADIUS, A_GPU,
+                B_GPU);
+        }
+        wbCheck(cudaGetLastError());
+    }
+    if ((tsteps / 2) % 2) {
+        wbCheck(cudaMemcpy(B, B_GPU, input_size, cudaMemcpyDeviceToHost));
+    } else {
+        wbCheck(cudaMemcpy(B, A_GPU, input_size, cudaMemcpyDeviceToHost));
+    }
+    wbCheck(cudaFree(A_GPU));
+    wbCheck(cudaFree(B_GPU));
+    return 0;
 }
