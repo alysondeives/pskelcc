@@ -19,7 +19,13 @@
 #define DATA_PRINTF_MODIFIER "%d"
 
 /* Include polybench common header. */
-#include "../common/common.h"
+//#include "../common/common.h"
+
+#define N 256
+#define TSTEPS 2
+#define _PB_N POLYBENCH_LOOP_BOUND(N, n)
+#define _PB_TSTEPS POLYBENCH_LOOP_BOUND(TSTEPS, tsteps)
+#define POLYBENCH_LOOP_BOUND(x, y) y
 
 /* Array initialization. */
 void init_array(int n, DATA_TYPE *A, DATA_TYPE *B) {
@@ -33,16 +39,16 @@ void init_array(int n, DATA_TYPE *A, DATA_TYPE *B) {
 }
 
 /* Main computational kernel. */
-static void gol(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B, int radius) {
+static void gol(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B) {
   int t, i, j;
   DATA_TYPE neighbors = 0;
-  radius = 1;
+
   for (t = 0; t < _PB_TSTEPS; t++) {
     for (i = 1; i < _PB_N - 1; i++) {
       for (j = 1; j < _PB_N - 1; j++) {
 
-        for (int y = -radius; y <= radius; y++)
-          for (int x = -radius; x <= radius; x++)
+        for (int y = -1; y <= 1; y++)
+          for (int x = -1; x <= 1; x++)
             if (x != 0 && y != 0)
               neighbors += A[(i + y) * _PB_N + (j + x)];
 
@@ -78,7 +84,7 @@ int main(int argc, char **argv) {
   t_start = rtclock();
 
   /* Run kernel. */
-  gol(tsteps, n, A, B, 1);
+  gol(tsteps, n, A, B);
 
   /* Stop and print timer. */
   t_end = rtclock();
