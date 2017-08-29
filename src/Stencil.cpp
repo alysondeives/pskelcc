@@ -154,12 +154,20 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
             //errs()<<"GEP inserted with Array Expression"<<*Ins<<"\n"; 
         }
         */
+        if(isa<PHINode>(*Ins)){
+            PHINode *PHI = dyn_cast<PHINode>(Ins);
+            errs()<<"PHINode: "<<*PHI<<"\n";
+            for(int i=0; i<PHI->getNumIncomingValues(); i++){
+                errs()<<"Incoming:"<<*PHI->getIncomingValue(i)<<"\n";
+                //errs()<<"Incoming:"<<PHI->getIncomingValue(i)<<"\n";
+            }  
+        }
         else{
             for(int i=0; i<numOperands;i++){
-                if(!(isa<PHINode>(*Ins))){ 
+                //if(!(isa<PHINode>(*Ins))){ 
 					//errs()<<"Populating: "<<*Ins<<"\n";
                     populateArrayAccess(Ins->getOperand(i),acc);
-                }
+                //}
             }
         }
     }
@@ -1030,9 +1038,9 @@ bool Stencil::hasCanonicalUses(PHINode *PHI){
 	for (Value::user_iterator UI = PHI->user_begin(), UE = PHI->user_end();
                      UI != UE; ++UI) {
 		User *U = *UI;
-        errs() << "  - " << *U;
+        errs() << "  - " << *U << "\n";
         BasicBlock* BB = dyn_cast<Instruction>(U)->getParent();
-        if( !(LI->isLoopHeader(BB)) || !(isLoopLatch(L, BB))){
+        if( !(LI->isLoopHeader(BB) || isLoopLatch(L, BB))){
 			use = false;
 			break;
 		}
@@ -1187,13 +1195,13 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 	errs()<<"Computation Loop "<<Stencil->dimension<<" Bound: "<<*bound<<"\n";
 	 
 	vector<Loop*> subLoops = loop->getSubLoops();
-	
-	if(subLoops.empty()) {
+
+    if(subLoops.empty()) {
 		//errs()<<"Subloop is empty\n";
 		if(!verifyStore(loop, Stencil))
 			return false;
 	}
-	else {
+    else {
 		Loop::iterator j, f;
 		for (j = subLoops.begin(), f = subLoops.end(); j != f; ++j) {
 			if(!verifyComputationLoops(*j, dimension + 1, Stencil))

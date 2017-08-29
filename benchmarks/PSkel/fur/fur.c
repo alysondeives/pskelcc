@@ -60,9 +60,9 @@ void fur(int tsteps, int ni, int nj, DATA_TYPE *A, DATA_TYPE *B)
     DATA_TYPE numberA;
     DATA_TYPE numberI;
     
-    float power;
+    float power = 2.f;
     float totalPowerI;
-    int level;
+    int level = 1;
     
 	for (t = 0; t < _PB_TSTEPS; t++) {
 		for (i = 1; i < _PB_NI-1; i++){
