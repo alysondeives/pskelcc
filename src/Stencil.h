@@ -40,6 +40,8 @@ class Stencil : public FunctionPass {
   //The key value is the array base pointer
   //The mapped values are each arrayAccess from this base pointer
   typedef std::multimap<Value*, ArrayAccess> BasePointers;
+
+  
   
   struct Neighbor{
 	  const SCEV* SCEVAccess;
@@ -112,6 +114,7 @@ class Stencil : public FunctionPass {
 	StoreInst*	outputStr;
 	std::vector<Neighbor> neighbors;
 	std::vector<Value*> arguments;
+    Neighbor str_neighbor;
 	
 	StencilInfo() {
 		dimension = 0;
@@ -130,7 +133,7 @@ class Stencil : public FunctionPass {
   bool hasCanonicalUses(PHINode *PHI);
   Value* getPointerOperand (Instruction *Ins);
   void populateArrayExpression (ArrayExpression *ArrayExp, Value *Val);
-  bool populateArrayAccess (Value *Val, ArrayAccess *acc);
+  bool populateArrayAccess (Value *Val, Neighbor *Str, ArrayAccess *acc);
   void traverseArrayExpression( ArrayExpression *ArrayExp, Value *Val);
   void showArrayExpression (ArrayExpression *ArrayExp, Value *Val);
   void showArrayAccess(ArrayAccess arrayAcc);
@@ -215,6 +218,7 @@ class Stencil : public FunctionPass {
   
   std::multimap<Function*, StencilInfo> StencilData;
 
+  std::set<PHINode*> PHINodeSet;
 
   //===---------------------------------------------------------------------===
 

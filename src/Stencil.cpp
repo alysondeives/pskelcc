@@ -111,12 +111,12 @@ void Stencil::populateArrayExpression (ArrayExpression *arr, Value *Val) {
     }
 }
 
-bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
+bool Stencil::populateArrayAccess (Value *Val, Neighbor *Str, ArrayAccess *acc){
     Instruction *Ins;
     int numOperands = 0;
     if ((Ins = dyn_cast<Instruction>(Val))){
         numOperands = Ins->getNumOperands();
-        //errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
+        errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
         if(isa<LoadInst>(Ins)){
             
             /* Delinearization moved to verifyStore
@@ -154,19 +154,39 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
             //errs()<<"GEP inserted with Array Expression"<<*Ins<<"\n"; 
         }
         */
-        if(isa<PHINode>(*Ins)){
+        else if(isa<PHINode>(*Ins)){
             PHINode *PHI = dyn_cast<PHINode>(Ins);
-            errs()<<"PHINode: "<<*PHI<<"\n";
-            for(int i=0; i<PHI->getNumIncomingValues(); i++){
-                errs()<<"Incoming:"<<*PHI->getIncomingValue(i)<<"\n";
-                //errs()<<"Incoming:"<<PHI->getIncomingValue(i)<<"\n";
-            }  
+            if(PHINodeSet.count(PHI) == 0){
+                PHINodeSet.insert(PHI);
+                if(PHI != Str->phinode_x &&
+                   PHI != Str->phinode_y &&
+                   PHI != Str->phinode_z){
+                    errs()<<"PHINode: "<<*PHI<<"\n";
+                    for(int i=0;i<PHI->getNumOperands();i++){
+                        if(isa<Instruction>(PHI->getOperand(i))){
+                            populateArrayAccess(PHI->getOperand(i),Str, acc);
+                        }
+                        else{
+                            BasicBlock *BB = PHI->getIncomingBlock(i);
+                            if(isa<BranchInst>(BB->getTerminator())){
+                                BranchInst *Br = dyn_cast<BranchInst>(BB->getTerminator());
+                                if(Br->isConditional()){
+                                    errs()<<*Br->getCondition()<<"\n";
+                                    populateArrayAccess(Br->getCondition(),Str, acc);
+                                }
+                            }
+                            
+                            //populateArrayAccess(BB->getTerminator(),Str, acc);
+                        }
+                    }
+                }
+            }
         }
         else{
             for(int i=0; i<numOperands;i++){
                 //if(!(isa<PHINode>(*Ins))){ 
 					//errs()<<"Populating: "<<*Ins<<"\n";
-                    populateArrayAccess(Ins->getOperand(i),acc);
+                    populateArrayAccess(Ins->getOperand(i),Str, acc);
                 //}
             }
         }
@@ -1196,12 +1216,13 @@ bool Stencil::verifyComputationLoops(Loop *loop, unsigned int dimension, Stencil
 	 
 	vector<Loop*> subLoops = loop->getSubLoops();
 
-    if(subLoops.empty()) {
+    //if(subLoops.empty()) {
 		//errs()<<"Subloop is empty\n";
-		if(!verifyStore(loop, Stencil))
-			return false;
-	}
-    else {
+    if(!verifyStore(loop, Stencil))
+        return false;
+	//}
+    //else {
+    if(!subLoops.empty()){
 		Loop::iterator j, f;
 		for (j = subLoops.begin(), f = subLoops.end(); j != f; ++j) {
 			if(!verifyComputationLoops(*j, dimension + 1, Stencil))
@@ -1222,25 +1243,38 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	
 	
 	std::vector<Instruction*> StrIns;
-	
+    const std::vector<BasicBlock*> Blocks = loop->getBlocks();
+
+    for(auto bb : Blocks){
+        if(LI->getLoopFor(bb) == loop){
+            for(BasicBlock::iterator I = bb->begin(), E = bb->end(); I != E; ++I){
+                errs()<<*I<<"\n";
+                if(isa<StoreInst>(I))
+                    StrIns.push_back(I);
+            }
+        }
+    }
+	/*
 	for(Loop::block_iterator bb = loop->block_begin();bb!=loop->block_end(); ++bb){
 		for(BasicBlock::iterator I = (*bb)->begin(), E = (*bb)->end(); I != E; ++I){
-			if(isa<StoreInst>(I))
+            errs()<<*I<<"\n";
+            if(isa<StoreInst>(I))
 				StrIns.push_back(I);
 		}
 	}
-	
+	*/
+    //TODO create different return values
 	if(StrIns.empty()) {
 		errs()<<"ERROR! Inner computation loop has no store instruction\n";
-		return false;
+		return true; 
 	}
 	
 	//TODO Analyze more than one store
-	if(StrIns.size()> 1){
-		errs()<<"ERROR! Inner computation loop has more than 1 store instruction\n";
-		return false;
-	}
-	
+	//if(StrIns.size()> 1){
+	//	errs()<<"ERROR! Inner computation loop has more than 1 store instruction\n";
+	//	return false;
+	//}
+    
 	for(auto Ins : StrIns){
 		ArrayAccess arrayAcc;
 		Neighbor store_neighbor;
@@ -1269,20 +1303,21 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         errs()<<"Store Value Operand: "<<*Str->getValueOperand()<<"\n";
         //Output GEP
         //errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
-       
-        // Populate map with memory access of the store
-        // Return false if no load is found
-        if(!populateArrayAccess(Str->getValueOperand(), &arrayAcc)){
-            errs()<<"ERROR! Store Instruction has no memory access!"<<"\n";
-            return false;
-        }
 
         const SCEV *StrSCEV = SE->getSCEV(Str->getPointerOperand());
         if(!delinearize(StrSCEV, ElementSize, store_neighbor)){
 			errs()<<"Error delinearizing: "<<*Str<<" with SCEV "<<*StrSCEV<<"\n";
             return false;
         }
-        
+        //Stencil->str_neighbor = store_neighbor;
+         
+        // Populate map with memory access of the store
+        // Return false if no load is found
+        if(!populateArrayAccess(Str->getValueOperand(), &store_neighbor, &arrayAcc)){
+            errs()<<"ERROR! Store Instruction has no memory access!"<<"\n";
+            return false;
+        }
+
         /* The Store Pointer must have the same dimension as the number of loops */
         if(store_neighbor.dimension != Stencil->dimension){
 			errs()<<"ERROR! Store Pointer has dimension "<< store_neighbor.dimension  <<" expected "<<Stencil->dimension <<"\n";
@@ -1736,7 +1771,7 @@ bool Stencil::runOnFunction(Function &F) {
 	}
 	*/
     errs() << "Dumping SCEVs:\n";
-    LoadInst *LD;
+    /*LoadInst *LD;
     StoreInst *Str;
     for(inst_iterator i = inst_begin(F); i != inst_end(F);++i){
         if((LD = dyn_cast<LoadInst>(&(*i)))){
@@ -1805,8 +1840,8 @@ bool Stencil::runOnFunction(Function &F) {
             errs()<<"Store SCEV: " << *scev_exp << "\n";
         }
     }
-
-    /*
+    */
+    
     if(verifyStencil()){
 		errs()<<"FUNCTION "<< F.getName()<<" CONTAINS STENCIL!\n";
 	}
@@ -1814,7 +1849,7 @@ bool Stencil::runOnFunction(Function &F) {
         errs()<<"Function "<< F.getName()<<" does not constain Stencil\n";
     }
 	return false;
-    */
+    
 }
 
 // TODO Generate Stencil Computation tree for future Code Generation
@@ -1861,6 +1896,7 @@ bool Stencil::verifyStencil() {
                 else
                     continue;
 			}
+            
 			
 			// Set the number of iteration to 1
 			llvm::Type *i64_type = llvm::IntegerType::getInt64Ty(llvm::getGlobalContext());
