@@ -125,7 +125,7 @@ class Stencil : public FunctionPass {
   Function *CurrentFn;
   
   
-  
+  void printUsage(Value *V);
   bool isLoopLatch(Loop *L, BasicBlock* BB);
   bool hasCanonicalUses(PHINode *PHI);
   Value* getPointerOperand (Instruction *Ins);

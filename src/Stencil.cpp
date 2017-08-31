@@ -1684,6 +1684,27 @@ PHINode* Stencil::getPHINode(const Loop* loop){
 	} 
 }
 
+void Stencil::printUsage(Value *V){
+    for (Value::user_iterator UI = V->user_begin(), UE = V->user_end();
+            UI != UE; ++UI) {
+        User *U = *UI;
+        errs() << " Use: " << *U << "\n";
+        printUsage(U);
+        /*if(isa<Instruction>(U)){
+            Instruction *Ins = dyn_cast<Instruction>(U);
+            for(int i = 0; i < Ins->getNumOperands(); i++){
+                Value *V1 = Ins->getOperand(i);
+                if(V1 != V && isa<Instrution>(V1))
+                    errs()<<"Value: "<<*V1<<"\n";
+                    printUsage(V1)
+
+                //if(std::find (V->user_begin(), V->user_end(), V1) == V->user_end() && V1 != V)
+                //    printUsage(V1);
+            }
+        }*/
+    }
+}
+
 bool Stencil::runOnFunction(Function &F) {
 	this->LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
     this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
@@ -1719,15 +1740,73 @@ bool Stencil::runOnFunction(Function &F) {
     StoreInst *Str;
     for(inst_iterator i = inst_begin(F); i != inst_end(F);++i){
         if((LD = dyn_cast<LoadInst>(&(*i)))){
-            const SCEV* scev_exp = SE->getSCEV(LD->getPointerOperand());
-            errs()<<"Load SCEV: " << *scev_exp << "\n";
+            errs()<<"LD Ins: "<<*LD<<"\n";
+            printUsage(LD);
+            const SCEV* S = SE->getSCEV(LD->getPointerOperand());
+            //const SCEV* scev_scope = SE->getSCEVAtScope(LD->getPointerOperand(),LI->getLoopFor(LD->getParent()));
+            errs()<<"Load SCEV: " << *S << "\n";
+
+
+             if(isa<SCEVAddExpr>(S)){
+                const SCEVUnknown *BasePointer = dyn_cast<SCEVUnknown>(SE->getPointerBase(S));
+                
+                // Do not delinearize if we cannot find the base pointer.
+                if (!BasePointer) {
+                    errs()<<"Could not find base pointer in SCEV : "<<*S<<"\n";  
+                    return false;
+                }
+                
+                Value *BasePtr = BasePointer->getValue();
+                S = SE->getMinusSCEV(S, BasePointer);
+
+                //errs()<<"Load SCEV:" << *S <<"\n";
+
+                const SCEVMulExpr *M1 = dyn_cast<SCEVMulExpr>(S);
+                if(!M1) {
+                    errs()<<"Expected Mul Expression: "<<*S<<"\n";
+                    return false;
+                }
+                
+                if(M1->getNumOperands() != 2){
+                    errs()<<"Expected 2 Operands in MulExpr: "<<*M1<<"\n";
+                    return false;
+                }
+                
+                //const SCEV *ElementSize = M1->getOperand(0);
+                
+                const SCEVSignExtendExpr *Sign = dyn_cast<SCEVSignExtendExpr>(M1->getOperand(1));
+                
+                if(!Sign){
+                    errs()<<"Expected SExt expression: "<<*M1<<"\n";
+                    return false;
+                }
+                
+                Type *SignType = Sign->getType();
+                
+                const SCEV *S1 = Sign->getOperand();
+                
+                if(!isa<SCEVAddRecExpr>(S1)){
+                    errs()<<"Expected SCEV AddRec expression: "<<*Sign<<"\n";
+                    return false;
+                }
+                const SCEVAddRecExpr *AddRecExpr = dyn_cast<SCEVAddRecExpr>(S1);
+                errs()<<"Base Pointer: "<<*BasePtr<<"\n";
+                errs()<<"Access SCEV : "<<*S1<<"\n";
+                //while(true){
+                    AddRecExpr = AddRecExpr->getPostIncExpr(*SE);
+                    errs()<<"Post SCEV: "<<*AddRecExpr<<"\n";
+                //}
+                
+            }
+            
         }
         if((Str = dyn_cast<StoreInst>(&(*i)))){
             const SCEV* scev_exp = SE->getSCEV(Str->getPointerOperand());
             errs()<<"Store SCEV: " << *scev_exp << "\n";
         }
     }
-    
+
+    /*
     if(verifyStencil()){
 		errs()<<"FUNCTION "<< F.getName()<<" CONTAINS STENCIL!\n";
 	}
@@ -1735,6 +1814,7 @@ bool Stencil::runOnFunction(Function &F) {
         errs()<<"Function "<< F.getName()<<" does not constain Stencil\n";
     }
 	return false;
+    */
 }
 
 // TODO Generate Stencil Computation tree for future Code Generation
