@@ -221,7 +221,7 @@ void Stencil::populateArrayAccess (Value *Val) {
 }
 */
 
-bool Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor &N){
+bool Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor &N, int dim){
 	errs()<<"SCEV Function: "<<*S<<"\n";
     const SCEVUnknown *BasePointer;
 	Value *BasePtr;
@@ -303,10 +303,10 @@ bool Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor &N){
         }
         
         errs()<<"SCEVLoops Size: "<<N.SCEVLoops.size()<<"\n";
-        switch (N.SCEVLoops.size()){
+        // Before we switch with size of SCEVLoops 
+        switch (dim){
             case 1:
-                errs()<<"ERROR! Unexpected 1D SCEV: "<<*S1<<"\n";
-                return false;
+                return parse1DSCEV(S1,N);
                 break;
             case 2:
                 return parse2DSCEV(S1,N);
@@ -1336,12 +1336,15 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         for(auto i : arrayAcc){
             Neighbor N;
             LoadInst *LD = dyn_cast<LoadInst>(i.first);
+            
             BasicBlock *bb = LD->getParent();
             Loop *L = LI->getLoopFor(bb);
             
             const SCEV* SCEVExpr = SE->getSCEVAtScope(LD->getPointerOperand(), L);
             const SCEV *ElementSize = SE->getElementSize(LD);
             N.LoadAccess = LD;
+            errs()<<"Neighbor: "<<*LD<<"\n";
+            errs()<<"SCEV: "<<*SCEVExpr<<"\n";
             errs()<<"-----------------------------------------------------------\n";
    
             if(!delinearize(SCEVExpr, ElementSize, N)){
