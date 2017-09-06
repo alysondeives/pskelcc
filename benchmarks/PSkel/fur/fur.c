@@ -18,7 +18,7 @@
 #define DATA_TYPE int
 #define DATA_PRINTF_MODIFIER "%d"
 
-/* Include polybench common header. */
+/* Include s common header. */
 #include "../common/common.h"
 
 

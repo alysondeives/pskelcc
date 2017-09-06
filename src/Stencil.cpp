@@ -116,7 +116,7 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
     int numOperands = 0;
     if ((Ins = dyn_cast<Instruction>(Val))){
         numOperands = Ins->getNumOperands();
-        //errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
+        errs()<<"Val :"<<*Val<<" has "<<numOperands<<" operands"<<"\n";
         if(isa<LoadInst>(Ins)){
             
             /* Delinearization moved to verifyStore
@@ -157,7 +157,7 @@ bool Stencil::populateArrayAccess (Value *Val, ArrayAccess *acc){
         else{
             for(int i=0; i<numOperands;i++){
                 if(!(isa<PHINode>(*Ins))){ 
-					//errs()<<"Populating: "<<*Ins<<"\n";
+					errs()<<"Populating: "<<*Ins<<"\n";
                     populateArrayAccess(Ins->getOperand(i),acc);
                 }
             }
@@ -1030,9 +1030,9 @@ bool Stencil::hasCanonicalUses(PHINode *PHI){
 	for (Value::user_iterator UI = PHI->user_begin(), UE = PHI->user_end();
                      UI != UE; ++UI) {
 		User *U = *UI;
-        errs() << "  - " << *U;
+        errs() << "  - " << *U <<"\n";
         BasicBlock* BB = dyn_cast<Instruction>(U)->getParent();
-        if( !(LI->isLoopHeader(BB)) || !(isLoopLatch(L, BB))){
+        if( !(LI->isLoopHeader(BB)) && !(isLoopLatch(L, BB))){
 			use = false;
 			break;
 		}
@@ -1044,7 +1044,8 @@ bool Stencil::verifyIterationLoop(Loop *loop, StencilInfo *Stencil){
 	auto *phiNode = loop->getCanonicalInductionVariable();
 	const SCEV* backedge;
 	Value *bound;
-	    
+	
+	//TODO iteration may not be Canonical, get PHINode another way    
     if(phiNode) {
 		//TODO Backedge SCEV parse
 		backedge = SE->getBackedgeTakenCount(loop);
