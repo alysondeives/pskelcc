@@ -21,19 +21,20 @@ __global__ void jacobi3d_kernel_baseline(int tsteps, int z, int y, int x,
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     int k = blockIdx.x * blockDim.x + threadIdx.x;
     int index = (i + RADIUS) * x * y + (j + RADIUS) * x + (k + RADIUS);
-    B[index] = ((((((((2 * A[index + (-1) + (y * (0))]) +
-                      (5 * A[index + (0) + (y * (0))])) +
-                     (-8 * A[index + (1) + (y * (0))])) +
-                    (-3 * A[index + (0) + (y * (-1))])) +
-                   (6 * A[index + (0) + (y * (1))])) +
-                  (-9 * A[index + (0) + (y * (0))])) +
-                 (4 * A[index + (0) + (y * (0))])));
+    B[index] = ((((((((1.f * A[index + (-1) + (y * (0))]) +
+                      (1.f * A[index + (0) + (y * (0))])) +
+                     (1.f * A[index + (1) + (y * (0))])) +
+                    (1.f * A[index + (0) + (y * (-1))])) +
+                   (1.f * A[index + (0) + (y * (1))])) +
+                  (1.f * A[index + (0) + (y * (0))])) +
+                 (1.f * A[index + (0) + (y * (0))])));
 }
 
 int jacobi3d_GPU_baseline(int tsteps, int z, int y, int x, float *A, float *B) {
     float *A_GPU;
     float *B_GPU;
-    size_t input_size = z * y * x * sizeof(float);
+    size_t input_size =
+        (z + 2 * RADIUS) * (y + 2 * RADIUS) * (x + 2 * RADIUS) * sizeof(float);
     wbCheck(cudaMalloc((void **)&A_GPU, input_size));
     wbCheck(cudaMalloc((void **)&B_GPU, input_size));
     wbCheck(cudaMemcpy(A_GPU, A, input_size, cudaMemcpyHostToDevice));
@@ -51,8 +52,9 @@ int jacobi3d_GPU_baseline(int tsteps, int z, int y, int x, float *A, float *B) {
             jacobi3d_kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, z, y, x,
                                                             B_GPU, A_GPU);
         } else {
-            jacobi3d_kernel_baseline<<<dimGrid, dimBlock>>>(tsteps, z, y, x,
-                                                            A_GPU, B_GPU);
+            jacobi3d_kernel_baseline<<<dimGrid, dimBlock>>>(
+                tsteps, (z + 2 * RADIUS), (y + 2 * RADIUS), (x + 2 * RADIUS),
+                A_GPU, B_GPU);
         }
         wbCheck(cudaGetLastError());
     }
@@ -65,8 +67,9 @@ int jacobi3d_GPU_baseline(int tsteps, int z, int y, int x, float *A, float *B) {
     wbCheck(cudaFree(B_GPU));
     return 0;
 }
-__global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x, float *A,
-                                    float *B) {
+__global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x,
+                                    const float *__restrict__ A,
+                                    float *__restrict__ B) {
     __shared__ float ds_a[BLOCK_DIMY][BLOCK_DIMX];
     int j = blockIdx.y * (blockDim.y - 2 * RADIUS) + threadIdx.y + RADIUS;
     int k = blockIdx.x * (blockDim.x - 2 * RADIUS) + threadIdx.x + RADIUS;
@@ -91,13 +94,13 @@ __global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x, float *A,
     in_index += stride;
     if ((j >= 2 * RADIUS) && (j < (y - 2 * RADIUS)) && (k >= 2 * RADIUS) &&
         (k < (x - 2 * RADIUS))) {
-        t1_current = ((((((((2 * __ldg(&A[out_index + (-1) + (y * (0))])) +
-                            (5 * t0_current)) +
-                           (-8 * __ldg(&A[out_index + (1) + (y * (0))]))) +
-                          (-3 * __ldg(&A[out_index + (0) + (y * (-1))]))) +
-                         (6 * __ldg(&A[out_index + (0) + (y * (1))]))) +
-                        (-9 * t0_behind1)) +
-                       (4 * t0_infront1)));
+        t1_current = ((((((((1.f * __ldg(&A[out_index + (-1) + (y * (0))])) +
+                            (1.f * t0_current)) +
+                           (1.f * __ldg(&A[out_index + (1) + (y * (0))]))) +
+                          (1.f * __ldg(&A[out_index + (0) + (y * (-1))]))) +
+                         (1.f * __ldg(&A[out_index + (0) + (y * (1))]))) +
+                        (1.f * t0_behind1)) +
+                       (1.f * t0_infront1)));
     } else {
         t1_current = t0_current;
     }
@@ -110,13 +113,14 @@ __global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x, float *A,
         next_index += stride;
         if ((j >= 2 * RADIUS) && (j < (y - 2 * RADIUS)) && (k >= 2 * RADIUS) &&
             (k < (x - 2 * RADIUS)) && (i < (z - 5 * RADIUS))) {
-            t1_infront1 = ((((((((2 * __ldg(&A[out_index + (-1) + (y * (0))])) +
-                                 (5 * t0_current)) +
-                                (-8 * __ldg(&A[out_index + (1) + (y * (0))]))) +
-                               (-3 * __ldg(&A[out_index + (0) + (y * (-1))]))) +
-                              (6 * __ldg(&A[out_index + (0) + (y * (1))]))) +
-                             (-9 * t0_behind1)) +
-                            (4 * t0_infront1)));
+            t1_infront1 =
+                ((((((((1.f * __ldg(&A[out_index + (-1) + (y * (0))])) +
+                       (1.f * t0_current)) +
+                      (1.f * __ldg(&A[out_index + (1) + (y * (0))]))) +
+                     (1.f * __ldg(&A[out_index + (0) + (y * (-1))]))) +
+                    (1.f * __ldg(&A[out_index + (0) + (y * (1))]))) +
+                   (1.f * t0_behind1)) +
+                  (1.f * t0_infront1)));
         } else {
             t1_infront1 = t0_current;
         }
@@ -126,13 +130,13 @@ __global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x, float *A,
         if ((threadIdx.y >= RADIUS) && (threadIdx.y < (BLOCK_DIMY - RADIUS)) &&
             (threadIdx.x >= RADIUS) && (threadIdx.x < (BLOCK_DIMX - RADIUS))) {
             B[out_index] =
-                ((((((((2 * ds_a[threadIdx.y + (0)][threadIdx.x + (-1)]) +
-                       (5 * t1_current)) +
-                      (-8 * ds_a[threadIdx.y + (0)][threadIdx.x + (1)])) +
-                     (-3 * ds_a[threadIdx.y + (-1)][threadIdx.x + (0)])) +
-                    (6 * ds_a[threadIdx.y + (1)][threadIdx.x + (0)])) +
-                   (-9 * t1_behind1)) +
-                  (4 * t1_infront1)));
+                ((((((((1.f * ds_a[threadIdx.y + (0)][threadIdx.x + (-1)]) +
+                       (1.f * t1_current)) +
+                      (1.f * ds_a[threadIdx.y + (0)][threadIdx.x + (1)])) +
+                     (1.f * ds_a[threadIdx.y + (-1)][threadIdx.x + (0)])) +
+                    (1.f * ds_a[threadIdx.y + (1)][threadIdx.x + (0)])) +
+                   (1.f * t1_behind1)) +
+                  (1.f * t1_infront1)));
         }
     }
 }

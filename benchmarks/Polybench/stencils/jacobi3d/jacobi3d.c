@@ -2,7 +2,11 @@
  * 3DConvolution.c: This file was adapted from PolyBench/GPU 1.0 test suite
  * to run on GPU with OpenMP 4.0 pragmas and OpenCL driver.
  *
+<<<<<<< HEAD
  * http://www.cse.ohio-state.edu/~pouchet/software/polybench/GPU
+=======
+ * http://www.cse.ohio-state.edu/~pouchet/software/polybench/GPU 
+>>>>>>> conflict
  *
  * Contacts: Marcio M Pereira <mpereira@ic.unicamp.br>
  *           Rafael Cardoso F Sousa <rafael.cardoso@students.ic.unicamp.br>
@@ -90,7 +94,6 @@ void init(DATA_TYPE *A, int x, int y, int z, int offset_x, int offset_y, int off
         }
     }
 }
-
 
 int checkResult(float *a, float *ref, int dimx, int dimy, int dimz) {
 
