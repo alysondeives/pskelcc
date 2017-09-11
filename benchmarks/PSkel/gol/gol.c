@@ -32,7 +32,7 @@ void init_array(int ni, int nj, DATA_TYPE *A, DATA_TYPE *B) {
     }
 }
 
-/* Main computational kernel. */
+/* Main computationaleh kernel. */
 static void gol(int tsteps, int ni, int nj, DATA_TYPE *A, DATA_TYPE *B) {
   int t, i, j;
   DATA_TYPE neighbors = 0;
@@ -43,7 +43,7 @@ static void gol(int tsteps, int ni, int nj, DATA_TYPE *A, DATA_TYPE *B) {
 
         for (int y = -1; y <= 1; y++)
           for (int x = -1; x <= 1; x++)
-            //if (x != 0 && y != 0)
+            if (x != 0 && y != 0)
               neighbors += A[(i + y) * _PB_NJ + (j + x)];
 
         B[i * _PB_NJ + j] =

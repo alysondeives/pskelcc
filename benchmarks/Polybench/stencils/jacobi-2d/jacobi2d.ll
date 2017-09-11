@@ -158,19 +158,19 @@ for.end.22:                                       ; preds = %for.cond
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
-  %mul = mul nsw i32 2048, 2048
+  %mul = mul nsw i32 1024, 1024
   %conv = sext i32 %mul to i64
   %mul1 = mul i64 %conv, 4
   %call = call noalias i8* @malloc(i64 %mul1) #3
   %tmp = bitcast i8* %call to float*
-  %mul2 = mul nsw i32 2048, 2048
+  %mul2 = mul nsw i32 1024, 1024
   %conv3 = sext i32 %mul2 to i64
   %mul4 = mul i64 %conv3, 4
   %call5 = call noalias i8* @malloc(i64 %mul4) #3
   %tmp1 = bitcast i8* %call5 to float*
-  call void @init_array(i32 2048, float* %tmp, float* %tmp1)
+  call void @init_array(i32 1024, float* %tmp, float* %tmp1)
   %call6 = call double @rtclock()
-  call void @jacobi2d(i32 5, i32 2048, float* %tmp, float* %tmp1)
+  call void @jacobi2d(i32 10, i32 1024, float* %tmp, float* %tmp1)
   %call7 = call double @rtclock()
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call7, %call6

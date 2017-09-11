@@ -160,7 +160,7 @@ for.cond.1:                                       ; preds = %for.inc.23, %for.bo
 
 for.body.3:                                       ; preds = %for.cond.1
   %4 = load i32, i32* %i, align 4
-  %mul = mul nsw i32 %4, 2048
+  %mul = mul nsw i32 %4, 1024
   %5 = load i32, i32* %j, align 4
   %add = add nsw i32 %mul, %5
   %idxprom = sext i32 %add to i64
@@ -258,7 +258,7 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.6, %entry
   %0 = load i32, i32* %i, align 4
-  %cmp = icmp slt i32 %0, 2048
+  %cmp = icmp slt i32 %0, 1024
   br i1 %cmp, label %for.body, label %for.end.8
 
 for.body:                                         ; preds = %for.cond
@@ -267,7 +267,7 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc, %for.body
   %1 = load i32, i32* %j, align 4
-  %cmp2 = icmp slt i32 %1, 2048
+  %cmp2 = icmp slt i32 %1, 1024
   br i1 %cmp2, label %for.body.3, label %for.end
 
 for.body.3:                                       ; preds = %for.cond.1
@@ -276,9 +276,9 @@ for.body.3:                                       ; preds = %for.cond.1
   %3 = load i32, i32* %j, align 4
   %conv4 = sitofp i32 %3 to float
   %mul = fmul float %conv, %conv4
-  %div = fdiv float %mul, 2.048000e+03
+  %div = fdiv float %mul, 1.024000e+03
   %4 = load i32, i32* %i, align 4
-  %mul5 = mul nsw i32 %4, 2048
+  %mul5 = mul nsw i32 %4, 1024
   %5 = load i32, i32* %j, align 4
   %add = add nsw i32 %mul5, %5
   %idxprom = sext i32 %add to i64
@@ -308,7 +308,7 @@ for.end.8:                                        ; preds = %for.cond
 
 for.cond.9:                                       ; preds = %for.inc.29, %for.end.8
   %9 = load i32, i32* %i, align 4
-  %cmp10 = icmp slt i32 %9, 2048
+  %cmp10 = icmp slt i32 %9, 1024
   br i1 %cmp10, label %for.body.12, label %for.end.31
 
 for.body.12:                                      ; preds = %for.cond.9
@@ -317,7 +317,7 @@ for.body.12:                                      ; preds = %for.cond.9
 
 for.cond.13:                                      ; preds = %for.inc.26, %for.body.12
   %10 = load i32, i32* %j, align 4
-  %cmp14 = icmp slt i32 %10, 2048
+  %cmp14 = icmp slt i32 %10, 1024
   br i1 %cmp14, label %for.body.16, label %for.end.28
 
 for.body.16:                                      ; preds = %for.cond.13
@@ -327,9 +327,9 @@ for.body.16:                                      ; preds = %for.cond.13
   %conv18 = sitofp i32 %12 to float
   %mul19 = fmul float %conv17, %conv18
   %add20 = fadd float %mul19, 1.000000e+00
-  %div21 = fdiv float %add20, 2.048000e+03
+  %div21 = fdiv float %add20, 1.024000e+03
   %13 = load i32, i32* %i, align 4
-  %mul22 = mul nsw i32 %13, 2048
+  %mul22 = mul nsw i32 %13, 1024
   %14 = load i32, i32* %j, align 4
   %add23 = add nsw i32 %mul22, %14
   %idxprom24 = sext i32 %add23 to i64
@@ -359,7 +359,7 @@ for.end.31:                                       ; preds = %for.cond.9
 
 for.cond.32:                                      ; preds = %for.inc.61, %for.end.31
   %18 = load i32, i32* %i, align 4
-  %cmp33 = icmp slt i32 %18, 2048
+  %cmp33 = icmp slt i32 %18, 1024
   br i1 %cmp33, label %for.body.35, label %for.end.63
 
 for.body.35:                                      ; preds = %for.cond.32
@@ -368,7 +368,7 @@ for.body.35:                                      ; preds = %for.cond.32
 
 for.cond.36:                                      ; preds = %for.inc.58, %for.body.35
   %19 = load i32, i32* %j, align 4
-  %cmp37 = icmp slt i32 %19, 2048
+  %cmp37 = icmp slt i32 %19, 1024
   br i1 %cmp37, label %for.body.39, label %for.end.60
 
 for.body.39:                                      ; preds = %for.cond.36
@@ -378,9 +378,9 @@ for.body.39:                                      ; preds = %for.cond.36
   %conv41 = sitofp i32 %21 to float
   %mul42 = fmul float %conv40, %conv41
   %add43 = fadd float %mul42, 2.000000e+00
-  %div44 = fdiv float %add43, 2.048000e+03
+  %div44 = fdiv float %add43, 1.024000e+03
   %22 = load i32, i32* %i, align 4
-  %mul45 = mul nsw i32 %22, 2048
+  %mul45 = mul nsw i32 %22, 1024
   %23 = load i32, i32* %j, align 4
   %add46 = add nsw i32 %mul45, %23
   %idxprom47 = sext i32 %add46 to i64
@@ -393,9 +393,9 @@ for.body.39:                                      ; preds = %for.cond.36
   %conv50 = sitofp i32 %26 to float
   %mul51 = fmul float %conv49, %conv50
   %add52 = fadd float %mul51, 2.000000e+00
-  %div53 = fdiv float %add52, 2.048000e+03
+  %div53 = fdiv float %add52, 1.024000e+03
   %27 = load i32, i32* %i, align 4
-  %mul54 = mul nsw i32 %27, 2048
+  %mul54 = mul nsw i32 %27, 1024
   %28 = load i32, i32* %j, align 4
   %add55 = add nsw i32 %mul54, %28
   %idxprom56 = sext i32 %add55 to i64
@@ -439,7 +439,7 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.13, %entry
   %0 = load i32, i32* %i, align 4
-  %cmp = icmp slt i32 %0, 2048
+  %cmp = icmp slt i32 %0, 1024
   br i1 %cmp, label %for.body, label %for.end.15
 
 for.body:                                         ; preds = %for.cond
@@ -448,12 +448,12 @@ for.body:                                         ; preds = %for.cond
 
 for.cond.1:                                       ; preds = %for.inc, %for.body
   %1 = load i32, i32* %j, align 4
-  %cmp2 = icmp slt i32 %1, 2048
+  %cmp2 = icmp slt i32 %1, 1024
   br i1 %cmp2, label %for.body.3, label %for.end
 
 for.body.3:                                       ; preds = %for.cond.1
   %2 = load i32, i32* %i, align 4
-  %mul = mul nsw i32 %2, 2048
+  %mul = mul nsw i32 %2, 1024
   %3 = load i32, i32* %j, align 4
   %add = add nsw i32 %mul, %3
   %idxprom = sext i32 %add to i64
@@ -462,7 +462,7 @@ for.body.3:                                       ; preds = %for.cond.1
   %5 = load float, float* %arrayidx, align 4
   %conv = fpext float %5 to double
   %6 = load i32, i32* %i, align 4
-  %mul4 = mul nsw i32 %6, 2048
+  %mul4 = mul nsw i32 %6, 1024
   %7 = load i32, i32* %j, align 4
   %add5 = add nsw i32 %mul4, %7
   %idxprom6 = sext i32 %add5 to i64
@@ -523,19 +523,19 @@ entry:
   store i32 0, i32* %retval
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
-  store i32 2048, i32* %ni, align 4
-  store i32 2048, i32* %nj, align 4
-  store i32 2048, i32* %nk, align 4
-  %call = call noalias i8* @malloc(i64 16777216) #3
+  store i32 1024, i32* %ni, align 4
+  store i32 1024, i32* %nj, align 4
+  store i32 1024, i32* %nk, align 4
+  %call = call noalias i8* @malloc(i64 4194304) #3
   %0 = bitcast i8* %call to float*
   store float* %0, float** %A, align 8
-  %call1 = call noalias i8* @malloc(i64 16777216) #3
+  %call1 = call noalias i8* @malloc(i64 4194304) #3
   %1 = bitcast i8* %call1 to float*
   store float* %1, float** %B, align 8
-  %call2 = call noalias i8* @malloc(i64 16777216) #3
+  %call2 = call noalias i8* @malloc(i64 4194304) #3
   %2 = bitcast i8* %call2 to float*
   store float* %2, float** %C, align 8
-  %call3 = call noalias i8* @malloc(i64 16777216) #3
+  %call3 = call noalias i8* @malloc(i64 4194304) #3
   %3 = bitcast i8* %call3 to float*
   store float* %3, float** %C_outputFromGpu, align 8
   %4 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
