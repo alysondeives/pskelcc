@@ -44,9 +44,12 @@ class Stencil : public FunctionPass {
   
   
   struct Neighbor{
+	  bool reduce;
 	  const SCEV* SCEVAccess;
 	  SmallVector<const Loop*,3> SCEVLoops;
 	  SmallVector<const SCEV*,3> SCEVSteps;
+	  SmallVector<const Loop*,3> SCEVLoopsReduce;
+	  SmallVector<const SCEV*,3> SCEVStepsReduce;
 	  Value*   BasePtr;
 	  LoadInst *LoadAccess;
 	  
@@ -54,12 +57,16 @@ class Stencil : public FunctionPass {
 	  PHINode* phinode_y;
 	  PHINode* phinode_z;
 	  
+	  PHINode* reduce_phinode_x;
+	  PHINode* reduce_phinode_y;
+	  PHINode* reduce_phinode_z;
+	  
 	  int dimension;
 	  int offset_x;
 	  int offset_y;
 	  int offset_z;
-	  Value* stride_x;
 	  
+	  Value* stride_x;
 	  
 	  Neighbor() {
 		BasePtr = nullptr;
@@ -71,6 +78,7 @@ class Stencil : public FunctionPass {
 		offset_y = 0;
 		offset_z = 0;
 		dimension = 1;
+		reduce = false;
 		//SCEVAccess = nullptr;
 	  }
 	  
@@ -113,6 +121,7 @@ class Stencil : public FunctionPass {
 	Value*		output;
 	StoreInst*	outputStr;
 	std::vector<Neighbor> neighbors;
+	std::vector<Neighbor> reduceNeighbors;
 	std::vector<Value*> arguments;
     Neighbor str_neighbor;
 	
@@ -185,8 +194,8 @@ class Stencil : public FunctionPass {
   void printCastExpr(T *S, const SCEV *E);
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
-  bool delinearize(const SCEV *S, const SCEV *E, Neighbor &N);
-  bool parse1DSCEV(const SCEVAddRecExpr *S, const SCEV *E, Neighbor &N);
+  bool delinearize(const SCEV *S, const SCEV *E, Neighbor &N, int dim);
+  bool parse1DSCEV(const SCEV *S, const SCEV *E, Neighbor &N);
   bool parse2DSCEV(const SCEV *S, Neighbor &N);
   bool parse3DSCEV(const SCEV *S, Neighbor &N);
   
