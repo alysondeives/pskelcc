@@ -1290,6 +1290,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	std::vector<Instruction*> StrIns;
     const std::vector<BasicBlock*> Blocks = loop->getBlocks();
 
+    errs()<<"Checking for StrIns...\n";
     for(auto bb : Blocks){
         if(LI->getLoopFor(bb) == loop){
             for(BasicBlock::iterator I = bb->begin(), E = bb->end(); I != E; ++I){
@@ -1816,12 +1817,12 @@ void Stencil::printUsage(Value *V){
 
 bool Stencil::runOnFunction(Function &F) {
 	this->LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-    this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
+    //this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
 	this->SE = &getAnalysis<ScalarEvolution>();
 	//this->SE = getAnalysis<ScalarEvolutionWrapperPass>(F).getSE();
-    this->RP = &getAnalysis<RegionInfoPass>();
-    this->AA = &getAnalysis<AliasAnalysis>();
-    this->ptrRA = &getAnalysis<PtrRangeAnalysis>();
+    //this->RP = &getAnalysis<RegionInfoPass>();
+    //this->AA = &getAnalysis<AliasAnalysis>();
+    //this->ptrRA = &getAnalysis<PtrRangeAnalysis>();
 
     //this->rn = &getAnalysis<RecoverNames>();
     //this->rr = &getAnalysis<RegionReconstructor>();
@@ -1923,7 +1924,6 @@ bool Stencil::runOnFunction(Function &F) {
         errs()<<"Function "<< F.getName()<<" does not constain Stencil\n";
     }
 	return false;
-    
 }
 
 // TODO Generate Stencil Computation tree for future Code Generation
