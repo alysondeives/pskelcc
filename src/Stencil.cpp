@@ -271,9 +271,23 @@ bool Stencil::delinearize(const SCEV *S, const SCEV *ElementSize, Neighbor &N, i
         Type *SignType = Sign->getType();
         
         const SCEV *S1 = Sign->getOperand();
+
+        //We can have a PHINode
+        if(isa<SCEVUnknown>(S1)){
+            errs()<<"Access SCEV is unknown: "<<*S1<<"\n";
+            Value *Val = dyn_cast<SCEVUnknown>(S1)->getValue();
+            if(!isa<PHINode>(Val))
+                errs()<<"Expected a PHINode in the Access SCEV: "<<*S1<<"\n";
+
+            PHINode *phi = dyn_cast<PHINode>(Val);
+            errs()<<*phi<<"\n";
+            for(int i=0;i<phi->getNumIncomingValues();i++){
+                errs()<<*(SE->getSCEV(phi->getIncomingValue(i)))<<"\n";
+            }
+        }
         
         if(!isa<SCEVAddRecExpr>(S1)){
-            errs()<<"Expected SCEV AddRec expression: "<<*Sign<<"\n";
+            errs()<<"Expected SCEV AddRec expression: "<<*S1<<"\n";
             return false;
         }
         
@@ -1286,6 +1300,8 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 	//Instruction *Ins;
 	GetElementPtrInst *GEP;
 	LoadInst *LD;
+    std::vector<Neighbor> Neighbors;
+    std::vector<Neighbor> StrNeighbor;
 	
 	std::vector<Instruction*> StrIns;
     const std::vector<BasicBlock*> Blocks = loop->getBlocks();
@@ -1323,7 +1339,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
     
 	for(auto Ins : StrIns){
 		ArrayAccess arrayAcc;
-		Neighbor store_neighbor;
+		//Neighbor store_neighbor;
 		bool hasReduce = false;
 		bool neighborhood = false;
 		errs()<<"Store: "<<*Ins<<"\n";	
@@ -1356,10 +1372,12 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         //errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
 
         const SCEV *StrSCEV = SE->getSCEV(Str->getPointerOperand());
-        if(!delinearize(StrSCEV, ElementSize, store_neighbor, dim)){
+        if(!delinearize(StrSCEV, ElementSize, StrNeighbor, dim)){
 			errs()<<"Error delinearizing: "<<*Str<<" with SCEV "<<*StrSCEV<<"\n";
             return false;
         }
+        store_neighbor = StrNeighbor.pop_back();
+        
         //Stencil->str_neighbor = store_neighbor;
          
         // Populate map with memory access of the store
@@ -1381,7 +1399,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         errs()<<"ArrayAccess Size: "<<arrayAcc.size()<<"\n";
         /* Get all Neighbors */
         for(auto i : arrayAcc){
-            Neighbor N;
+            //Neighbor N;
             LoadInst *LD = dyn_cast<LoadInst>(i.first);
             
             BasicBlock *bb = LD->getParent();
@@ -1394,11 +1412,13 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
             errs()<<"Neighbor: "<<*LD<<"\n";
             errs()<<"SCEV: "<<*SCEVExpr<<"\n";
    
-            if(!delinearize(SCEVExpr, ElementSize, N, dim)){
+            if(!delinearize(SCEVExpr, ElementSize, Stencil->neighbors, dim)){
 				errs()<<"Error delinearizing: "<<*i.first<<" with SCEV "<<*SCEVExpr<<"\n";
                 return false;
 			}
-			
+        }
+
+        for(N : Stencil->neighbors){
 			/* Match access */
 			if(!(matchStencilNeighborhood(store_neighbor, N))){
 				errs()<<"ERROR! Str and Neighbor access does not match\n";
