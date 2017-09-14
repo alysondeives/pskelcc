@@ -98,17 +98,17 @@ return:                                           ; preds = %if.else, %if.then
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
-  %conv = sext i32 2048 to i64
+  %conv = sext i32 1024 to i64
   %mul = mul i64 %conv, 4
   %call = call noalias i8* @malloc(i64 %mul) #3
   %tmp = bitcast i8* %call to float*
-  %conv1 = sext i32 2048 to i64
+  %conv1 = sext i32 1024 to i64
   %mul2 = mul i64 %conv1, 4
   %call3 = call noalias i8* @malloc(i64 %mul2) #3
   %tmp1 = bitcast i8* %call3 to float*
-  call void @init_array(i32 2048, float* %tmp, float* %tmp1)
+  call void @init_array(i32 1024, float* %tmp, float* %tmp1)
   %call4 = call double @rtclock()
-  call void @kernel_jacobi_1d(i32 5, i32 2048, float* %tmp, float* %tmp1)
+  call void @jacobi(i32 10, i32 1024, float* %tmp, float* %tmp1)
   %call5 = call double @rtclock()
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call5, %call4
@@ -159,7 +159,7 @@ for.end:                                          ; preds = %for.cond
 }
 
 ; Function Attrs: nounwind uwtable
-define internal void @kernel_jacobi_1d(i32 %tsteps, i32 %n, float* %A, float* %B) #0 {
+define internal void @jacobi(i32 %tsteps, i32 %n, float* %A, float* %B) #0 {
 entry:
   br label %for.cond
 
@@ -205,7 +205,7 @@ for.end:                                          ; preds = %for.cond.1
   br label %for.cond.13
 
 for.cond.13:                                      ; preds = %for.inc.21, %for.end
-  %j.0 = phi i32 [ 1, %for.end ], [ %inc22, %for.inc.21 ]
+  %j.0 = phi i32 [ 0, %for.end ], [ %inc22, %for.inc.21 ]
   %sub14 = sub nsw i32 %n, 1
   %cmp15 = icmp slt i32 %j.0, %sub14
   br i1 %cmp15, label %for.body.16, label %for.end.23

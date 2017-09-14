@@ -1,4 +1,4 @@
-; ModuleID = '2DJacobi.c'
+; ModuleID = 'stencil.c'
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -365,8 +365,8 @@ for.cond.4:                                       ; preds = %for.inc, %for.body.
 
 for.body.7:                                       ; preds = %for.cond.4
   %5 = load float, float* %c1, align 4, !dbg !300
-  %6 = load i32, i32* %J.addr, align 4, !dbg !302
-  %7 = load i32, i32* %i, align 4, !dbg !303
+  %6 = load i32, i32* %i, align 4, !dbg !302
+  %7 = load i32, i32* %J.addr, align 4, !dbg !303
   %mul = mul nsw i32 %6, %7, !dbg !304
   %8 = load i32, i32* %j, align 4, !dbg !305
   %sub8 = sub nsw i32 %8, 1, !dbg !306
@@ -802,7 +802,7 @@ attributes #4 = { nounwind }
 !llvm.ident = !{!40}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "clang version 3.7.1 (https://github.com/llvm-mirror/clang.git 0dbefa1b83eb90f7a06b5df5df254ce32be3db4b) (https://github.com/llvm-mirror/llvm.git 33c352b3eda89abc24e7511d9045fa2e499a42e3)", isOptimized: false, runtimeVersion: 0, emissionKind: 1, enums: !2, retainedTypes: !3, subprograms: !7)
-!1 = !DIFile(filename: "2DJacobi.c", directory: "/home/alyson/git/pskelcc/test")
+!1 = !DIFile(filename: "stencil.c", directory: "/home/alyson/git/pskelcc/test")
 !2 = !{}
 !3 = !{!4, !6}
 !4 = !DIDerivedType(tag: DW_TAG_typedef, name: "DATA_TYPE", file: !1, line: 35, baseType: !5)
@@ -1103,9 +1103,9 @@ attributes #4 = { nounwind }
 !299 = !DILocation(line: 69, column: 13, scope: !289)
 !300 = !DILocation(line: 70, column: 27, scope: !301)
 !301 = distinct !DILexicalBlock(scope: !295, file: !1, line: 69, column: 41)
-!302 = !DILocation(line: 70, column: 35, scope: !301)
-!303 = !DILocation(line: 70, column: 38, scope: !301)
-!304 = !DILocation(line: 70, column: 36, scope: !301)
+!302 = !DILocation(line: 70, column: 36, scope: !301)
+!303 = !DILocation(line: 70, column: 39, scope: !301)
+!304 = !DILocation(line: 70, column: 38, scope: !301)
 !305 = !DILocation(line: 70, column: 44, scope: !301)
 !306 = !DILocation(line: 70, column: 46, scope: !301)
 !307 = !DILocation(line: 70, column: 41, scope: !301)

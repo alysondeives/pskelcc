@@ -30,11 +30,11 @@ if.then:                                          ; preds = %entry
 
 if.end:                                           ; preds = %if.then, %entry
   %tv_sec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i32 0, i32 0, !dbg !67
-  %0 = load i64, i64* %tv_sec, align 8, !dbg !67
-  %conv = sitofp i64 %0 to double, !dbg !68
+  %tmp = load i64, i64* %tv_sec, align 8, !dbg !67
+  %conv = sitofp i64 %tmp to double, !dbg !68
   %tv_usec = getelementptr inbounds %struct.timeval, %struct.timeval* %Tp, i32 0, i32 1, !dbg !69
-  %1 = load i64, i64* %tv_usec, align 8, !dbg !69
-  %conv2 = sitofp i64 %1 to double, !dbg !70
+  %tmp1 = load i64, i64* %tv_usec, align 8, !dbg !69
+  %conv2 = sitofp i64 %tmp1 to double, !dbg !70
   %mul = fmul double %conv2, 1.000000e-06, !dbg !71
   %add = fadd double %conv, %mul, !dbg !72
   ret double %add, !dbg !73
@@ -144,31 +144,31 @@ for.body.6:                                       ; preds = %for.cond.4
   %add7 = add nsw i32 %mul, %sub, !dbg !146
   %idxprom = sext i32 %add7 to i64, !dbg !147
   %arrayidx = getelementptr inbounds float, float* %A, i64 %idxprom, !dbg !147
-  %0 = load float, float* %arrayidx, align 4, !dbg !147
+  %tmp = load float, float* %arrayidx, align 4, !dbg !147
   %add8 = add nsw i32 %i.0, 0, !dbg !148
   %mul9 = mul nsw i32 %add8, 300, !dbg !149
   %add10 = add nsw i32 %j.0, 1, !dbg !150
   %add11 = add nsw i32 %mul9, %add10, !dbg !151
   %idxprom12 = sext i32 %add11 to i64, !dbg !152
   %arrayidx13 = getelementptr inbounds float, float* %A, i64 %idxprom12, !dbg !152
-  %1 = load float, float* %arrayidx13, align 4, !dbg !152
-  %add14 = fadd float %0, %1, !dbg !153
+  %tmp1 = load float, float* %arrayidx13, align 4, !dbg !152
+  %add14 = fadd float %tmp, %tmp1, !dbg !153
   %add15 = add nsw i32 %i.0, 1, !dbg !154
   %mul16 = mul nsw i32 %add15, 300, !dbg !155
   %add17 = add nsw i32 %j.0, 0, !dbg !156
   %add18 = add nsw i32 %mul16, %add17, !dbg !157
   %idxprom19 = sext i32 %add18 to i64, !dbg !158
   %arrayidx20 = getelementptr inbounds float, float* %A, i64 %idxprom19, !dbg !158
-  %2 = load float, float* %arrayidx20, align 4, !dbg !158
-  %add21 = fadd float %add14, %2, !dbg !159
+  %tmp2 = load float, float* %arrayidx20, align 4, !dbg !158
+  %add21 = fadd float %add14, %tmp2, !dbg !159
   %sub22 = sub nsw i32 %i.0, 1, !dbg !160
   %mul23 = mul nsw i32 %sub22, 300, !dbg !161
   %add24 = add nsw i32 %j.0, 0, !dbg !162
   %add25 = add nsw i32 %mul23, %add24, !dbg !163
   %idxprom26 = sext i32 %add25 to i64, !dbg !164
   %arrayidx27 = getelementptr inbounds float, float* %A, i64 %idxprom26, !dbg !164
-  %3 = load float, float* %arrayidx27, align 4, !dbg !164
-  %add28 = fadd float %add21, %3, !dbg !165
+  %tmp3 = load float, float* %arrayidx27, align 4, !dbg !164
+  %add28 = fadd float %add21, %tmp3, !dbg !165
   %mul29 = fmul float 0x3FC99999A0000000, %add28, !dbg !166
   %mul30 = mul nsw i32 %i.0, 300, !dbg !167
   %add31 = add nsw i32 %mul30, %j.0, !dbg !168
@@ -213,12 +213,12 @@ for.body.42:                                      ; preds = %for.cond.40
   %add44 = add nsw i32 %mul43, %j.1, !dbg !190
   %idxprom45 = sext i32 %add44 to i64, !dbg !191
   %arrayidx46 = getelementptr inbounds float, float* %B, i64 %idxprom45, !dbg !191
-  %4 = load float, float* %arrayidx46, align 4, !dbg !191
+  %tmp4 = load float, float* %arrayidx46, align 4, !dbg !191
   %mul47 = mul nsw i32 %i.1, 300, !dbg !192
   %add48 = add nsw i32 %mul47, %j.1, !dbg !193
   %idxprom49 = sext i32 %add48 to i64, !dbg !194
   %arrayidx50 = getelementptr inbounds float, float* %A, i64 %idxprom49, !dbg !194
-  store float %4, float* %arrayidx50, align 4, !dbg !195
+  store float %tmp4, float* %arrayidx50, align 4, !dbg !195
   br label %for.inc.51, !dbg !196
 
 for.inc.51:                                       ; preds = %for.body.42
@@ -283,33 +283,33 @@ for.cond.4:                                       ; preds = %for.inc, %for.body.
   br i1 %cmp6, label %for.body.7, label %for.end, !dbg !240
 
 for.body.7:                                       ; preds = %for.cond.4
-  %mul = mul nsw i32 %J, %i.0, !dbg !241
+  %mul = mul nsw i32 %i.0, %J, !dbg !241
   %sub8 = sub nsw i32 %j.0, 1, !dbg !243
   %add = add nsw i32 %mul, %sub8, !dbg !244
   %idxprom = sext i32 %add to i64, !dbg !245
   %arrayidx = getelementptr inbounds float, float* %A, i64 %idxprom, !dbg !245
-  %0 = load float, float* %arrayidx, align 4, !dbg !245
+  %tmp = load float, float* %arrayidx, align 4, !dbg !245
   %mul9 = mul nsw i32 %i.0, %J, !dbg !246
   %add10 = add nsw i32 %j.0, 1, !dbg !247
   %add11 = add nsw i32 %mul9, %add10, !dbg !248
   %idxprom12 = sext i32 %add11 to i64, !dbg !249
   %arrayidx13 = getelementptr inbounds float, float* %A, i64 %idxprom12, !dbg !249
-  %1 = load float, float* %arrayidx13, align 4, !dbg !249
-  %add14 = fadd float %0, %1, !dbg !250
+  %tmp1 = load float, float* %arrayidx13, align 4, !dbg !249
+  %add14 = fadd float %tmp, %tmp1, !dbg !250
   %add15 = add nsw i32 %i.0, 1, !dbg !251
   %mul16 = mul nsw i32 %add15, %J, !dbg !252
   %add17 = add nsw i32 %mul16, %j.0, !dbg !253
   %idxprom18 = sext i32 %add17 to i64, !dbg !254
   %arrayidx19 = getelementptr inbounds float, float* %A, i64 %idxprom18, !dbg !254
-  %2 = load float, float* %arrayidx19, align 4, !dbg !254
-  %add20 = fadd float %add14, %2, !dbg !255
+  %tmp2 = load float, float* %arrayidx19, align 4, !dbg !254
+  %add20 = fadd float %add14, %tmp2, !dbg !255
   %sub21 = sub nsw i32 %i.0, 1, !dbg !256
   %mul22 = mul nsw i32 %sub21, %J, !dbg !257
   %add23 = add nsw i32 %mul22, %j.0, !dbg !258
   %idxprom24 = sext i32 %add23 to i64, !dbg !259
   %arrayidx25 = getelementptr inbounds float, float* %A, i64 %idxprom24, !dbg !259
-  %3 = load float, float* %arrayidx25, align 4, !dbg !259
-  %add26 = fadd float %add20, %3, !dbg !260
+  %tmp3 = load float, float* %arrayidx25, align 4, !dbg !259
+  %add26 = fadd float %add20, %tmp3, !dbg !260
   %mul27 = fmul float 0x3FC99999A0000000, %add26, !dbg !261
   %mul28 = mul nsw i32 %i.0, %J, !dbg !262
   %add29 = add nsw i32 %mul28, %j.0, !dbg !263
@@ -356,12 +356,12 @@ for.body.42:                                      ; preds = %for.cond.39
   %add44 = add nsw i32 %mul43, %j.1, !dbg !287
   %idxprom45 = sext i32 %add44 to i64, !dbg !288
   %arrayidx46 = getelementptr inbounds float, float* %B, i64 %idxprom45, !dbg !288
-  %4 = load float, float* %arrayidx46, align 4, !dbg !288
+  %tmp4 = load float, float* %arrayidx46, align 4, !dbg !288
   %mul47 = mul nsw i32 %i.1, %J, !dbg !289
   %add48 = add nsw i32 %mul47, %j.1, !dbg !290
   %idxprom49 = sext i32 %add48 to i64, !dbg !291
   %arrayidx50 = getelementptr inbounds float, float* %A, i64 %idxprom49, !dbg !291
-  store float %4, float* %arrayidx50, align 4, !dbg !292
+  store float %tmp4, float* %arrayidx50, align 4, !dbg !292
   br label %for.inc.51, !dbg !293
 
 for.inc.51:                                       ; preds = %for.body.42
@@ -418,12 +418,12 @@ for.body.3:                                       ; preds = %for.cond.1
   %add = add nsw i32 %i.0, 1, !dbg !327
   %idxprom = sext i32 %add to i64, !dbg !329
   %arrayidx = getelementptr inbounds float, float* %A, i64 %idxprom, !dbg !329
-  %0 = load float, float* %arrayidx, align 4, !dbg !329
+  %tmp = load float, float* %arrayidx, align 4, !dbg !329
   %sub4 = sub nsw i32 %i.0, 1, !dbg !330
   %idxprom5 = sext i32 %sub4 to i64, !dbg !331
   %arrayidx6 = getelementptr inbounds float, float* %A, i64 %idxprom5, !dbg !331
-  %1 = load float, float* %arrayidx6, align 4, !dbg !331
-  %add7 = fadd float %0, %1, !dbg !332
+  %tmp1 = load float, float* %arrayidx6, align 4, !dbg !331
+  %add7 = fadd float %tmp, %tmp1, !dbg !332
   %mul = fmul float 0x3FC99999A0000000, %add7, !dbg !333
   %idxprom8 = sext i32 %i.0 to i64, !dbg !334
   %arrayidx9 = getelementptr inbounds float, float* %B, i64 %idxprom8, !dbg !334
@@ -448,10 +448,10 @@ for.cond.10:                                      ; preds = %for.inc.18, %for.en
 for.body.13:                                      ; preds = %for.cond.10
   %idxprom14 = sext i32 %i.1 to i64, !dbg !345
   %arrayidx15 = getelementptr inbounds float, float* %B, i64 %idxprom14, !dbg !345
-  %2 = load float, float* %arrayidx15, align 4, !dbg !345
+  %tmp2 = load float, float* %arrayidx15, align 4, !dbg !345
   %idxprom16 = sext i32 %i.1 to i64, !dbg !347
   %arrayidx17 = getelementptr inbounds float, float* %A, i64 %idxprom16, !dbg !347
-  store float %2, float* %arrayidx17, align 4, !dbg !348
+  store float %tmp2, float* %arrayidx17, align 4, !dbg !348
   br label %for.inc.18, !dbg !349
 
 for.inc.18:                                       ; preds = %for.body.13
@@ -555,31 +555,31 @@ entry:
   call void @llvm.dbg.declare(metadata !2, metadata !419, metadata !47), !dbg !420
   call void @llvm.dbg.declare(metadata !2, metadata !421, metadata !47), !dbg !422
   %call = call noalias i8* @malloc(i64 240000) #4, !dbg !423
-  %0 = bitcast i8* %call to float*, !dbg !424
-  call void @llvm.dbg.value(metadata float* %0, i64 0, metadata !425, metadata !47), !dbg !426
+  %tmp = bitcast i8* %call to float*, !dbg !424
+  call void @llvm.dbg.value(metadata float* %tmp, i64 0, metadata !425, metadata !47), !dbg !426
   %call1 = call noalias i8* @malloc(i64 240000) #4, !dbg !427
-  %1 = bitcast i8* %call1 to float*, !dbg !428
-  call void @llvm.dbg.value(metadata float* %1, i64 0, metadata !429, metadata !47), !dbg !430
+  %tmp1 = bitcast i8* %call1 to float*, !dbg !428
+  call void @llvm.dbg.value(metadata float* %tmp1, i64 0, metadata !429, metadata !47), !dbg !430
   %call2 = call noalias i8* @malloc(i64 240000) #4, !dbg !431
-  %2 = bitcast i8* %call2 to float*, !dbg !432
-  call void @llvm.dbg.value(metadata float* %2, i64 0, metadata !433, metadata !47), !dbg !434
-  %3 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !435
-  %call3 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %3, i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.1, i32 0, i32 0)), !dbg !436
-  call void @init(float* %0, float* %1, float* %2), !dbg !437
+  %tmp2 = bitcast i8* %call2 to float*, !dbg !432
+  call void @llvm.dbg.value(metadata float* %tmp2, i64 0, metadata !433, metadata !47), !dbg !434
+  %tmp3 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !435
+  %call3 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp3, i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.1, i32 0, i32 0)), !dbg !436
+  call void @init(float* %tmp, float* %tmp1, float* %tmp2), !dbg !437
   %call4 = call double @rtclock(), !dbg !438
   call void @llvm.dbg.value(metadata double %call4, i64 0, metadata !439, metadata !47), !dbg !440
-  call void @jacobi2D(float* %0, float* %1), !dbg !441
+  call void @jacobi2D(float* %tmp, float* %tmp1), !dbg !441
   %call5 = call double @rtclock(), !dbg !442
   call void @llvm.dbg.value(metadata double %call5, i64 0, metadata !443, metadata !47), !dbg !444
-  %4 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !445
+  %tmp4 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8, !dbg !445
   %sub = fsub double %call5, %call4, !dbg !446
-  %call6 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %4, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.2, i32 0, i32 0), double %sub), !dbg !447
-  %5 = bitcast float* %0 to i8*, !dbg !448
-  call void @free(i8* %5) #4, !dbg !449
-  %6 = bitcast float* %1 to i8*, !dbg !450
-  call void @free(i8* %6) #4, !dbg !451
-  %7 = bitcast float* %2 to i8*, !dbg !452
-  call void @free(i8* %7) #4, !dbg !453
+  %call6 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %tmp4, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.2, i32 0, i32 0), double %sub), !dbg !447
+  %tmp5 = bitcast float* %tmp to i8*, !dbg !448
+  call void @free(i8* %tmp5) #4, !dbg !449
+  %tmp6 = bitcast float* %tmp1 to i8*, !dbg !450
+  call void @free(i8* %tmp6) #4, !dbg !451
+  %tmp7 = bitcast float* %tmp2 to i8*, !dbg !452
+  call void @free(i8* %tmp7) #4, !dbg !453
   ret i32 0, !dbg !454
 }
 
@@ -605,7 +605,7 @@ attributes #4 = { nounwind }
 !llvm.ident = !{!40}
 
 !0 = distinct !DICompileUnit(language: DW_LANG_C99, file: !1, producer: "clang version 3.7.1 (https://github.com/llvm-mirror/clang.git 0dbefa1b83eb90f7a06b5df5df254ce32be3db4b) (https://github.com/llvm-mirror/llvm.git 33c352b3eda89abc24e7511d9045fa2e499a42e3)", isOptimized: false, runtimeVersion: 0, emissionKind: 1, enums: !2, retainedTypes: !3, subprograms: !7)
-!1 = !DIFile(filename: "2DJacobi.c", directory: "/home/alyson/git/pskelcc/test")
+!1 = !DIFile(filename: "stencil.c", directory: "/home/alyson/git/pskelcc/test")
 !2 = !{}
 !3 = !{!4, !6}
 !4 = !DIDerivedType(tag: DW_TAG_typedef, name: "DATA_TYPE", file: !1, line: 35, baseType: !5)
@@ -845,7 +845,7 @@ attributes #4 = { nounwind }
 !238 = distinct !DILexicalBlock(scope: !235, file: !1, line: 69, column: 13)
 !239 = !DILocation(line: 69, column: 27, scope: !238)
 !240 = !DILocation(line: 69, column: 13, scope: !235)
-!241 = !DILocation(line: 70, column: 36, scope: !242)
+!241 = !DILocation(line: 70, column: 38, scope: !242)
 !242 = distinct !DILexicalBlock(scope: !238, file: !1, line: 69, column: 41)
 !243 = !DILocation(line: 70, column: 46, scope: !242)
 !244 = !DILocation(line: 70, column: 41, scope: !242)

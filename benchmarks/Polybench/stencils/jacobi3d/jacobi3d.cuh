@@ -67,6 +67,7 @@ int jacobi3d_GPU_baseline(int tsteps, int z, int y, int x, float *A, float *B) {
     wbCheck(cudaFree(B_GPU));
     return 0;
 }
+
 __global__ void jacobi3d_kernel_opt(int tsteps, int z, int y, int x,
                                     const float *__restrict__ A,
                                     float *__restrict__ B) {

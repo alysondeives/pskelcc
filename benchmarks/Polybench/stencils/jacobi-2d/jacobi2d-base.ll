@@ -10,6 +10,8 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str = private unnamed_addr constant [35 x i8] c"Error return from gettimeofday: %d\00", align 1
 @stdout = external global %struct._IO_FILE*, align 8
 @.str.1 = private unnamed_addr constant [22 x i8] c"CPU Runtime: %0.6lfs\0A\00", align 1
+@D = common global float* null, align 8
+@G = common global float* null, align 8
 
 ; Function Attrs: nounwind uwtable
 define double @rtclock() #0 {
@@ -224,8 +226,8 @@ entry:
   store i32 0, i32* %retval
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
-  store i32 2048, i32* %n, align 4
-  store i32 5, i32* %tsteps, align 4
+  store i32 1024, i32* %n, align 4
+  store i32 10, i32* %tsteps, align 4
   %0 = load i32, i32* %n, align 4
   %1 = load i32, i32* %n, align 4
   %mul = mul nsw i32 %0, %1
@@ -469,6 +471,187 @@ for.inc.62:                                       ; preds = %for.end.61
   br label %for.cond
 
 for.end.64:                                       ; preds = %for.cond
+  store i32 0, i32* %t, align 4
+  br label %for.cond.65
+
+for.cond.65:                                      ; preds = %for.inc.137, %for.end.64
+  %54 = load i32, i32* %t, align 4
+  %55 = load i32, i32* %tsteps.addr, align 4
+  %cmp66 = icmp slt i32 %54, %55
+  br i1 %cmp66, label %for.body.67, label %for.end.139
+
+for.body.67:                                      ; preds = %for.cond.65
+  store i32 1, i32* %i, align 4
+  br label %for.cond.68
+
+for.cond.68:                                      ; preds = %for.inc.112, %for.body.67
+  %56 = load i32, i32* %i, align 4
+  %57 = load i32, i32* %n.addr, align 4
+  %sub69 = sub nsw i32 %57, 1
+  %cmp70 = icmp slt i32 %56, %sub69
+  br i1 %cmp70, label %for.body.71, label %for.end.114
+
+for.body.71:                                      ; preds = %for.cond.68
+  store i32 1, i32* %j, align 4
+  br label %for.cond.72
+
+for.cond.72:                                      ; preds = %for.inc.109, %for.body.71
+  %58 = load i32, i32* %j, align 4
+  %59 = load i32, i32* %n.addr, align 4
+  %sub73 = sub nsw i32 %59, 1
+  %cmp74 = icmp slt i32 %58, %sub73
+  br i1 %cmp74, label %for.body.75, label %for.end.111
+
+for.body.75:                                      ; preds = %for.cond.72
+  %60 = load float, float* %c1, align 4
+  %61 = load i32, i32* %i, align 4
+  %62 = load i32, i32* %n.addr, align 4
+  %mul76 = mul nsw i32 %61, %62
+  %63 = load i32, i32* %j, align 4
+  %add77 = add nsw i32 %mul76, %63
+  %idxprom78 = sext i32 %add77 to i64
+  %64 = load float*, float** @D, align 8
+  %arrayidx79 = getelementptr inbounds float, float* %64, i64 %idxprom78
+  %65 = load float, float* %arrayidx79, align 4
+  %66 = load i32, i32* %i, align 4
+  %67 = load i32, i32* %n.addr, align 4
+  %mul80 = mul nsw i32 %66, %67
+  %68 = load i32, i32* %j, align 4
+  %sub81 = sub nsw i32 %68, 1
+  %add82 = add nsw i32 %mul80, %sub81
+  %idxprom83 = sext i32 %add82 to i64
+  %69 = load float*, float** @D, align 8
+  %arrayidx84 = getelementptr inbounds float, float* %69, i64 %idxprom83
+  %70 = load float, float* %arrayidx84, align 4
+  %add85 = fadd float %65, %70
+  %71 = load i32, i32* %i, align 4
+  %72 = load i32, i32* %n.addr, align 4
+  %mul86 = mul nsw i32 %71, %72
+  %73 = load i32, i32* %j, align 4
+  %add87 = add nsw i32 %73, 1
+  %add88 = add nsw i32 %mul86, %add87
+  %idxprom89 = sext i32 %add88 to i64
+  %74 = load float*, float** @D, align 8
+  %arrayidx90 = getelementptr inbounds float, float* %74, i64 %idxprom89
+  %75 = load float, float* %arrayidx90, align 4
+  %add91 = fadd float %add85, %75
+  %76 = load i32, i32* %i, align 4
+  %add92 = add nsw i32 %76, 1
+  %77 = load i32, i32* %n.addr, align 4
+  %mul93 = mul nsw i32 %add92, %77
+  %78 = load i32, i32* %j, align 4
+  %add94 = add nsw i32 %mul93, %78
+  %idxprom95 = sext i32 %add94 to i64
+  %79 = load float*, float** @D, align 8
+  %arrayidx96 = getelementptr inbounds float, float* %79, i64 %idxprom95
+  %80 = load float, float* %arrayidx96, align 4
+  %add97 = fadd float %add91, %80
+  %81 = load i32, i32* %i, align 4
+  %sub98 = sub nsw i32 %81, 1
+  %82 = load i32, i32* %n.addr, align 4
+  %mul99 = mul nsw i32 %sub98, %82
+  %83 = load i32, i32* %j, align 4
+  %add100 = add nsw i32 %mul99, %83
+  %idxprom101 = sext i32 %add100 to i64
+  %84 = load float*, float** @D, align 8
+  %arrayidx102 = getelementptr inbounds float, float* %84, i64 %idxprom101
+  %85 = load float, float* %arrayidx102, align 4
+  %add103 = fadd float %add97, %85
+  %mul104 = fmul float %60, %add103
+  %86 = load i32, i32* %i, align 4
+  %87 = load i32, i32* %n.addr, align 4
+  %mul105 = mul nsw i32 %86, %87
+  %88 = load i32, i32* %j, align 4
+  %add106 = add nsw i32 %mul105, %88
+  %idxprom107 = sext i32 %add106 to i64
+  %89 = load float*, float** @G, align 8
+  %arrayidx108 = getelementptr inbounds float, float* %89, i64 %idxprom107
+  store float %mul104, float* %arrayidx108, align 4
+  br label %for.inc.109
+
+for.inc.109:                                      ; preds = %for.body.75
+  %90 = load i32, i32* %j, align 4
+  %inc110 = add nsw i32 %90, 1
+  store i32 %inc110, i32* %j, align 4
+  br label %for.cond.72
+
+for.end.111:                                      ; preds = %for.cond.72
+  br label %for.inc.112
+
+for.inc.112:                                      ; preds = %for.end.111
+  %91 = load i32, i32* %i, align 4
+  %inc113 = add nsw i32 %91, 1
+  store i32 %inc113, i32* %i, align 4
+  br label %for.cond.68
+
+for.end.114:                                      ; preds = %for.cond.68
+  store i32 1, i32* %i, align 4
+  br label %for.cond.115
+
+for.cond.115:                                     ; preds = %for.inc.134, %for.end.114
+  %92 = load i32, i32* %i, align 4
+  %93 = load i32, i32* %n.addr, align 4
+  %sub116 = sub nsw i32 %93, 1
+  %cmp117 = icmp slt i32 %92, %sub116
+  br i1 %cmp117, label %for.body.118, label %for.end.136
+
+for.body.118:                                     ; preds = %for.cond.115
+  store i32 1, i32* %j, align 4
+  br label %for.cond.119
+
+for.cond.119:                                     ; preds = %for.inc.131, %for.body.118
+  %94 = load i32, i32* %j, align 4
+  %95 = load i32, i32* %n.addr, align 4
+  %sub120 = sub nsw i32 %95, 1
+  %cmp121 = icmp slt i32 %94, %sub120
+  br i1 %cmp121, label %for.body.122, label %for.end.133
+
+for.body.122:                                     ; preds = %for.cond.119
+  %96 = load i32, i32* %i, align 4
+  %97 = load i32, i32* %n.addr, align 4
+  %mul123 = mul nsw i32 %96, %97
+  %98 = load i32, i32* %j, align 4
+  %add124 = add nsw i32 %mul123, %98
+  %idxprom125 = sext i32 %add124 to i64
+  %99 = load float*, float** @G, align 8
+  %arrayidx126 = getelementptr inbounds float, float* %99, i64 %idxprom125
+  %100 = load float, float* %arrayidx126, align 4
+  %101 = load i32, i32* %i, align 4
+  %102 = load i32, i32* %n.addr, align 4
+  %mul127 = mul nsw i32 %101, %102
+  %103 = load i32, i32* %j, align 4
+  %add128 = add nsw i32 %mul127, %103
+  %idxprom129 = sext i32 %add128 to i64
+  %104 = load float*, float** @D, align 8
+  %arrayidx130 = getelementptr inbounds float, float* %104, i64 %idxprom129
+  store float %100, float* %arrayidx130, align 4
+  br label %for.inc.131
+
+for.inc.131:                                      ; preds = %for.body.122
+  %105 = load i32, i32* %j, align 4
+  %inc132 = add nsw i32 %105, 1
+  store i32 %inc132, i32* %j, align 4
+  br label %for.cond.119
+
+for.end.133:                                      ; preds = %for.cond.119
+  br label %for.inc.134
+
+for.inc.134:                                      ; preds = %for.end.133
+  %106 = load i32, i32* %i, align 4
+  %inc135 = add nsw i32 %106, 1
+  store i32 %inc135, i32* %i, align 4
+  br label %for.cond.115
+
+for.end.136:                                      ; preds = %for.cond.115
+  br label %for.inc.137
+
+for.inc.137:                                      ; preds = %for.end.136
+  %107 = load i32, i32* %t, align 4
+  %inc138 = add nsw i32 %107, 1
+  store i32 %inc138, i32* %t, align 4
+  br label %for.cond.65
+
+for.end.139:                                      ; preds = %for.cond.65
   ret void
 }
 

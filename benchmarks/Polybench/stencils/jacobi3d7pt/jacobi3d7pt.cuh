@@ -69,7 +69,8 @@ int jacobi3d7pt_GPU_baseline(int tsteps, int z, int y, int x, float *A,
     return 0;
 }
 __global__ void jacobi3d7pt_kernel_opt(int tsteps, int z, int y, int x,
-                                       float *A, float *B) {
+                                       const float *__restrict__ A,
+                                       float *__restrict__ B) {
     __shared__ float ds_a[BLOCK_DIMY][BLOCK_DIMX];
     int j = blockIdx.y * (blockDim.y - 2 * RADIUS) + threadIdx.y + RADIUS;
     int k = blockIdx.x * (blockDim.x - 2 * RADIUS) + threadIdx.x + RADIUS;

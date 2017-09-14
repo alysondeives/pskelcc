@@ -240,12 +240,12 @@ class Stencil : public FunctionPass {
 
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
       
-      AU.addRequired<RegionInfoPass>();
-      AU.addRequired<AliasAnalysis>();
+      //AU.addRequired<RegionInfoPass>();
+      //AU.addRequired<AliasAnalysis>();
       
       //AU.addRequiredTransitive<LoopInfoWrapperPass>();
-      AU.addRequired<PtrRangeAnalysis>();
-      AU.addRequired<DominatorTreeWrapperPass>();
+      //AU.addRequired<PtrRangeAnalysis>();
+      //AU.addRequired<DominatorTreeWrapperPass>();
       //AU.addRequired<RecoverNames>();
       
       //AU.addRequired<RegionReconstructor>(); 

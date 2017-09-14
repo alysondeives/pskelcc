@@ -10,6 +10,8 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str = private unnamed_addr constant [35 x i8] c"Error return from gettimeofday: %d\00", align 1
 @stdout = external global %struct._IO_FILE*, align 8
 @.str.1 = private unnamed_addr constant [22 x i8] c"CPU Runtime: %0.6lfs\0A\00", align 1
+@D = common global float* null, align 8
+@G = common global float* null, align 8
 
 ; Function Attrs: nounwind uwtable
 define double @rtclock() #0 {
@@ -158,19 +160,19 @@ for.end.22:                                       ; preds = %for.cond
 ; Function Attrs: nounwind uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
-  %mul = mul nsw i32 2048, 2048
+  %mul = mul nsw i32 1024, 1024
   %conv = sext i32 %mul to i64
   %mul1 = mul i64 %conv, 4
   %call = call noalias i8* @malloc(i64 %mul1) #3
   %tmp = bitcast i8* %call to float*
-  %mul2 = mul nsw i32 2048, 2048
+  %mul2 = mul nsw i32 1024, 1024
   %conv3 = sext i32 %mul2 to i64
   %mul4 = mul i64 %conv3, 4
   %call5 = call noalias i8* @malloc(i64 %mul4) #3
   %tmp1 = bitcast i8* %call5 to float*
-  call void @init_array(i32 2048, float* %tmp, float* %tmp1)
+  call void @init_array(i32 1024, float* %tmp, float* %tmp1)
   %call6 = call double @rtclock()
-  call void @jacobi2d(i32 5, i32 2048, float* %tmp, float* %tmp1)
+  call void @jacobi2d(i32 10, i32 1024, float* %tmp, float* %tmp1)
   %call7 = call double @rtclock()
   %tmp2 = load %struct._IO_FILE*, %struct._IO_FILE** @stdout, align 8
   %sub = fsub double %call7, %call6
@@ -316,6 +318,142 @@ for.inc.62:                                       ; preds = %for.end.61
   br label %for.cond
 
 for.end.64:                                       ; preds = %for.cond
+  br label %for.cond.65
+
+for.cond.65:                                      ; preds = %for.inc.137, %for.end.64
+  %t.1 = phi i32 [ 0, %for.end.64 ], [ %inc138, %for.inc.137 ]
+  %cmp66 = icmp slt i32 %t.1, %tsteps
+  br i1 %cmp66, label %for.body.67, label %for.end.139
+
+for.body.67:                                      ; preds = %for.cond.65
+  br label %for.cond.68
+
+for.cond.68:                                      ; preds = %for.inc.112, %for.body.67
+  %i.2 = phi i32 [ 1, %for.body.67 ], [ %inc113, %for.inc.112 ]
+  %sub69 = sub nsw i32 %n, 1
+  %cmp70 = icmp slt i32 %i.2, %sub69
+  br i1 %cmp70, label %for.body.71, label %for.end.114
+
+for.body.71:                                      ; preds = %for.cond.68
+  br label %for.cond.72
+
+for.cond.72:                                      ; preds = %for.inc.109, %for.body.71
+  %j.2 = phi i32 [ 1, %for.body.71 ], [ %inc110, %for.inc.109 ]
+  %sub73 = sub nsw i32 %n, 1
+  %cmp74 = icmp slt i32 %j.2, %sub73
+  br i1 %cmp74, label %for.body.75, label %for.end.111
+
+for.body.75:                                      ; preds = %for.cond.72
+  %mul76 = mul nsw i32 %i.2, %n
+  %add77 = add nsw i32 %mul76, %j.2
+  %idxprom78 = sext i32 %add77 to i64
+  %tmp6 = load float*, float** @D, align 8
+  %arrayidx79 = getelementptr inbounds float, float* %tmp6, i64 %idxprom78
+  %tmp7 = load float, float* %arrayidx79, align 4
+  %mul80 = mul nsw i32 %i.2, %n
+  %sub81 = sub nsw i32 %j.2, 1
+  %add82 = add nsw i32 %mul80, %sub81
+  %idxprom83 = sext i32 %add82 to i64
+  %tmp8 = load float*, float** @D, align 8
+  %arrayidx84 = getelementptr inbounds float, float* %tmp8, i64 %idxprom83
+  %tmp9 = load float, float* %arrayidx84, align 4
+  %add85 = fadd float %tmp7, %tmp9
+  %mul86 = mul nsw i32 %i.2, %n
+  %add87 = add nsw i32 %j.2, 1
+  %add88 = add nsw i32 %mul86, %add87
+  %idxprom89 = sext i32 %add88 to i64
+  %tmp10 = load float*, float** @D, align 8
+  %arrayidx90 = getelementptr inbounds float, float* %tmp10, i64 %idxprom89
+  %tmp11 = load float, float* %arrayidx90, align 4
+  %add91 = fadd float %add85, %tmp11
+  %add92 = add nsw i32 %i.2, 1
+  %mul93 = mul nsw i32 %add92, %n
+  %add94 = add nsw i32 %mul93, %j.2
+  %idxprom95 = sext i32 %add94 to i64
+  %tmp12 = load float*, float** @D, align 8
+  %arrayidx96 = getelementptr inbounds float, float* %tmp12, i64 %idxprom95
+  %tmp13 = load float, float* %arrayidx96, align 4
+  %add97 = fadd float %add91, %tmp13
+  %sub98 = sub nsw i32 %i.2, 1
+  %mul99 = mul nsw i32 %sub98, %n
+  %add100 = add nsw i32 %mul99, %j.2
+  %idxprom101 = sext i32 %add100 to i64
+  %tmp14 = load float*, float** @D, align 8
+  %arrayidx102 = getelementptr inbounds float, float* %tmp14, i64 %idxprom101
+  %tmp15 = load float, float* %arrayidx102, align 4
+  %add103 = fadd float %add97, %tmp15
+  %mul104 = fmul float 0x3FC99999A0000000, %add103
+  %mul105 = mul nsw i32 %i.2, %n
+  %add106 = add nsw i32 %mul105, %j.2
+  %idxprom107 = sext i32 %add106 to i64
+  %tmp16 = load float*, float** @G, align 8
+  %arrayidx108 = getelementptr inbounds float, float* %tmp16, i64 %idxprom107
+  store float %mul104, float* %arrayidx108, align 4
+  br label %for.inc.109
+
+for.inc.109:                                      ; preds = %for.body.75
+  %inc110 = add nsw i32 %j.2, 1
+  br label %for.cond.72
+
+for.end.111:                                      ; preds = %for.cond.72
+  br label %for.inc.112
+
+for.inc.112:                                      ; preds = %for.end.111
+  %inc113 = add nsw i32 %i.2, 1
+  br label %for.cond.68
+
+for.end.114:                                      ; preds = %for.cond.68
+  br label %for.cond.115
+
+for.cond.115:                                     ; preds = %for.inc.134, %for.end.114
+  %i.3 = phi i32 [ 1, %for.end.114 ], [ %inc135, %for.inc.134 ]
+  %sub116 = sub nsw i32 %n, 1
+  %cmp117 = icmp slt i32 %i.3, %sub116
+  br i1 %cmp117, label %for.body.118, label %for.end.136
+
+for.body.118:                                     ; preds = %for.cond.115
+  br label %for.cond.119
+
+for.cond.119:                                     ; preds = %for.inc.131, %for.body.118
+  %j.3 = phi i32 [ 1, %for.body.118 ], [ %inc132, %for.inc.131 ]
+  %sub120 = sub nsw i32 %n, 1
+  %cmp121 = icmp slt i32 %j.3, %sub120
+  br i1 %cmp121, label %for.body.122, label %for.end.133
+
+for.body.122:                                     ; preds = %for.cond.119
+  %mul123 = mul nsw i32 %i.3, %n
+  %add124 = add nsw i32 %mul123, %j.3
+  %idxprom125 = sext i32 %add124 to i64
+  %tmp17 = load float*, float** @G, align 8
+  %arrayidx126 = getelementptr inbounds float, float* %tmp17, i64 %idxprom125
+  %tmp18 = load float, float* %arrayidx126, align 4
+  %mul127 = mul nsw i32 %i.3, %n
+  %add128 = add nsw i32 %mul127, %j.3
+  %idxprom129 = sext i32 %add128 to i64
+  %tmp19 = load float*, float** @D, align 8
+  %arrayidx130 = getelementptr inbounds float, float* %tmp19, i64 %idxprom129
+  store float %tmp18, float* %arrayidx130, align 4
+  br label %for.inc.131
+
+for.inc.131:                                      ; preds = %for.body.122
+  %inc132 = add nsw i32 %j.3, 1
+  br label %for.cond.119
+
+for.end.133:                                      ; preds = %for.cond.119
+  br label %for.inc.134
+
+for.inc.134:                                      ; preds = %for.end.133
+  %inc135 = add nsw i32 %i.3, 1
+  br label %for.cond.115
+
+for.end.136:                                      ; preds = %for.cond.115
+  br label %for.inc.137
+
+for.inc.137:                                      ; preds = %for.end.136
+  %inc138 = add nsw i32 %t.1, 1
+  br label %for.cond.65
+
+for.end.139:                                      ; preds = %for.cond.65
   ret void
 }
 

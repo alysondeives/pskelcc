@@ -1354,11 +1354,14 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
         //Output GEP
         //errs()<<"Store Pointer Operand: "<<*Str->getPointerOperand()<<"\n";
 
+		errs()<<"-----------------------------------------------------------\n";
+		errs()<<"Delinearizing Store...\n";
         const SCEV *StrSCEV = SE->getSCEV(Str->getPointerOperand());
         if(!delinearize(StrSCEV, ElementSize, store_neighbor, dim)){
 			errs()<<"Error delinearizing: "<<*Str<<" with SCEV "<<*StrSCEV<<"\n";
             return false;
         }
+        errs()<<"-----------------------------------------------------------\n";
         //Stencil->str_neighbor = store_neighbor;
          
         // Populate map with memory access of the store
@@ -1816,12 +1819,12 @@ void Stencil::printUsage(Value *V){
 
 bool Stencil::runOnFunction(Function &F) {
 	this->LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-    this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
+    //this->DT = &getAnalysis<DominatorTreeWrapperPass>().getDomTree();
 	this->SE = &getAnalysis<ScalarEvolution>();
 	//this->SE = getAnalysis<ScalarEvolutionWrapperPass>(F).getSE();
-    this->RP = &getAnalysis<RegionInfoPass>();
-    this->AA = &getAnalysis<AliasAnalysis>();
-    this->ptrRA = &getAnalysis<PtrRangeAnalysis>();
+    //this->RP = &getAnalysis<RegionInfoPass>();
+    //this->AA = &getAnalysis<AliasAnalysis>();
+    //this->ptrRA = &getAnalysis<PtrRangeAnalysis>();
 
     //this->rn = &getAnalysis<RecoverNames>();
     //this->rr = &getAnalysis<RegionReconstructor>();
