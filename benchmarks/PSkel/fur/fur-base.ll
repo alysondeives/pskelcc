@@ -226,6 +226,8 @@ entry:
   store i32 %nj, i32* %nj.addr, align 4
   store i32* %A, i32** %A.addr, align 8
   store i32* %B, i32** %B.addr, align 8
+  store float 2.000000e+00, float* %power, align 4
+  store i32 1, i32* %level, align 4
   store i32 0, i32* %t, align 4
   br label %for.cond
 

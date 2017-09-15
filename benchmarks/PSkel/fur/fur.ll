@@ -184,25 +184,25 @@ for.cond.4:                                       ; preds = %for.inc.89, %for.bo
   br i1 %cmp6, label %for.body.7, label %for.end.91
 
 for.body.7:                                       ; preds = %for.cond.4
-  %mul = mul nsw i32 2, undef
-  %sub8 = sub nsw i32 undef, %mul
+  %mul = mul nsw i32 2, 1
+  %sub8 = sub nsw i32 1, %mul
   br label %for.cond.9
 
 for.cond.9:                                       ; preds = %for.inc.23, %for.body.7
   %y.0 = phi i32 [ %sub8, %for.body.7 ], [ %inc24, %for.inc.23 ]
   %numberA.3 = phi i32 [ %numberA.2, %for.body.7 ], [ %numberA.4, %for.inc.23 ]
-  %cmp10 = icmp sle i32 %y.0, undef
+  %cmp10 = icmp sle i32 %y.0, 1
   br i1 %cmp10, label %for.body.11, label %for.end.25
 
 for.body.11:                                      ; preds = %for.cond.9
-  %mul12 = mul nsw i32 2, undef
-  %sub13 = sub nsw i32 undef, %mul12
+  %mul12 = mul nsw i32 2, 1
+  %sub13 = sub nsw i32 1, %mul12
   br label %for.cond.14
 
 for.cond.14:                                      ; preds = %for.inc, %for.body.11
   %x.0 = phi i32 [ %sub13, %for.body.11 ], [ %inc, %for.inc ]
   %numberA.4 = phi i32 [ %numberA.3, %for.body.11 ], [ %numberA.5, %for.inc ]
-  %cmp15 = icmp sle i32 %x.0, undef
+  %cmp15 = icmp sle i32 %x.0, 1
   br i1 %cmp15, label %for.body.16, label %for.end
 
 for.body.16:                                      ; preds = %for.cond.14
@@ -240,28 +240,28 @@ for.inc.23:                                       ; preds = %for.end
   br label %for.cond.9
 
 for.end.25:                                       ; preds = %for.cond.9
-  %mul26 = mul nsw i32 2, undef
-  %mul27 = mul nsw i32 4, undef
+  %mul26 = mul nsw i32 2, 1
+  %mul27 = mul nsw i32 4, 1
   %sub28 = sub nsw i32 %mul26, %mul27
   br label %for.cond.29
 
 for.cond.29:                                      ; preds = %for.inc.65, %for.end.25
   %y.1 = phi i32 [ %sub28, %for.end.25 ], [ %inc66, %for.inc.65 ]
   %numberI.3 = phi i32 [ %numberI.2, %for.end.25 ], [ %numberI.4, %for.inc.65 ]
-  %mul30 = mul nsw i32 2, undef
+  %mul30 = mul nsw i32 2, 1
   %cmp31 = icmp sle i32 %y.1, %mul30
   br i1 %cmp31, label %for.body.32, label %for.end.67
 
 for.body.32:                                      ; preds = %for.cond.29
-  %mul33 = mul nsw i32 2, undef
-  %mul34 = mul nsw i32 4, undef
+  %mul33 = mul nsw i32 2, 1
+  %mul34 = mul nsw i32 4, 1
   %sub35 = sub nsw i32 %mul33, %mul34
   br label %for.cond.36
 
 for.cond.36:                                      ; preds = %for.inc.62, %for.body.32
   %x.1 = phi i32 [ %sub35, %for.body.32 ], [ %inc63, %for.inc.62 ]
   %numberI.4 = phi i32 [ %numberI.3, %for.body.32 ], [ %numberI.6, %for.inc.62 ]
-  %mul37 = mul nsw i32 2, undef
+  %mul37 = mul nsw i32 2, 1
   %cmp38 = icmp sle i32 %x.1, %mul37
   br i1 %cmp38, label %for.body.39, label %for.end.64
 
@@ -274,20 +274,20 @@ lor.lhs.false.41:                                 ; preds = %for.body.39
   br i1 %cmp42, label %if.then.43, label %if.end.61
 
 if.then.43:                                       ; preds = %lor.lhs.false.41, %for.body.39
-  %cmp44 = icmp sle i32 %x.1, undef
+  %cmp44 = icmp sle i32 %x.1, 1
   br i1 %cmp44, label %land.lhs.true, label %if.then.52
 
 land.lhs.true:                                    ; preds = %if.then.43
-  %mul45 = mul nsw i32 -1, undef
+  %mul45 = mul nsw i32 -1, 1
   %cmp46 = icmp sge i32 %x.1, %mul45
   br i1 %cmp46, label %land.lhs.true.47, label %if.then.52
 
 land.lhs.true.47:                                 ; preds = %land.lhs.true
-  %cmp48 = icmp sle i32 %y.1, undef
+  %cmp48 = icmp sle i32 %y.1, 1
   br i1 %cmp48, label %land.lhs.true.49, label %if.then.52
 
 land.lhs.true.49:                                 ; preds = %land.lhs.true.47
-  %mul50 = mul nsw i32 -1, undef
+  %mul50 = mul nsw i32 -1, 1
   %cmp51 = icmp sge i32 %y.1, %mul50
   br i1 %cmp51, label %if.end.60, label %if.then.52
 
@@ -323,7 +323,7 @@ for.inc.65:                                       ; preds = %for.end.64
 
 for.end.67:                                       ; preds = %for.cond.29
   %conv = sitofp i32 %numberI.3 to float
-  %mul68 = fmul float %conv, undef
+  %mul68 = fmul float %conv, 2.000000e+00
   %conv69 = sitofp i32 %numberA.3 to float
   %sub70 = fsub float %conv69, %mul68
   %cmp71 = fcmp olt float %sub70, 0.000000e+00

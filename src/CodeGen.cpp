@@ -334,10 +334,10 @@ void CodeGen::writeExpressionOptimized(raw_fd_ostream &OS, Value *Val, Stencil::
 		//get the neighbor with this LD
 		Stencil::Neighbor N;
 		for(auto i : Stencil.neighbors){
-			errs() << "Checking: "<<*(i.LoadAccess)<<"\n";
-			if (i.LoadAccess == LD){
+			errs() << "Checking: "<<*(i.InstAccess)<<"\n";
+			if (i.InstAccess == Val){
 				N = i;
-				errs()<<*LD<<"\n";
+				errs()<<*Val<<"\n";
 				break;
 			}
 		}
@@ -419,8 +419,8 @@ void CodeGen::writeMemAccess(raw_fd_ostream &OS, Stencil::StencilInfo &Stencil){
 		//GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(i->LoadAccess->getPointerOperand());
 		//Value *Val = dyn_cast<Value>(i.LoadAccess);
 		//Val->getType()->dump();
-		writeType(i.LoadAccess->getType(), OS);
-		OS << " " << i.LoadAccess->getName() <<" = ";
+		writeType(i.InstAccess->getType(), OS);
+		OS << " " << i.InstAccess->getName() <<" = ";
 		OS << i.BasePtr->getName() << "[ ";
 		OS << "(" << idx_z << " + ("<< i.offset_z <<"))" << " * "<< dim_x <<" * " << dim_y << " + ";
 		OS << "(" << idx_y << " + ("<< i.offset_y <<"))" << " * "<< dim_x <<" + ";
@@ -437,8 +437,8 @@ void CodeGen::writeExpression(raw_fd_ostream &OS, Value *Val, Stencil::StencilIn
 		//get the neighbor with this LD
 		Stencil::Neighbor N;
 		for(auto i : Stencil.neighbors){
-			errs() << "Checking: "<<*(i.LoadAccess)<<"\n";
-			if (i.LoadAccess == LD){
+			errs() << "Checking: "<<*(i.InstAccess)<<"\n";
+			if (i.InstAccess == Val){
 				N = i;
 				errs()<<*LD<<"\n";
 				break;

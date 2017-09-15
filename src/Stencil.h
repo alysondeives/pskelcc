@@ -51,7 +51,7 @@ class Stencil : public FunctionPass {
 	  SmallVector<const Loop*,3> SCEVLoopsReduce;
 	  SmallVector<const SCEV*,3> SCEVStepsReduce;
 	  Value*   BasePtr;
-	  LoadInst *LoadAccess;
+	  Value* InstAccess; //Load or Store
 	  
 	  PHINode* phinode_x;
 	  PHINode* phinode_y;
@@ -194,7 +194,7 @@ class Stencil : public FunctionPass {
   void printCastExpr(T *S, const SCEV *E);
 
   void printAddRecExpr(const SCEVAddRecExpr *S, const SCEV *E);
-  bool delinearize(const SCEV *S, const SCEV *E, Neighbor &N, int dim);
+  bool delinearize(const SCEV *S, Value* V, const SCEV *E, std::vector<Neighbor> &N, int dim);
   bool parse1DSCEV(const SCEV *S, const SCEV *E, Neighbor &N);
   bool parse2DSCEV(const SCEV *S, Neighbor &N);
   bool parse3DSCEV(const SCEV *S, Neighbor &N);
@@ -243,7 +243,7 @@ class Stencil : public FunctionPass {
       //AU.addRequired<RegionInfoPass>();
       //AU.addRequired<AliasAnalysis>();
       
-      //AU.addRequiredTransitive<LoopInfoWrapperPass>();
+      AU.addRequiredTransitive<LoopInfoWrapperPass>();
       //AU.addRequired<PtrRangeAnalysis>();
       //AU.addRequired<DominatorTreeWrapperPass>();
       //AU.addRequired<RecoverNames>();
@@ -251,7 +251,7 @@ class Stencil : public FunctionPass {
       //AU.addRequired<RegionReconstructor>(); 
       //AU.addRequired<ScopeTree>();
       
-      AU.addRequired<LoopInfoWrapperPass>();
+      //AU.addRequired<LoopInfoWrapperPass>();
       AU.addRequired<ScalarEvolution>();
       AU.setPreservesAll();
   }  
