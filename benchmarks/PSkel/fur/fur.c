@@ -85,12 +85,12 @@ void fur(int tsteps, int ni, int nj, DATA_TYPE *A, DATA_TYPE *B)
 				
 				/*
 				if(numberA - totalPowerI < 0)
-					B[i*_PB_N + j] = 0; //without color and inhibitor
+					B[i*_PB_NJ + j] = 0; //without color and inhibitor
 				else if(numberA - totalPowerI > 0)
-					B[i*_PB_N + j] = 1;//with color and active
+					B[i*_PB_NJ + j] = 1;//with color and active
 				else
-					B[i*_PB_N + j] = input(h,w);//doesn't change
-				*/					
+					B[i*_PB_NJ + j] = A[i*_PB_NJ + j];//doesn't change
+				*/				
             
 			}
 		}

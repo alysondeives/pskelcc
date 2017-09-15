@@ -72,7 +72,10 @@ bool Stencil::setRadius(StencilInfo *Stencil){
 		}
 	}
 	
+	//TODO Get radius from reduce neighbor
+	
 	Stencil->radius = range;
+	errs()<<"Stencil radius: " << range << "\n";
 	return true;
 }
 
@@ -158,6 +161,7 @@ bool Stencil::populateArrayAccess (Value *Val, Neighbor *Str, ArrayAccess *acc){
         */
         else if(isa<PHINode>(*Ins)){
             PHINode *PHI = dyn_cast<PHINode>(Ins);
+            /* Avoid looping through the same phinode */
             if(PHINodeSet.count(PHI) == 0){
                 PHINodeSet.insert(PHI);
                 if(PHI != Str->phinode_x &&
@@ -170,12 +174,21 @@ bool Stencil::populateArrayAccess (Value *Val, Neighbor *Str, ArrayAccess *acc){
                         }
                         else{
                             BasicBlock *BB = PHI->getIncomingBlock(i);
-                            if(isa<BranchInst>(BB->getTerminator())){
+                            while(isa<BranchInst>(BB->getTerminator())){
                                 BranchInst *Br = dyn_cast<BranchInst>(BB->getTerminator());
                                 if(Br->isConditional()){
-                                    errs()<<"Branch: "<<*Br->getCondition()<<"\n";
+                                    errs()<<"Conditional Branch: "<<*Br->getCondition()<<"\n";
                                     populateArrayAccess(Br->getCondition(),Str, acc);
+                                    break;
                                 }
+                                else{
+									errs()<<"Unconditional Branch: "<<*Br<<"\n";
+									//TODO generalize how to proceed from here
+									//Get previous block
+									BB = BB->getSinglePredecessor();
+									if(!BB) //nullptr
+										break;
+								}
                             }
                             
                             //populateArrayAccess(BB->getTerminator(),Str, acc);
@@ -424,6 +437,7 @@ bool Stencil::parse2DSCEV(const SCEV *S, Neighbor &N){
     PHINode *Outer, *Inner;
     //Reduce loop
     if(N.SCEVLoops.size() == 2 * N.dimension){
+		errs()<<"Reduce Neighbor\n";
 		N.reduce = true;
 		Outer = getPHINode(N.SCEVLoops[3]);
 		Inner = getPHINode(N.SCEVLoops[2]);
@@ -1483,10 +1497,11 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
 						UE = N.InstAccess->user_end(); UI != UE; ++UI) {
 					//User *U = *UI;
 					Instruction *Ins = dyn_cast<Instruction>(*UI);
-					errs()<<*Ins<<"\n";
-					if(!isa<BinaryOperator>(Ins))
+					errs()<<"Reduce Operator: "<<*Ins<<"\n";
+					if(!isa<BinaryOperator>(Ins)){
+						errs()<<"ERROR! Reduce Neighbor has no binary operator: "<<*Ins<<"\n";
 						return false;
-					
+					}
 				}
 			}
 			neighborhood = true;
