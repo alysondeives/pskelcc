@@ -58,8 +58,9 @@ static
 void gol(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B)
 {
 	int t, i, j;
-	DATA_TYPE neighbors = 1;
-  
+	DATA_TYPE neighbors = 0;
+
+    #pragma scop  
 	for (t = 0; t < _PB_TSTEPS; t++) {
 		for (i = 1; i < _PB_N-1; i++){
 			for (j = 1; j < _PB_N-1; j++){
@@ -77,6 +78,7 @@ void gol(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B)
 			for (j = 1; j < _PB_N-1; j++)
 				A[i*_PB_N + j] = B[i*_PB_N + j];
 	}
+    #pragma endscop
 	
 }
 

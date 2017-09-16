@@ -281,7 +281,7 @@ entry:
   store i32 %n, i32* %n.addr, align 4
   store i32* %A, i32** %A.addr, align 8
   store i32* %B, i32** %B.addr, align 8
-  store i32 1, i32* %neighbors, align 4
+  store i32 0, i32* %neighbors, align 4
   store i32 0, i32* %t, align 4
   br label %for.cond
 
@@ -521,4 +521,4 @@ attributes #3 = { nounwind }
 
 !llvm.ident = !{!0}
 
-!0 = !{!"clang version 3.7.1 (https://github.com/llvm-mirror/clang.git 0dbefa1b83eb90f7a06b5df5df254ce32be3db4b) (https://github.com/llvm-mirror/llvm.git 33c352b3eda89abc24e7511d9045fa2e499a42e3)"}
+!0 = !{!"clang version 3.7.1 (http://llvm.org/git/clang.git 0dbefa1b83eb90f7a06b5df5df254ce32be3db4b) (http://llvm.org/git/llvm.git 33c352b3eda89abc24e7511d9045fa2e499a42e3)"}

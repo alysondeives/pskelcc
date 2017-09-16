@@ -73,7 +73,7 @@ void jacobi2d(int tsteps,
 	DATA_TYPE c1;
   
 	c1 = +0.2;
-	for (t = 0; t < _PB_TSTEPS; t++)
+	for (t = 10; t < _PB_TSTEPS; t++)
 	{
 		for (i = 1; i < _PB_N-1; i++)
 			for (j = 1; j < _PB_N-1; j++)

@@ -186,7 +186,7 @@ entry:
 
 for.cond:                                         ; preds = %for.inc.61, %entry
   %t.0 = phi i32 [ 0, %entry ], [ %inc62, %for.inc.61 ]
-  %neighbors.0 = phi i32 [ 1, %entry ], [ %neighbors.1, %for.inc.61 ]
+  %neighbors.0 = phi i32 [ 0, %entry ], [ %neighbors.1, %for.inc.61 ]
   %cmp = icmp slt i32 %t.0, %tsteps
   br i1 %cmp, label %for.body, label %for.end.63
 
@@ -372,4 +372,4 @@ attributes #3 = { nounwind }
 
 !llvm.ident = !{!0}
 
-!0 = !{!"clang version 3.7.1 (https://github.com/llvm-mirror/clang.git 0dbefa1b83eb90f7a06b5df5df254ce32be3db4b) (https://github.com/llvm-mirror/llvm.git 33c352b3eda89abc24e7511d9045fa2e499a42e3)"}
+!0 = !{!"clang version 3.7.1 (http://llvm.org/git/clang.git 0dbefa1b83eb90f7a06b5df5df254ce32be3db4b) (http://llvm.org/git/llvm.git 33c352b3eda89abc24e7511d9045fa2e499a42e3)"}
