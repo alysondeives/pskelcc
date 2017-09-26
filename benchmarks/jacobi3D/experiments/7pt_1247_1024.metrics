@@ -1,0 +1,6 @@
+==3287== NVPROF is profiling process 3287, command: ../bin/jacobi3d7pt 1247 1024 1024 1024 10
+==3287== Profiling application: ../bin/jacobi3d7pt 1247 1024 1024 1024 10
+==3287== Profiling result:
+No events/metrics were profiled.
+==3287== Warning: Some profiling data are not recorded. Make sure cudaProfilerStop() or cuProfilerStop() is called before application exit to flush profile data.
+======== Error: Application received signal 139

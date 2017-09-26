@@ -1,0 +1,6 @@
+==3794== NVPROF is profiling process 3794, command: ../bin/jacobi3d31pt 27 1024 1024 1024 10
+==3794== Profiling application: ../bin/jacobi3d31pt 27 1024 1024 1024 10
+==3794== Profiling result:
+No events/metrics were profiled.
+==3794== Warning: Some profiling data are not recorded. Make sure cudaProfilerStop() or cuProfilerStop() is called before application exit to flush profile data.
+======== Error: Application received signal 139

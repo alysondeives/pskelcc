@@ -1,0 +1,38 @@
+==2857== NVPROF is profiling process 2857, command: ../bin/jacobi3d25pt 27 512 512 512 10
+==2857== Profiling application: ../bin/jacobi3d25pt 27 512 512 512 10
+Optimization level: o2_o7
+Correct results!
+GPU Clock: 745 MHz
+DIM = 512x512x512; T_END = 10; BLOCK_WIDTH = 32x16x1
+init=575.439819, host_comp=31634.917969, host2gpu=69.509087, gpu_comp=227.169479, gpu2host=54.943394, tot=32561.980469 
+Stencil Throughput: 5.908264 Gpts/s
+gFlops = 289.504944 GFLOPs
+
+==2857== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 64.67%  227.13ms        10  22.713ms  22.376ms  23.103ms  calc_stencil_o2_o7(float const *, float*, int, int, int)
+ 18.03%  63.323ms         2  31.662ms  1.3120us  63.322ms  [CUDA memcpy HtoD]
+ 15.61%  54.813ms         1  54.813ms  54.813ms  54.813ms  [CUDA memcpy DtoH]
+  1.69%  5.9250ms         1  5.9250ms  5.9250ms  5.9250ms  [CUDA memcpy DtoD]
+
+==2857== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 47.75%  324.77ms         6  54.128ms     683ns  324.76ms  cudaEventCreate
+ 34.26%  232.99ms         1  232.99ms  232.99ms  232.99ms  cudaDeviceSynchronize
+ 17.41%  118.42ms         3  39.474ms  64.358us  63.426ms  cudaMemcpy
+  0.25%  1.6986ms         3  566.19us  143.31us  818.23us  cudaMalloc
+  0.13%  854.78us         2  427.39us  365.86us  488.92us  cudaFree
+  0.06%  390.83us         1  390.83us  390.83us  390.83us  cuDeviceTotalMem
+  0.05%  372.35us        91  4.0910us     328ns  130.91us  cuDeviceGetAttribute
+  0.04%  305.18us         1  305.18us  305.18us  305.18us  cudaGetDeviceProperties
+  0.01%  82.475us        10  8.2470us  4.9530us  21.744us  cudaLaunch
+  0.01%  79.970us         6  13.328us  2.6620us  44.122us  cudaEventRecord
+  0.01%  58.835us         1  58.835us  58.835us  58.835us  cudaMemcpyToSymbol
+  0.00%  31.012us         1  31.012us  31.012us  31.012us  cuDeviceGetName
+  0.00%  16.572us         6  2.7620us  2.0160us  6.1610us  cudaEventElapsedTime
+  0.00%  12.138us         1  12.138us  12.138us  12.138us  cudaEventSynchronize
+  0.00%  9.3800us        50     187ns     128ns  1.1640us  cudaSetupArgument
+  0.00%  3.9060us        10     390ns     145ns  2.4940us  cudaConfigureCall
+  0.00%  3.5410us         3  1.1800us     397ns  2.2920us  cuDeviceGetCount
+  0.00%  2.1440us         3     714ns     417ns     985ns  cuDeviceGet
+  0.00%  2.1400us        10     214ns     190ns     354ns  cudaGetLastError

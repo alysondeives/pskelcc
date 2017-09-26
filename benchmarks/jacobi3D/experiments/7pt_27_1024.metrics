@@ -1,0 +1,6 @@
+==3209== NVPROF is profiling process 3209, command: ../bin/jacobi3d7pt 27 1024 1024 1024 10
+==3209== Profiling application: ../bin/jacobi3d7pt 27 1024 1024 1024 10
+==3209== Profiling result:
+No events/metrics were profiled.
+==3209== Warning: Some profiling data are not recorded. Make sure cudaProfilerStop() or cuProfilerStop() is called before application exit to flush profile data.
+======== Error: Application received signal 139

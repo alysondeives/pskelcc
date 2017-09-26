@@ -1,0 +1,9 @@
+==3838== NVPROF is profiling process 3838, command: ../bin/jacobi3d31pt 1247 1024 1024 1024 10
+==3838== Profiling application: ../bin/jacobi3d31pt 1247 1024 1024 1024 10
+==3838== Profiling result:
+No kernels were profiled.
+
+==3838== API calls:
+No API activities were profiled.
+==3838== Warning: Some profiling data are not recorded. Make sure cudaProfilerStop() or cuProfilerStop() is called before application exit to flush profile data.
+======== Error: Application received signal 139
