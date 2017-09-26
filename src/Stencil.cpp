@@ -1459,6 +1459,7 @@ bool Stencil::verifyStore(Loop *loop, StencilInfo *Stencil){
                 return false;
 			}
         }
+        errs()<<"-----------------------------------------------------------\n";
 
         for(auto N : Stencil->neighbors){
 			/* Match access */
