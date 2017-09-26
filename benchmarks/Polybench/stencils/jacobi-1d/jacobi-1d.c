@@ -73,7 +73,7 @@ void kernel_jacobi_1d(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B)
 		for (i = 1; i < _PB_N - 1; i++)
 			B[i] = c1 * (A[i-1] + A[i] + A[i + 1]);
 			
-		for (j = 1; j < _PB_N - 1; j++)
+		for (j = 0; j < _PB_N - 1; j++)
 			A[j] = B[j];
 	}
 }

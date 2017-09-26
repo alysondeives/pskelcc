@@ -31,14 +31,14 @@
 #define GPU_DEVICE 1
 
 /* Problem size */
-//#define NI 512
-//#define NJ 512
-//#define NK 512
+//#define W 512
+//#define H 512
+//#define D 512
 
 /* Can switch DATA_TYPE between float and double */
 //typedef float DATA_TYPE;
 
-void conv3d(int ni, int nj, int nk, DATA_TYPE* A, DATA_TYPE* B)
+void conv3d(int x, int y, int z, DATA_TYPE* A, DATA_TYPE* B)
 {
   int i, j, k;
   DATA_TYPE c11, c12, c13, c21, c22, c23, c31, c32, c33;
@@ -47,56 +47,38 @@ void conv3d(int ni, int nj, int nk, DATA_TYPE* A, DATA_TYPE* B)
   c12 = -3;  c22 = +6;  c32 = -9;
   c13 = +4;  c23 = +7;  c33 = +10;
 
-  for (j = 1; j < _PB_NJ - 1; ++j){
-    for (i = 1; i < _PB_NI - 1; ++i){
-	  for (k = 1; k < _PB_NK -1; ++k){
-        B[i*(_PB_NK * _PB_NJ) + j*_PB_NK + k] = c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k  )]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k  )]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k  )]  + //check
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  + //check
+  for (j = 1; j < _PB_Y - 1; ++j){
+    for (i = 1; i < _PB_X - 1; ++i){
+	  for (k = 1; k < _PB_Z -1; ++k){
+        B[i*(_PB_Z * _PB_Y) + j*_PB_Z + k] = c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k-1)]  +
+                                             c13 * A[(i  )*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k-1)]  +
+                                             c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k-1)]  +
+                                             c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k  )]  +
+                                             c13 * A[(i  )*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k  )]  +
+                                             c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k  )]  + //check
+                                             c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k+1)]  +
+                                             c13 * A[(i  )*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k+1)]  +
+                                             c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j-1)*_PB_Z + (k+1)]  + //check
 
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k-1)]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k-1)]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k-1)]  +
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k  )]  + //excep
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k  )]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k  )]  +
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k+1)]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k+1)]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j  )*_PB_NK + (k+1)]  +
+                                                c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k-1)]  +
+                                                c13 * A[(i  )*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k-1)]  +
+                                                c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k-1)]  +
+                                                c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k  )]  + //excep
+                                                c13 * A[(i  )*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k  )]  +
+                                                c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k  )]  +
+                                                c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k+1)]  +
+                                                c13 * A[(i  )*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k+1)]  +
+                                                c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j  )*_PB_Z + (k+1)]  +
                     
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k  )]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k  )]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k  )]  +
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]  +
-                                                c13 * A[(i  )*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]  +
-                                                c21 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)];
-
-        /*B[i*(_PB_NK * _PB_NJ) + j*_PB_NK + k] = c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c13 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k-1)]  +
-                                                c21 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c23 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c31 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c33 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k-1)]  +
-                                                c12 * A[(i+0)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+0)]  +
-                                                c22 * A[(i+0)*(_PB_NK * _PB_NJ) + (j+0)*_PB_NK + (k+0)]  +
-                                                c32 * A[(i+0)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+0)]  +
-                                                c11 * A[(i-1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  +
-                                                c13 * A[(i+1)*(_PB_NK * _PB_NJ) + (j-1)*_PB_NK + (k+1)]  +
-                                                c21 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+0)*_PB_NK + (k+1)]  +
-                                                c23 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+0)*_PB_NK + (k+1)]  +
-                                                c31 * A[(i-1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)]  +
-                                                c33 * A[(i+1)*(_PB_NK * _PB_NJ) + (j+1)*_PB_NK + (k+1)];
-	    
-	    */
+                                                c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k-1)]  +
+                                                c13 * A[(i  )*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k-1)]  +
+                                                c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k-1)]  +
+                                                c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k  )]  +
+                                                c13 * A[(i  )*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k  )]  +
+                                                c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k  )]  +
+                                                c11 * A[(i-1)*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k+1)]  +
+                                                c13 * A[(i  )*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k+1)]  +
+                                                c21 * A[(i+1)*(_PB_Z * _PB_Y) + (j+1)*_PB_Z + (k+1)];
         }
 	}
     }
@@ -106,13 +88,13 @@ void init(DATA_TYPE* A)
 {
   int i, j, k;
   
-  for (i = 0; i < NI; ++i)
+  for (i = 0; i < X; ++i)
     {
-      for (j = 0; j < NJ; ++j)
+      for (j = 0; j < Y; ++j)
 	{
-	  for (k = 0; k < NK; ++k)
+	  for (k = 0; k < Z; ++k)
 	    {
-	      A[i*(NK * NJ) + j*NK + k] = i % 12 + 2 * (j % 7) + 3 * (k % 13);
+	      A[i*(Z * Y) + j*Z + k] = i % 12 + 2 * (j % 7) + 3 * (k % 13);
 	    }
 	}
     }
@@ -124,13 +106,13 @@ void compareResults(DATA_TYPE* B, DATA_TYPE* B_GPU)
   fail = 0;
   
   // Compare result from cpu and gpu...
-  for (i = 1; i < NI - 1; ++i)
+  for (i = 1; i < X - 1; ++i)
     {
-      for (j = 1; j < NJ - 1; ++j)
+      for (j = 1; j < Y - 1; ++j)
 	{
-	  for (k = 1; k < NK - 1; ++k)
+	  for (k = 1; k < Z - 1; ++k)
 	    {
-	      if (percentDiff(B[i*(NK * NJ) + j*NK + k], B_GPU[i*(NK * NJ) + j*NK + k]) > ERROR_THRESHOLD)
+	      if (percentDiff(B[i*(Z * Y) + j*Z + k], B_GPU[i*(Z * Y) + j*Z + k]) > ERROR_THRESHOLD)
 		{
 		  fail++;
 		}
@@ -145,9 +127,9 @@ void compareResults(DATA_TYPE* B, DATA_TYPE* B_GPU)
 int main(int argc, char *argv[])
 {
   /* Retrieve problem size. */
-  int ni = NI;
-  int nj = NJ;
-  int nk = NK;
+  int x = X;
+  int y = Y;
+  int z = Z;
   
   double t_start, t_end;
 
@@ -155,15 +137,15 @@ int main(int argc, char *argv[])
   DATA_TYPE* A;
   DATA_TYPE* B;
 
-  A = (DATA_TYPE*)malloc(NI*NJ*NK*sizeof(DATA_TYPE));
-  B = (DATA_TYPE*)malloc(NI*NJ*NK*sizeof(DATA_TYPE));
+  A = (DATA_TYPE*)malloc(X*Y*Z*sizeof(DATA_TYPE));
+  B = (DATA_TYPE*)malloc(X*Y*Z*sizeof(DATA_TYPE));
 	
   fprintf(stdout, ">> Three dimensional (3D) convolution <<\n");
 
   init(A);
 
   t_start = rtclock();
-  conv3d(ni, nj, nk, A, B);
+  conv3d(x, y, z, A, B);
   t_end = rtclock();
   fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 	

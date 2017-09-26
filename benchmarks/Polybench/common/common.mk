@@ -7,7 +7,7 @@ PRA = ${DAWNCC}/PtrRangeAnalysis/libLLVMPtrRangeAnalysis.so
 STENCIL = "${PSKELCC}/build/src/libMyPass.so"
 BIN="${PSKELCC}/benchmarks/Polybench/stencils/bin"
 DATASET=STANDARD_DATASET
-all: pskelcc ir cuda
+all: pskelcc ir pass
 
 # Build PSkelCC
 pskelcc: ${PSKELCC}/src/Stencil.cpp 
@@ -16,7 +16,7 @@ pskelcc: ${PSKELCC}/src/Stencil.cpp
 # Compile source to llvm ir
 ir: $(SRC)
 	clang -S -emit-llvm -c $(SRC) -o ${OBJS}-base.ll
-	opt -S -mem2reg -instnamer ${OBJS}-base.ll -o ${OBJS}.ll
+	opt -S -mem2reg -instnamer -loop-simplify ${OBJS}-base.ll -o ${OBJS}.ll
 
 # Run stencil pass
 pass: ${OBJS}.ll
