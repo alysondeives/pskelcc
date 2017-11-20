@@ -67,10 +67,7 @@ DATA_TYPE *G;
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
 static
-void jacobi2d(int tsteps,
-			    int n,
-			    DATA_TYPE *A,
-			    DATA_TYPE *B)
+void jacobi2d(int tsteps, int n, DATA_TYPE *A, DATA_TYPE *B)
 {
 	int t, i, j;
 	DATA_TYPE c1;
@@ -81,23 +78,11 @@ void jacobi2d(int tsteps,
 		for (i = 1; i < _PB_N-1; i++)
 			for (j = 1; j < _PB_N-1; j++)
                 B[i*_PB_N + j] = c1 * (A[(i)*_PB_N + j] + A[(i)*_PB_N + (j-1)] 
-				                     + A[(i)*_PB_N + (j+1)] + A[(i+1)*_PB_N + j] + A[(i-1)*_PB_N + j]);
+				     + A[(i)*_PB_N + (j+1)] + A[(i+1)*_PB_N + j] + A[(i-1)*_PB_N + j]);
 	  
 		for (i = 1; i < _PB_N-1; i++)
 			for (j = 1; j < _PB_N-1; j++)
 				A[i*_PB_N + j] = B[i*_PB_N + j];
-	}
-	
-	for (t = 0; t < _PB_TSTEPS; t++)
-	{
-		for (i = 1; i < _PB_N-1; i++)
-			for (j = 1; j < _PB_N-1; j++)
-                G[i*_PB_N + j] = c1 * (D[(i)*_PB_N + j] + D[(i)*_PB_N + (j-1)] 
-				                     + D[(i)*_PB_N + (j+1)] + D[(i+1)*_PB_N + j] + D[(i-1)*_PB_N + j]);
-	  
-		for (i = 1; i < _PB_N-1; i++)
-			for (j = 1; j < _PB_N-1; j++)
-				D[i*_PB_N + j] = G[i*_PB_N + j];
 	}
 }
 
